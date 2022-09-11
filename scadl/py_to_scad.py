@@ -12,10 +12,8 @@ def transpile(intermediate) -> LineGen:
 
 
 @transpile.register
-def _(intermediate: dm.Tuple3D) -> LineGen:
-    yield str(intermediate.x)
-    yield str(intermediate.y)
-    yield str(intermediate.z)
+def _(intermediate: tuple) -> LineGen:
+    yield from map(str, intermediate)
 
 
 @transpile.register

@@ -14,4 +14,4 @@ def write(assets: list[dict | Asset]):
         if not isinstance(a, Asset):
             a = Asset(**a)
         with open(f'{a.name}.scad', mode='w') as f:
-            f.writelines(transpile(a.model))
+            f.writelines('\n'.join(transpile(a.model)) + '\n')

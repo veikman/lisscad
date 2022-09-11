@@ -1,10 +1,10 @@
 """Metadata model, for data that is not OpenSCAD."""
 
+from lisscad.data.inter import LiteralShape
 from pydantic.dataclasses import dataclass
-from lisscad.data.inter import Cube
 
 
 @dataclass(frozen=True)
 class Asset:
-    model: Cube  # Placeholder.
+    model: LiteralShape
     name: str = 'untitled'

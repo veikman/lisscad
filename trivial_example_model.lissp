@@ -2,10 +2,14 @@
 
 .#"from lisscad.shorthand import *"
 
-(define model
-  (-> (cube '(1 2 4))))
+(define model0 (cube '(1 2 4)))
+
+(define model1
+  (->> (cube '(1 2 4))
+    (translate '(0 0 8))))
 
 (define assets
-  (@ (dict : name "model" model model)))
+  (@ (dict : name "model0" model model0)
+     (dict : name "model1" model model1)))
 
 (lisscad.app..write assets)

@@ -20,3 +20,12 @@ def _(intermediate: tuple) -> LineGen:
 def _(intermediate: dm.Cube) -> LineGen:
     size = ', '.join(transpile(intermediate.size))
     yield f'cube(size=[{size}], center={intermediate.center});'
+
+
+@transpile.register
+def _(intermediate: dm.Translation3D) -> LineGen:
+    coord = ', '.join(transpile(intermediate.coord))
+    yield f'translate([{coord}]) {{'
+    for line in transpile(intermediate.child):
+        yield f'    {line}'
+    yield '};'

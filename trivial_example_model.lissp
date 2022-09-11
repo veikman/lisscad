@@ -1,7 +1,9 @@
 (hissp.macros.._macro_.prelude)
 
+.#"from scadl.shorthand import *"
+
 (define model
-  (-> (scadl.shorthand..cube '(1 2 4))))
+  (-> (cube '(1 2 4))))
 
 (define assets
   (@ (dict : name "model" model model)))

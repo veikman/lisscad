@@ -1,0 +1,9 @@
+(hissp.macros.._macro_.prelude)
+
+(define model
+  (-> (scadl.data.inter..Cube '(1 2 4))))
+
+(define assets
+  (@ (dict : name "model" model model)))
+
+(scadl.app..write assets)

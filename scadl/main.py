@@ -36,13 +36,11 @@ def to_python(source: Path = Argument(...,
                                       exists=True,
                                       readable=True,
                                       help='Directory or file to read')):
-    """Transpile Lissp code to Python code once.
+    """Transpile Lissp code to Python code once, for debugging.
 
     This will clobber Python artifacts even if they are newer than their
-    Lissp sources. Doesn’t matter; the Python artifacts are ephemeral.
-
-    Code is executed by the Hissp compiler, as a side effect. This is expected
-    to produce OpenSCAD code.
+    Lissp sources. If you don’t want the intermediate Python code, run the
+    lissp interpreter on the file(s) instead.
 
     """
     list(_files_to_python(source))

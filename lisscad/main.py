@@ -1,4 +1,4 @@
-"""Logic for the use of scadl itself as a CLI application."""
+"""Logic for the use of lisscad itself as a CLI application."""
 
 from pathlib import Path
 from sys import stderr

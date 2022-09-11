@@ -1,7 +1,7 @@
 from functools import singledispatch
 from typing import Generator
 
-from scadl.data import inter as dm
+from lisscad.data import inter as dm
 
 LineGen = Generator[str, None, None]
 

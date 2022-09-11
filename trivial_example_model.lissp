@@ -1,6 +1,6 @@
 (hissp.macros.._macro_.prelude)
 
-.#"from scadl.shorthand import *"
+.#"from lisscad.shorthand import *"
 
 (define model
   (-> (cube '(1 2 4))))
@@ -8,4 +8,4 @@
 (define assets
   (@ (dict : name "model" model model)))
 
-(scadl.app..write assets)
+(lisscad.app..write assets)

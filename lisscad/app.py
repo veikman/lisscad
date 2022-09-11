@@ -4,8 +4,8 @@ This module is intended to be imported from a Lissp script.
 
 """
 
-from scadl.data.other import Asset
-from scadl.py_to_scad import transpile
+from lisscad.data.other import Asset
+from lisscad.py_to_scad import transpile
 
 
 def write(assets: list[dict | Asset]):

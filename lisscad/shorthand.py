@@ -4,7 +4,7 @@ This interface is patterned after scad-clj.
 
 """
 
-from scadl.data import inter
+from lisscad.data import inter
 
 
 def cube(size: tuple[float, float, float], center: bool = True):

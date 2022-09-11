@@ -1,7 +1,7 @@
 """Metadata model, for data that is not OpenSCAD."""
 
 from pydantic.dataclasses import dataclass
-from scadl.data.inter import Cube
+from lisscad.data.inter import Cube
 
 
 @dataclass(frozen=True)

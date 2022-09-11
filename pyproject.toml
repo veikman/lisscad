@@ -8,3 +8,12 @@ extend-ignore = 'D102,D103,D105,D107,E203'
 [tool.mypy]
 plugins = ['pydantic.mypy']
 show_error_codes = true
+
+
+[[tool.mypy.overrides]]
+# The following should be checked periodically in case they appear on typeshed.
+module = [
+  'hissp.reader',
+  'inotify_simple',
+]
+ignore_missing_imports = true

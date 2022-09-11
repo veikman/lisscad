@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.flake8]
+extend-ignore = 'D102,D103,D105,D107,E203'
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
+show_error_codes = true

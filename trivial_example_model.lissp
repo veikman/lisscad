@@ -8,8 +8,14 @@
   (->> (cube '(1 2 4))
     (translate '(0 0 8))))
 
+(define model2
+  (->> (square '(1 2))
+    (translate '(0 4))
+    (union)))
+
 (define assets
   (@ (dict : name "model0" model model0)
-     (dict : name "model1" model model1)))
+     (dict : name "model1" model model1)
+     (dict : name "model2" model model2)))
 
 (lisscad.app..write assets)

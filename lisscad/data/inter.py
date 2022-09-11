@@ -16,23 +16,35 @@ Tuple2D = tuple[float, float]
 Tuple3D = tuple[float, float, float]
 
 
-class Boolean:
+class Base2D:
     pass
 
 
-class Transformation2D:
+class Base3D:
     pass
 
 
-class Transformation3D:
+class BaseBoolean2D(Base2D):
     pass
 
 
-class Shape2D:
+class BaseBoolean3D(Base3D):
     pass
 
 
-class Shape3D:
+class BaseTransformation2D(Base2D):
+    pass
+
+
+class BaseTransformation3D(Base3D):
+    pass
+
+
+class BaseShape2D(Base2D):
+    pass
+
+
+class BaseShape3D(Base3D):
     pass
 
 
@@ -42,13 +54,37 @@ def update_forward_refs(*model):
         m.__pydantic_model__.update_forward_refs()
 
 
+###############
+# 2D BOOLEANS #
+###############
+
+
+@dataclass(frozen=True)
+class Union2D(BaseBoolean2D):
+    children: tuple[LiteralExpression2D, ...]
+
+
+LiteralBoolean2D = Union2D
+
+###############
+# 3D BOOLEANS #
+###############
+
+
+@dataclass(frozen=True)
+class Union3D(BaseBoolean3D):
+    children: tuple[LiteralExpression3D, ...]
+
+
+LiteralBoolean3D = Union3D
+
 #############
 # 2D SHAPES #
 #############
 
 
 @dataclass(frozen=True)
-class Square(Shape2D):
+class Square(BaseShape2D):
     size: Tuple2D
     center: bool
 
@@ -61,7 +97,7 @@ LiteralShape2D = Square
 
 
 @dataclass(frozen=True)
-class Cube(Shape3D):
+class Cube(BaseShape3D):
     size: Tuple3D
     center: bool
 
@@ -74,9 +110,9 @@ LiteralShape3D = Cube
 
 
 @dataclass(frozen=True)
-class Translation2D(Transformation2D):
+class Translation2D(BaseTransformation2D):
     coord: Tuple2D
-    child: Expression
+    child: LiteralExpression2D
 
 
 LiteralTransformation2D = Translation2D
@@ -87,9 +123,9 @@ LiteralTransformation2D = Translation2D
 
 
 @dataclass(frozen=True)
-class Translation3D(Transformation3D):
+class Translation3D(BaseTransformation3D):
     coord: Tuple3D
-    child: Expression
+    child: LiteralExpression3D
 
 
 LiteralTransformation3D = Translation3D
@@ -98,7 +134,10 @@ LiteralTransformation3D = Translation3D
 # ROSTER #
 ##########
 
-Expression = (LiteralShape2D | LiteralShape3D | LiteralTransformation2D
-              | LiteralTransformation3D)
+LiteralExpression2D = (LiteralBoolean2D | LiteralShape2D
+                       | LiteralTransformation2D)
+LiteralExpression3D = (LiteralBoolean3D | LiteralShape3D
+                       | LiteralTransformation3D)
+LiteralExpression = (LiteralExpression2D | LiteralExpression3D)
 
-update_forward_refs(Translation2D, Translation3D)
+update_forward_refs(Union2D, Union3D, Translation2D, Translation3D)

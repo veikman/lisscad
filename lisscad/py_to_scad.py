@@ -38,13 +38,13 @@ def _(intermediate: dm.Union3D) -> LineGen:
 @transpile.register
 def _(intermediate: dm.Square) -> LineGen:
     size = ', '.join(transpile(intermediate.size))
-    yield f'square(size=[{size}], center={intermediate.center});'
+    yield f'square(size=[{size}], center={str(intermediate.center).lower()});'
 
 
 @transpile.register
 def _(intermediate: dm.Cube) -> LineGen:
     size = ', '.join(transpile(intermediate.size))
-    yield f'cube(size=[{size}], center={intermediate.center});'
+    yield f'cube(size=[{size}], center={str(intermediate.center).lower()});'
 
 
 @transpile.register

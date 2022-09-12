@@ -6,30 +6,58 @@ This interface is patterned after scad-clj.
 
 from typing import cast
 
-from lisscad.data import inter
+from lisscad.data.inter import (Base2D, Circle, Cube, Difference2D,
+                                Difference3D, Intersection2D, Intersection3D,
+                                LiteralExpression, LiteralExpression2D,
+                                LiteralExpression3D, Rotation2D, Rotation3D,
+                                Sphere, Square, Translation2D, Translation3D,
+                                Tuple2D, Tuple3D, Union2D, Union3D)
 
 
-def union(*children: inter.LiteralExpression) -> inter.Union2D | inter.Union3D:
-    if all(isinstance(c, inter.Base2D) for c in children):
-        return inter.Union2D(cast(tuple[inter.LiteralExpression2D], children))
-    if all(isinstance(c, inter.Base3D) for c in children):
-        return inter.Union3D(cast(tuple[inter.LiteralExpression3D], children))
-    # TODO: Probably move validation into Pydantic model.
-    raise TypeError('Mixed dimensionalities in union.')
+def union(*children: LiteralExpression) -> Union2D | Union3D:
+    if all(isinstance(c, Base2D) for c in children):
+        return Union2D(cast(tuple[LiteralExpression2D, ...], children))
+    return Union3D(cast(tuple[LiteralExpression3D, ...], children))
 
 
-def square(size: inter.Tuple2D, center: bool = True) -> inter.Square:
-    return inter.Square(size, center)
+def difference(*children: LiteralExpression) -> Difference2D | Difference3D:
+    if all(isinstance(c, Base2D) for c in children):
+        return Difference2D(cast(tuple[LiteralExpression2D, ...], children))
+    return Difference3D(cast(tuple[LiteralExpression3D, ...], children))
 
 
-def cube(size: inter.Tuple3D, center: bool = True) -> inter.Cube:
-    return inter.Cube(size, center)
+def intersection(
+        *children: LiteralExpression) -> Intersection2D | Intersection3D:
+    if all(isinstance(c, Base2D) for c in children):
+        return Intersection2D(cast(tuple[LiteralExpression2D, ...], children))
+    return Intersection3D(cast(tuple[LiteralExpression3D, ...], children))
 
 
-def translate(coord: inter.Tuple2D | inter.Tuple3D,
-              child: inter.LiteralExpression):
+def circle(radius: float) -> Circle:
+    return Circle(radius)
+
+
+def square(size: Tuple2D, center: bool = True) -> Square:
+    return Square(size, center)
+
+
+def sphere(radius: float) -> Sphere:
+    return Sphere(radius)
+
+
+def cube(size: Tuple3D, center: bool = True) -> Cube:
+    return Cube(size, center)
+
+
+def translate(coord: Tuple2D | Tuple3D, child: LiteralExpression):
     if len(coord) == 2:
-        return inter.Translation2D(cast(inter.Tuple2D, coord),
-                                   cast(inter.LiteralExpression2D, child))
-    return inter.Translation3D(cast(inter.Tuple3D, coord),
-                               cast(inter.LiteralExpression3D, child))
+        return Translation2D(cast(Tuple2D, coord),
+                             cast(LiteralExpression2D, child))
+    return Translation3D(cast(Tuple3D, coord), cast(LiteralExpression3D,
+                                                    child))
+
+
+def rotate(coord: float | Tuple3D, child: LiteralExpression):
+    if isinstance(coord, float):
+        return Rotation2D(coord, cast(LiteralExpression2D, child))
+    return Rotation3D(coord, cast(LiteralExpression3D, child))

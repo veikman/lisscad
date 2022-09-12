@@ -36,9 +36,39 @@ def _(intermediate: dm.Union3D) -> LineGen:
 
 
 @transpile.register
+def _(intermediate: dm.Difference2D) -> LineGen:
+    yield from _difference(*intermediate.children)
+
+
+@transpile.register
+def _(intermediate: dm.Difference3D) -> LineGen:
+    yield from _difference(*intermediate.children)
+
+
+@transpile.register
+def _(intermediate: dm.Intersection2D) -> LineGen:
+    yield from _intersection(*intermediate.children)
+
+
+@transpile.register
+def _(intermediate: dm.Intersection3D) -> LineGen:
+    yield from _intersection(*intermediate.children)
+
+
+@transpile.register
+def _(intermediate: dm.Circle) -> LineGen:
+    yield f'circle(r={intermediate.radius});'
+
+
+@transpile.register
 def _(intermediate: dm.Square) -> LineGen:
     size = ', '.join(transpile(intermediate.size))
     yield f'square(size=[{size}], center={str(intermediate.center).lower()});'
+
+
+@transpile.register
+def _(intermediate: dm.Sphere) -> LineGen:
+    yield f'circle(r={intermediate.radius});'
 
 
 @transpile.register
@@ -59,6 +89,17 @@ def _(intermediate: dm.Translation3D) -> LineGen:
     yield from _translate(f'[{coord}]', intermediate.child)
 
 
+@transpile.register
+def _(intermediate: dm.Rotation2D) -> LineGen:
+    yield from _rotate(f'a={intermediate.angle}', intermediate.child)
+
+
+@transpile.register
+def _(intermediate: dm.Rotation3D) -> LineGen:
+    coord = ', '.join(transpile(intermediate.angle))
+    yield from _translate(f'a=[{coord}]', intermediate.child)
+
+
 ############
 # BACK END #
 ############
@@ -73,4 +114,7 @@ def _contain(keyword: str, head: str, *body: dm.LiteralExpression) -> LineGen:
 
 
 _union = partial(_contain, 'union', '')
+_difference = partial(_contain, 'difference', '')
+_intersection = partial(_contain, 'intersection', '')
 _translate = partial(_contain, 'translate')
+_rotate = partial(_contain, 'rotate')

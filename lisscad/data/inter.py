@@ -26,12 +26,14 @@ class Base3D:
     pass
 
 
+@dataclass(frozen=True)
 class BaseBoolean2D(Base2D):
-    pass
+    children: tuple[LiteralExpression2D, ...]
 
 
+@dataclass(frozen=True)
 class BaseBoolean3D(Base3D):
-    pass
+    children: tuple[LiteralExpression3D, ...]
 
 
 class BaseTransformation2D(Base2D):
@@ -64,17 +66,17 @@ def update_forward_refs(*model):
 @dataclass(frozen=True)
 class Union2D(BaseBoolean2D):
     # An OpenSCAD union. No relation to typing.Union.
-    children: tuple[LiteralExpression2D, ...]
+    pass
 
 
 @dataclass(frozen=True)
 class Difference2D(BaseBoolean2D):
-    children: tuple[LiteralExpression2D, ...]
+    pass
 
 
 @dataclass(frozen=True)
 class Intersection2D(BaseBoolean2D):
-    children: tuple[LiteralExpression2D, ...]
+    pass
 
 
 LiteralBoolean2D = Union2D | Difference2D | Intersection2D
@@ -86,17 +88,17 @@ LiteralBoolean2D = Union2D | Difference2D | Intersection2D
 
 @dataclass(frozen=True)
 class Union3D(BaseBoolean3D):
-    children: tuple[LiteralExpression3D, ...]
+    pass
 
 
 @dataclass(frozen=True)
 class Difference3D(BaseBoolean3D):
-    children: tuple[LiteralExpression3D, ...]
+    pass
 
 
 @dataclass(frozen=True)
 class Intersection3D(BaseBoolean3D):
-    children: tuple[LiteralExpression3D, ...]
+    pass
 
 
 LiteralBoolean3D = Union3D | Difference3D | Intersection3D

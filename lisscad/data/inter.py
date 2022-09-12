@@ -53,7 +53,7 @@ class BaseShape3D(Base3D):
 
 
 def update_forward_refs(*model):
-    """Update forward references on a Pydantic class."""
+    """Update forward references on Pydantic classes."""
     for m in model:
         m.__pydantic_model__.update_forward_refs()
 
@@ -147,13 +147,13 @@ LiteralShape3D = Sphere | Cube
 @dataclass(frozen=True)
 class Translation2D(BaseTransformation2D):
     coord: Tuple2D
-    child: LiteralExpression2D
+    children: tuple[LiteralExpression2D, ...]
 
 
 @dataclass(frozen=True)
 class Rotation2D(BaseTransformation2D):
     angle: float
-    child: LiteralExpression2D
+    children: tuple[LiteralExpression2D, ...]
 
 
 LiteralTransformation2D = Translation2D | Rotation2D
@@ -166,13 +166,13 @@ LiteralTransformation2D = Translation2D | Rotation2D
 @dataclass(frozen=True)
 class Translation3D(BaseTransformation3D):
     coord: Tuple3D
-    child: LiteralExpression3D
+    children: tuple[LiteralExpression3D, ...]
 
 
 @dataclass(frozen=True)
 class Rotation3D(BaseTransformation3D):
     angle: Tuple3D
-    child: LiteralExpression3D
+    children: tuple[LiteralExpression3D, ...]
 
 
 LiteralTransformation3D = Translation3D | Rotation3D

@@ -80,24 +80,24 @@ def _(intermediate: dm.Cube) -> LineGen:
 @transpile.register
 def _(intermediate: dm.Translation2D) -> LineGen:
     coord = ', '.join(transpile(intermediate.coord))
-    yield from _translate(f'[{coord}]', intermediate.child)
+    yield from _translate(f'[{coord}]', *intermediate.children)
 
 
 @transpile.register
 def _(intermediate: dm.Translation3D) -> LineGen:
     coord = ', '.join(transpile(intermediate.coord))
-    yield from _translate(f'[{coord}]', intermediate.child)
+    yield from _translate(f'[{coord}]', *intermediate.children)
 
 
 @transpile.register
 def _(intermediate: dm.Rotation2D) -> LineGen:
-    yield from _rotate(f'a={intermediate.angle}', intermediate.child)
+    yield from _rotate(f'a={intermediate.angle}', *intermediate.children)
 
 
 @transpile.register
 def _(intermediate: dm.Rotation3D) -> LineGen:
     coord = ', '.join(transpile(intermediate.angle))
-    yield from _translate(f'a=[{coord}]', intermediate.child)
+    yield from _translate(f'a=[{coord}]', *intermediate.children)
 
 
 ############

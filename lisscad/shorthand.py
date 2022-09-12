@@ -49,15 +49,16 @@ def cube(size: Tuple3D, center: bool = True) -> Cube:
     return Cube(size, center)
 
 
-def translate(coord: Tuple2D | Tuple3D, child: LiteralExpression):
+def translate(coord: Tuple2D | Tuple3D, *children: LiteralExpression):
     if len(coord) == 2:
         return Translation2D(cast(Tuple2D, coord),
-                             cast(LiteralExpression2D, child))
-    return Translation3D(cast(Tuple3D, coord), cast(LiteralExpression3D,
-                                                    child))
+                             cast(tuple[LiteralExpression2D, ...], children))
+    return Translation3D(cast(Tuple3D, coord),
+                         cast(tuple[LiteralExpression3D, ...], children))
 
 
-def rotate(coord: float | Tuple3D, child: LiteralExpression):
+def rotate(coord: float | Tuple3D, *children: LiteralExpression):
     if isinstance(coord, float):
-        return Rotation2D(coord, cast(LiteralExpression2D, child))
-    return Rotation3D(coord, cast(LiteralExpression3D, child))
+        return Rotation2D(coord, cast(tuple[LiteralExpression2D, ...],
+                                      children))
+    return Rotation3D(coord, cast(tuple[LiteralExpression3D, ...], children))

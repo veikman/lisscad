@@ -1,0 +1,8 @@
+(hissp.macros.._macro_.prelude)
+.#"from lisscad.shorthand import *"
+
+(define model
+  (->> (cube '(1 2 4))
+    (translate '(0 0 8))))
+
+(lisscad.app..write (@ (dict : name "bliku" model model)))

@@ -19,18 +19,21 @@ def test_lissp_to_scad(case, tmp_path, pytestconfig):
 
     """
     dir_in = case / 'input'
+    print(dir_in)
     dir_oracle = case / 'oracle'
 
-    assert dir_in.is_dir()
-    assert dir_oracle.is_dir()
+    if not dir_in.is_dir():
+        fail(f'No input directory at {dir_in}.')
+    if not dir_oracle.is_dir():
+        fail(f'No reference directory at {dir_in}.')
 
     files_input = sorted(dir_in.glob('*.lissp'))
     if not files_input:
-        fail(f'No input for “{case}”.')
+        fail(f'No files in {dir_in}.')
 
     files_oracle = list(dir_oracle.glob('**/*.*'))
     if not files_oracle:
-        fail(f'No oracle for “{case}”.')
+        fail(f'No files in {dir_oracle}.')
 
     with patch(
             'lisscad.app._compose_scad_output_path',

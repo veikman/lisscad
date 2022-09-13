@@ -1,0 +1,9 @@
+(hissp.macros.._macro_.prelude)
+.#"from lisscad.shorthand import *"
+
+(define model
+  (union
+    (translate '(0 4) (square '(1 2)))
+    (square '(2 1))))
+
+(lisscad.app..write (@ (dict : name "kanxe" model model)))

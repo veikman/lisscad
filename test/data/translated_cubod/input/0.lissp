@@ -1,5 +1,4 @@
-(hissp.macros.._macro_.prelude)
-.#"from lisscad.shorthand import *"
+(lisscad.prelude.._macro_.standard)
 
 (define model
   (->> (cube '(1 2 4))

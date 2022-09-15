@@ -10,14 +10,8 @@ class _macro_:
             (
                 'lambda',
                 (),
-                # This works:
-                (
-                    'hissp.._macro_.prelude', ),
-                ('print', ('quote', 'debug0')),
-                ('exec', ('quote', 'print("debug1")')),
-                # This imports the named module but not into the namespace of
-                # the caller of the macro:
-                ('exec', ('quote', 'from lisscad.shorthand import *')),
-                # This is a syntax error:
-                ('eval', ('quote', 'from lisscad.shorthand import *')),
+                ('hissp.._macro_.prelude', ),  # The standard Hissp prelude.
+                # OpenSCAD-like CSG CAD functions:
+                ('exec', ('quote', 'from lisscad.shorthand import *'),
+                 ('globals', )),
             ), )

@@ -7,11 +7,11 @@ from hissp.reader import Lissp
 from lisscad.app import _compose_scad_output_path
 from pytest import fail, mark, skip
 
-CASES = sorted(Path('test/data/').glob('*'))
+CASES = [(p.name, p) for p in sorted(Path('test/data/').glob('*'))]
 
 
-@mark.parametrize('case', CASES)
-def test_lissp_to_scad(case, tmp_path, pytestconfig):
+@mark.parametrize('_, case', CASES)
+def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     """Compare a prepared set of files with outputs from them.
 
     If the custom “adopt” option has been passed to pytest, replace oracles

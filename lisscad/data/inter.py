@@ -193,4 +193,6 @@ LiteralExpression3D = Union[LiteralBoolean3D, LiteralShape3D,
                             LiteralTransformation3D]
 LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D]
 
-update_forward_refs(Union2D, Union3D, Translation2D, Translation3D)
+update_forward_refs(Union2D, Union3D, Difference2D, Difference3D,
+                    Intersection2D, Intersection3D, Translation2D,
+                    Translation3D)

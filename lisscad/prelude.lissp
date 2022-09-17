@@ -18,4 +18,4 @@
      (define π math..pi)
      (define | lisscad.shorthand..union)
      (define & lisscad.shorthand..intersection)
-     (define - lisscad.shorthand..difference)))
+     (define - lisscad.op..sub)))

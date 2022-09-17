@@ -1,0 +1,18 @@
+"Lisscad’s bundled macros."
+
+;; This file compiles to prelude.py because Lissp v0.4.0 cannot import .lissp.
+
+;; Define define for use in this module.
+(hissp.macros.._macro_.prelude)
+
+(defmacro standard ()
+  "Provide an OpenSCAD-like API with added consistency, safety and convenience."
+  ;; This is crude. The “defmacro” macro defined by
+  ;; hissp.macros.._macro_.prelude does not target the user’s namespace when
+  ;; it’s nested inside another macro like this one, so the additions made here
+  ;; are only terse aliases for constants and functions.
+  `(progn
+     (prelude)
+     (exec "from lisscad.shorthand import *" (globals))
+     (define π math..pi)
+     (define | lisscad.shorthand..union)))

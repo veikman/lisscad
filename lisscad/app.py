@@ -4,12 +4,15 @@ This module is intended to be imported from a Lissp script.
 
 """
 
+from itertools import count
 from pathlib import Path
 from typing import cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
 from lisscad.py_to_scad import transpile
+
+_INVOCATION_ORDINAL = count()
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
@@ -26,13 +29,19 @@ def write(*assets: Asset | dict | BaseExpression, dir_scad: Path = DIR_SCAD):
     scripts.
 
     """
+    invocation_ordinal = next(_INVOCATION_ORDINAL)
+    _asset_ordinal = count()
+
     for a in assets:
+        asset_ordinal = next(_asset_ordinal)
+
         if isinstance(a, Asset):
             pass
         elif isinstance(a, dict):
             a = Asset(**a)
         elif isinstance(a, BaseExpression):
-            a = Asset(model=cast(LiteralExpression, a))
+            a = Asset(model=cast(LiteralExpression, a),
+                      name=f'untitled_{invocation_ordinal}_{asset_ordinal}')
         else:
             raise TypeError(f'Unable to process {a!r} as a lisscad asset.')
 

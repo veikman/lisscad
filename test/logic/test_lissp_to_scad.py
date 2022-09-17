@@ -1,5 +1,6 @@
 """Automated integration testing using lissp subprocesses."""
 
+from itertools import count
 from pathlib import Path
 from unittest.mock import patch
 
@@ -41,7 +42,9 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
         for file_in in files_input:
             code = file_in.read_text()
             try:
-                Lissp(evaluate=True).compile(code)
+                # Reset _INVOCATION_ORDINAL as if in a new process.
+                with patch('lisscad.app._INVOCATION_ORDINAL', new=count()):
+                    Lissp(evaluate=True).compile(code)
             except Exception as e:
                 fail(f'Lissp compiler error: {e!r}')
 

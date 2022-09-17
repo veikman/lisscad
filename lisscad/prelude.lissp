@@ -14,5 +14,6 @@
   `(progn
      (prelude)
      (exec "from lisscad.shorthand import *" (globals))
+     (exec "from lisscad.app import write" (globals))
      (define π math..pi)
      (define | lisscad.shorthand..union)))

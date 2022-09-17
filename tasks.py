@@ -17,7 +17,7 @@ def compile(c):
           '"')
 
 
-@task(pre=[compile])
+@task(pre=[compile], default=True)
 def test(c):
     """Run unit tests."""
-    c.run('pytest')
+    c.run('pytest', pty=True)

@@ -7,10 +7,11 @@
 
 (defmacro standard ()
   "Provide an OpenSCAD-like API with added consistency, safety and convenience."
-  ;; This is crude. The “defmacro” macro defined by
-  ;; hissp.macros.._macro_.prelude does not target the user’s namespace when
-  ;; it’s nested inside another macro like this one, so the additions made here
-  ;; are only terse aliases for constants and functions.
+  ;; This is in part a macro of macros, built to be evaluated in the context of
+  ;; a CAD script in such a way that it mutates the namespace of that script,
+  ;; not of this module. As of 2022-09-17, the “defmacro” macro defined by
+  ;; hissp.macros.._macro_.prelude is not safe for this purpose, but it’s also
+  ;; not needed here.
   `(progn
      (prelude)
      (exec "from lisscad.shorthand import *" (globals))

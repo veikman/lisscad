@@ -20,11 +20,15 @@ Tuple2D = tuple[float, float]
 Tuple3D = tuple[float, float, float]
 
 
-class Base2D:
+class BaseExpression:
+    """A base class for all of lisscad’s precursors."""
+
+
+class Base2D(BaseExpression):
     pass
 
 
-class Base3D:
+class Base3D(BaseExpression):
     pass
 
 

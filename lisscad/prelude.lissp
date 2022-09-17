@@ -16,4 +16,6 @@
      (exec "from lisscad.shorthand import *" (globals))
      (exec "from lisscad.app import write" (globals))
      (define π math..pi)
-     (define | lisscad.shorthand..union)))
+     (define | lisscad.shorthand..union)
+     (define & lisscad.shorthand..intersection)
+     (define - lisscad.shorthand..difference)))

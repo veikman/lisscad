@@ -17,7 +17,7 @@ def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:
     return dirpath / f'{asset.name}.scad'
 
 
-def write(assets: list[dict | Asset], dir_scad: Path = DIR_SCAD):
+def write(*assets: dict | Asset, dir_scad: Path = DIR_SCAD):
     """Convert intermediate representations to OpenSCAD code."""
     for a in assets:
         if not isinstance(a, Asset):

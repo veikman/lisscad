@@ -1,4 +1,4 @@
 (lisscad.prelude.._macro_.standard)
 
-(write (@ (% "name" "kanxe"
-             "model" (| (cube (@ 4 2 1)) (sphere 1)))))
+(write (% "name" "kanxe"
+          "model" (| (cube (@ 4 2 1)) (sphere 1))))

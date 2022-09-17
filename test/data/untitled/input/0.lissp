@@ -1,3 +1,4 @@
 (lisscad.prelude.._macro_.standard)
 
 (write (circle 2.5))
+(write (circle 1.5) (circle 0.5))

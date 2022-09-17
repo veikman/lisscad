@@ -21,3 +21,10 @@ def compile(c):
 def test(c):
     """Run unit tests."""
     c.run('pytest', pty=True)
+
+
+@task
+def new_case(c, name):
+    """Add a new integration test case."""
+    c.run(f'mkdir -p test/data/{name}/input')
+    c.run(f'mkdir test/data/{name}/oracle')

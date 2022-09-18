@@ -18,17 +18,6 @@ from lisscad.shorthand import difference, disable
 # variary and do not use Python’s object-oriented magic methods.
 
 
-def add(*args):
-    """Add. Numbers only."""
-    if not args:
-        return 0  # As in Clojure.
-    if not _numeric(args):
-        raise Exception('“+” is mathematical. Use “|” for unions.')
-    if len(args) == 1:
-        return args[0]  # As in Clojure.
-    return reduce(_add, args)
-
-
 def sub(*args):
     """Negate, subtract, or apply OpenSCAD’s difference operation."""
     if not args:
@@ -53,6 +42,25 @@ def mul(*args):
     if len(args) != 1:
         raise Exception('Non-numeric “*” requires exactly one operand.')
     return disable(*args)
+
+
+##############
+# MATHS ONLY #
+##############
+
+# Where there is little risk of confusion, these functions are overloadable by
+# Python’s object-oriented magic methods.
+
+
+def add(*args):
+    """Add. Numbers only."""
+    if not args:
+        return 0  # As in Clojure.
+    if not _numeric(args):
+        raise Exception('“+” is mathematical. Use “|” for unions.')
+    if len(args) == 1:
+        return args[0]  # As in Clojure.
+    return reduce(_add, args)
 
 
 def div(*args):

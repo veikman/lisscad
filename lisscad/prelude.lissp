@@ -21,4 +21,9 @@
      (define & lisscad.shorthand..intersection)
      (define - lisscad.op..sub)
      (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
-     (define % lisscad.shorthand..background)))  ; Replace the Hissp prelude’s %.
+     (define % lisscad.shorthand..background)  ; Replace the Hissp prelude’s %.
+     (exec "del _macro_.QzHASH_" (globals))  ; Drop the Hissp prelude’s #.
+     (define \# lisscad.shorthand..debug)  ; Replace the Hissp prelude’s #.
+     ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.
+     ;; The use of ! as in OpenSCAD therefore requires an escape.
+     (define \! lisscad.shorthand..root)))

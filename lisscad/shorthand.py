@@ -16,6 +16,22 @@ import lisscad.data.inter as d
 #############
 
 
+def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
+    """Implement OpenSCAD’s % modifier."""
+    return _cast(d.Background2D | d.Background3D,
+                 _modify(d.Background2D, d.Background3D, child))
+
+
+def debug(child: d.LiteralExpression) -> d.Debug2D | d.Debug3D:
+    """Implement OpenSCAD’s # modifier."""
+    return _cast(d.Debug2D | d.Debug3D, _modify(d.Debug2D, d.Debug3D, child))
+
+
+def root(child: d.LiteralExpression) -> d.Root2D | d.Root3D:
+    """Implement OpenSCAD’s ! modifier."""
+    return _cast(d.Root2D | d.Root3D, _modify(d.Root2D, d.Root3D, child))
+
+
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
     return _cast(d.Union2D | d.Union3D, _contain(d.Union2D, d.Union3D,
                                                  children))
@@ -64,11 +80,6 @@ def rotate(coord: float | d.Tuple3D, *children: d.LiteralExpression):
                             _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Rotation3D(coord,
                         _cast(tuple[d.LiteralExpression3D, ...], children))
-
-
-def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
-    return _cast(d.Background2D | d.Background3D,
-                 _modify(d.Background2D, d.Background3D, child))
 
 
 ############

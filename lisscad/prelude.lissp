@@ -19,4 +19,6 @@
      (define π math..pi)
      (define | lisscad.shorthand..union)
      (define & lisscad.shorthand..intersection)
-     (define - lisscad.op..sub)))
+     (define - lisscad.op..sub)
+     (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
+     (define % lisscad.shorthand..background)))  ; Replace the Hissp prelude’s %.

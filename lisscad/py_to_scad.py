@@ -127,7 +127,7 @@ def _(datum: d.Rotation2D) -> LineGen:
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
     coord = ', '.join(transpile(datum.angle))
-    yield from _translate(f'a=[{coord}]', *datum.children)
+    yield from _rotate(f'a=[{coord}]', *datum.children)
 
 
 ############

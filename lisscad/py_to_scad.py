@@ -11,8 +11,8 @@ LineGen = Generator[str, None, None]
 
 
 @singledispatch
-def transpile(intermediate) -> LineGen:
-    raise TypeError(f'Cannot transpile {intermediate!r}.')
+def transpile(datum) -> LineGen:
+    raise TypeError(f'Cannot transpile {datum!r}.')
 
 
 ###########################
@@ -21,83 +21,83 @@ def transpile(intermediate) -> LineGen:
 
 
 @transpile.register
-def _(intermediate: tuple) -> LineGen:
-    yield from map(str, intermediate)
+def _(datum: tuple) -> LineGen:
+    yield from map(str, datum)
 
 
 @transpile.register
-def _(intermediate: d.Union2D) -> LineGen:
-    yield from _union(*intermediate.children)
+def _(datum: d.Union2D) -> LineGen:
+    yield from _union(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Union3D) -> LineGen:
-    yield from _union(*intermediate.children)
+def _(datum: d.Union3D) -> LineGen:
+    yield from _union(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Difference2D) -> LineGen:
-    yield from _difference(*intermediate.children)
+def _(datum: d.Difference2D) -> LineGen:
+    yield from _difference(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Difference3D) -> LineGen:
-    yield from _difference(*intermediate.children)
+def _(datum: d.Difference3D) -> LineGen:
+    yield from _difference(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Intersection2D) -> LineGen:
-    yield from _intersection(*intermediate.children)
+def _(datum: d.Intersection2D) -> LineGen:
+    yield from _intersection(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Intersection3D) -> LineGen:
-    yield from _intersection(*intermediate.children)
+def _(datum: d.Intersection3D) -> LineGen:
+    yield from _intersection(*datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Circle) -> LineGen:
-    yield f'circle(r={intermediate.radius});'
+def _(datum: d.Circle) -> LineGen:
+    yield f'circle(r={datum.radius});'
 
 
 @transpile.register
-def _(intermediate: d.Square) -> LineGen:
-    size = ', '.join(transpile(intermediate.size))
-    yield f'square(size=[{size}], center={str(intermediate.center).lower()});'
+def _(datum: d.Square) -> LineGen:
+    size = ', '.join(transpile(datum.size))
+    yield f'square(size=[{size}], center={str(datum.center).lower()});'
 
 
 @transpile.register
-def _(intermediate: d.Sphere) -> LineGen:
-    yield f'circle(r={intermediate.radius});'
+def _(datum: d.Sphere) -> LineGen:
+    yield f'circle(r={datum.radius});'
 
 
 @transpile.register
-def _(intermediate: d.Cube) -> LineGen:
-    size = ', '.join(transpile(intermediate.size))
-    yield f'cube(size=[{size}], center={str(intermediate.center).lower()});'
+def _(datum: d.Cube) -> LineGen:
+    size = ', '.join(transpile(datum.size))
+    yield f'cube(size=[{size}], center={str(datum.center).lower()});'
 
 
 @transpile.register
-def _(intermediate: d.Translation2D) -> LineGen:
-    coord = ', '.join(transpile(intermediate.coord))
-    yield from _translate(f'[{coord}]', *intermediate.children)
+def _(datum: d.Translation2D) -> LineGen:
+    coord = ', '.join(transpile(datum.coord))
+    yield from _translate(f'[{coord}]', *datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Translation3D) -> LineGen:
-    coord = ', '.join(transpile(intermediate.coord))
-    yield from _translate(f'[{coord}]', *intermediate.children)
+def _(datum: d.Translation3D) -> LineGen:
+    coord = ', '.join(transpile(datum.coord))
+    yield from _translate(f'[{coord}]', *datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Rotation2D) -> LineGen:
-    yield from _rotate(f'a={intermediate.angle}', *intermediate.children)
+def _(datum: d.Rotation2D) -> LineGen:
+    yield from _rotate(f'a={datum.angle}', *datum.children)
 
 
 @transpile.register
-def _(intermediate: d.Rotation3D) -> LineGen:
-    coord = ', '.join(transpile(intermediate.angle))
-    yield from _translate(f'a=[{coord}]', *intermediate.children)
+def _(datum: d.Rotation3D) -> LineGen:
+    coord = ', '.join(transpile(datum.angle))
+    yield from _translate(f'a=[{coord}]', *datum.children)
 
 
 ############

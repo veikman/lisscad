@@ -1,9 +1,11 @@
 """A Lissp interface to the intermediate data model.
 
-This interface is patterned after scad-clj.
+This interface is patterned after scad-clj rather than OpenSCAD itself.
 
 """
 
+# Imports are styled so as to limit pollution when this module is star-imported
+# via lisscad.prelude.
 from typing import Type as _Type
 from typing import cast as _cast
 

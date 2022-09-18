@@ -5,8 +5,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from hissp.reader import Lissp
-from lisscad.app import _compose_scad_output_path
 from pytest import fail, mark, skip
+
+from lisscad.app import _compose_scad_output_path
 
 CASES = [(p.name, p) for p in sorted(Path('test/data/').glob('*'))]
 
@@ -48,6 +49,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
             except Exception as e:
                 fail(f'Lissp compiler error: {e!r}')
 
+    adopted = False
     for stored_oracle in files_oracle:
         file_out = tmp_path / (stored_oracle.relative_to(dir_oracle))
         content_out = file_out.read_text().rstrip()
@@ -58,5 +60,8 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
         except AssertionError:
             if pytestconfig.getoption('adopt'):
                 stored_oracle.write_text(content_out + '\n')
-                skip('New output adopted.')
+                adopted = True
+                continue
             raise
+    if adopted:
+        skip('New output adopted.')

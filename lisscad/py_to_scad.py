@@ -26,6 +26,36 @@ def _(datum: tuple) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Background2D) -> LineGen:
+    yield from _background(datum.child)
+
+
+@transpile.register
+def _(datum: d.Background3D) -> LineGen:
+    yield from _background(datum.child)
+
+
+@transpile.register
+def _(datum: d.Debug2D) -> LineGen:
+    yield from _debug(datum.child)
+
+
+@transpile.register
+def _(datum: d.Debug3D) -> LineGen:
+    yield from _debug(datum.child)
+
+
+@transpile.register
+def _(datum: d.Root2D) -> LineGen:
+    yield from _root(datum.child)
+
+
+@transpile.register
+def _(datum: d.Root3D) -> LineGen:
+    yield from _root(datum.child)
+
+
+@transpile.register
 def _(datum: d.Union2D) -> LineGen:
     yield from _union(*datum.children)
 
@@ -103,6 +133,17 @@ def _(datum: d.Rotation3D) -> LineGen:
 ############
 # BACK END #
 ############
+
+
+def _modifier(symbol: str, target: d.LiteralExpression) -> LineGen:
+    head, *tail = transpile(target)
+    yield symbol + head
+    yield from tail
+
+
+_background = partial(_modifier, '%')
+_debug = partial(_modifier, '#')
+_root = partial(_modifier, '!')
 
 
 def _contain(keyword: str, head: str, *body: d.LiteralExpression) -> LineGen:

@@ -32,6 +32,20 @@ class Base3D(BaseExpression):
     pass
 
 
+class BaseModifier(BaseExpression):
+    """A modifier such as “%”, “#” or “!”. Scoped for just one expression."""
+
+
+@dataclass(frozen=True)
+class BaseModifier2D(Base2D, BaseModifier):
+    child: LiteralExpression2D
+
+
+@dataclass(frozen=True)
+class BaseModifier3D(Base3D, BaseModifier):
+    child: LiteralExpression3D
+
+
 @dataclass(frozen=True)
 class BaseBoolean2D(Base2D):
     children: tuple[LiteralExpression2D, ...]
@@ -63,6 +77,50 @@ def update_forward_refs(*model):
     for m in model:
         m.__pydantic_model__.update_forward_refs()
 
+
+################
+# 2D MODIFIERS #
+################
+
+
+@dataclass(frozen=True)
+class Background2D(BaseModifier2D):
+    pass
+
+
+@dataclass(frozen=True)
+class Debug2D(BaseModifier2D):
+    pass
+
+
+@dataclass(frozen=True)
+class Root2D(BaseModifier2D):
+    pass
+
+
+LiteralModifier2D = Background2D | Debug2D | Root2D
+
+################
+# 3D MODIFIERS #
+################
+
+
+@dataclass(frozen=True)
+class Background3D(BaseModifier3D):
+    pass
+
+
+@dataclass(frozen=True)
+class Debug3D(BaseModifier3D):
+    pass
+
+
+@dataclass(frozen=True)
+class Root3D(BaseModifier3D):
+    pass
+
+
+LiteralModifier3D = Background3D | Debug3D | Root3D
 
 ###############
 # 2D BOOLEANS #
@@ -187,12 +245,13 @@ LiteralTransformation3D = Translation3D | Rotation3D
 # ROSTER #
 ##########
 
-LiteralExpression2D = Union[LiteralBoolean2D, LiteralShape2D,
-                            LiteralTransformation2D]
-LiteralExpression3D = Union[LiteralBoolean3D, LiteralShape3D,
-                            LiteralTransformation3D]
+LiteralExpression2D = Union[LiteralModifier2D, LiteralBoolean2D,
+                            LiteralShape2D, LiteralTransformation2D]
+LiteralExpression3D = Union[LiteralModifier3D, LiteralBoolean3D,
+                            LiteralShape3D, LiteralTransformation3D]
 LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D]
 
-update_forward_refs(Union2D, Union3D, Difference2D, Difference3D,
+update_forward_refs(Background2D, Debug2D, Root2D, Background3D, Debug3D,
+                    Root3D, Union2D, Union3D, Difference2D, Difference3D,
                     Intersection2D, Intersection3D, Translation2D,
                     Translation3D)

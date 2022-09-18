@@ -37,4 +37,5 @@
      (define | lisscad.shorthand..union)
      (define & lisscad.shorthand..intersection)
      (define + lisscad.op..add)
-     (define - lisscad.op..sub)))
+     (define - lisscad.op..sub)
+     (define / lisscad.op..div)))

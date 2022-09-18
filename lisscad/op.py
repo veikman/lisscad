@@ -5,6 +5,7 @@ from numbers import Number
 from operator import add as _add
 from operator import mul as _mul
 from operator import sub as _sub
+from operator import truediv as _div
 
 from lisscad.shorthand import difference, disable
 
@@ -18,7 +19,7 @@ from lisscad.shorthand import difference, disable
 
 
 def add(*args):
-    """Add. Numbers only. OpenSCAD unions are aliased as |, not +."""
+    """Add. Numbers only."""
     if not args:
         return 0  # As in Clojure.
     if not _numeric(args):
@@ -52,6 +53,16 @@ def mul(*args):
     if len(args) != 1:
         raise Exception('Non-numeric “*” requires exactly one operand.')
     return disable(*args)
+
+
+def div(*args):
+    """Divide. Numbers only."""
+    if not args:
+        # In Clojure, this is an ArityException.
+        raise Exception('“/” requires at least one operand.')
+    if len(args) == 1:
+        return 1 / args[0]  # As in Clojure.
+    return reduce(_div, args)
 
 
 ############

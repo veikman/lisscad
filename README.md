@@ -1,6 +1,10 @@
 `lisscad` is a library for generating OpenSCAD code from Lissp scripts.
 
+## Usage
+
 `lisscad` is in a pre-alpha state; it should not be used.
+
+For the use of operators like `+`, see [here](doc/op.md).
 
 ## History
 

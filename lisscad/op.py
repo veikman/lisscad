@@ -2,6 +2,7 @@
 
 from functools import reduce
 from numbers import Number
+from operator import add as _add
 from operator import mul as _mul
 from operator import sub as _sub
 
@@ -12,15 +13,26 @@ from lisscad.shorthand import difference, disable
 #############
 
 # Functions to act upon numbers and OpenSCAD expressions.
-# By design, for the sake of functional-programming simplicity, these do not
-# use Python’s object-oriented magic methods.
+# By design, for the sake of functional-programming simplicity, these are
+# variary and do not use Python’s object-oriented magic methods.
+
+
+def add(*args):
+    """Add. Numbers only. OpenSCAD unions are aliased as |, not +."""
+    if not args:
+        return 0  # As in Clojure.
+    if not _numeric(args):
+        raise Exception('“+” is mathematical. Use “|” for unions.')
+    if len(args) == 1:
+        return args[0]  # As in Clojure.
+    return reduce(_add, args)
 
 
 def sub(*args):
     """Negate, subtract, or apply OpenSCAD’s difference operation."""
     if not args:
+        # In Clojure, this is an ArityException.
         raise Exception('“-” requires at least one operand.')
-    assert len(args) != 0
     if _numeric(args):
         if len(args) == 1:
             return -args[0]
@@ -32,11 +44,10 @@ def sub(*args):
 def mul(*args):
     """Multiply or apply OpenSCAD’s disabling modifier."""
     if not args:
-        raise Exception('“*” requires at least one operand.')
-    assert len(args) != 0
+        return 1  # As in Clojure.
     if _numeric(args):
-        if len(args) < 2:
-            raise Exception('Numeric “*” requires at least two operands.')
+        if len(args) == 1:
+            return args[0]  # As in Clojure.
         return reduce(_mul, args)
     if len(args) != 1:
         raise Exception('Non-numeric “*” requires exactly one operand.')

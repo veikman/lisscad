@@ -36,4 +36,5 @@
      ;; Further single-character operators for OpenSCAD and maths:
      (define | lisscad.shorthand..union)
      (define & lisscad.shorthand..intersection)
+     (define + lisscad.op..add)
      (define - lisscad.op..sub)))

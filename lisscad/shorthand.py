@@ -4,61 +4,61 @@ This interface is patterned after scad-clj.
 
 """
 
-from typing import cast
+from typing import cast as _cast
 
-from lisscad.data.inter import (Base2D, Circle, Cube, Difference2D,
-                                Difference3D, Intersection2D, Intersection3D,
-                                LiteralExpression, LiteralExpression2D,
-                                LiteralExpression3D, Rotation2D, Rotation3D,
-                                Sphere, Square, Translation2D, Translation3D,
-                                Tuple2D, Tuple3D, Union2D, Union3D)
+import lisscad.data.inter as d
 
 
-def union(*children: LiteralExpression) -> Union2D | Union3D:
-    if all(isinstance(c, Base2D) for c in children):
-        return Union2D(cast(tuple[LiteralExpression2D, ...], children))
-    return Union3D(cast(tuple[LiteralExpression3D, ...], children))
+def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
+    if all(isinstance(c, d.Base2D) for c in children):
+        return d.Union2D(_cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Union3D(_cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def difference(*children: LiteralExpression) -> Difference2D | Difference3D:
-    if all(isinstance(c, Base2D) for c in children):
-        return Difference2D(cast(tuple[LiteralExpression2D, ...], children))
-    return Difference3D(cast(tuple[LiteralExpression3D, ...], children))
+def difference(
+        *children: d.LiteralExpression) -> d.Difference2D | d.Difference3D:
+    if all(isinstance(c, d.Base2D) for c in children):
+        return d.Difference2D(
+            _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Difference3D(_cast(tuple[d.LiteralExpression3D, ...], children))
 
 
 def intersection(
-        *children: LiteralExpression) -> Intersection2D | Intersection3D:
-    if all(isinstance(c, Base2D) for c in children):
-        return Intersection2D(cast(tuple[LiteralExpression2D, ...], children))
-    return Intersection3D(cast(tuple[LiteralExpression3D, ...], children))
+        *children: d.LiteralExpression) -> d.Intersection2D | d.Intersection3D:
+    if all(isinstance(c, d.Base2D) for c in children):
+        return d.Intersection2D(
+            _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Intersection3D(_cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def circle(radius: float) -> Circle:
-    return Circle(radius)
+def circle(radius: float) -> d.Circle:
+    return d.Circle(radius)
 
 
-def square(size: Tuple2D, center: bool = True) -> Square:
-    return Square(size, center)
+def square(size: d.Tuple2D, center: bool = True) -> d.Square:
+    return d.Square(size, center)
 
 
-def sphere(radius: float) -> Sphere:
-    return Sphere(radius)
+def sphere(radius: float) -> d.Sphere:
+    return d.Sphere(radius)
 
 
-def cube(size: Tuple3D, center: bool = True) -> Cube:
-    return Cube(size, center)
+def cube(size: d.Tuple3D, center: bool = True) -> d.Cube:
+    return d.Cube(size, center)
 
 
-def translate(coord: Tuple2D | Tuple3D, *children: LiteralExpression):
+def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
     if len(coord) == 2:
-        return Translation2D(cast(Tuple2D, coord),
-                             cast(tuple[LiteralExpression2D, ...], children))
-    return Translation3D(cast(Tuple3D, coord),
-                         cast(tuple[LiteralExpression3D, ...], children))
+        return d.Translation2D(
+            _cast(d.Tuple2D, coord),
+            _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Translation3D(_cast(d.Tuple3D, coord),
+                           _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def rotate(coord: float | Tuple3D, *children: LiteralExpression):
+def rotate(coord: float | d.Tuple3D, *children: d.LiteralExpression):
     if isinstance(coord, float):
-        return Rotation2D(coord, cast(tuple[LiteralExpression2D, ...],
-                                      children))
-    return Rotation3D(coord, cast(tuple[LiteralExpression3D, ...], children))
+        return d.Rotation2D(coord,
+                            _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Rotation3D(coord,
+                        _cast(tuple[d.LiteralExpression3D, ...], children))

@@ -11,18 +11,9 @@ from typing import cast as _cast
 
 import lisscad.data.inter as d
 
-
-def _is_2d(*expressions):
-    return all(isinstance(e, d.Base2D) for e in expressions)
-
-
-def _contain(
-    type_2d: _Type[d.BaseBoolean2D], type_3d: _Type[d.BaseBoolean3D],
-    children: tuple[d.LiteralExpression, ...]
-) -> d.BaseBoolean2D | d.BaseBoolean3D:
-    if _is_2d(*children):
-        return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
-    return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))
+#############
+# INTERFACE #
+#############
 
 
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
@@ -79,3 +70,21 @@ def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
     if _is_2d(child):
         return d.Background2D(_cast(d.LiteralShape2D, child))
     return d.Background3D(_cast(d.LiteralShape3D, child))
+
+
+############
+# INTERNAL #
+############
+
+
+def _is_2d(*expressions):
+    return all(isinstance(e, d.Base2D) for e in expressions)
+
+
+def _contain(
+    type_2d: _Type[d.BaseBoolean2D], type_3d: _Type[d.BaseBoolean3D],
+    children: tuple[d.LiteralExpression, ...]
+) -> d.BaseBoolean2D | d.BaseBoolean3D:
+    if _is_2d(*children):
+        return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
+    return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))

@@ -9,19 +9,19 @@ from typing import cast as _cast
 import lisscad.data.inter as d
 
 
-def _is_2d(expressions):
+def _is_2d(*expressions):
     return all(isinstance(e, d.Base2D) for e in expressions)
 
 
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
-    if _is_2d(children):
+    if _is_2d(*children):
         return d.Union2D(_cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Union3D(_cast(tuple[d.LiteralExpression3D, ...], children))
 
 
 def difference(
         *children: d.LiteralExpression) -> d.Difference2D | d.Difference3D:
-    if _is_2d(children):
+    if _is_2d(*children):
         return d.Difference2D(
             _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Difference3D(_cast(tuple[d.LiteralExpression3D, ...], children))
@@ -29,7 +29,7 @@ def difference(
 
 def intersection(
         *children: d.LiteralExpression) -> d.Intersection2D | d.Intersection3D:
-    if _is_2d(children):
+    if _is_2d(*children):
         return d.Intersection2D(
             _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Intersection3D(_cast(tuple[d.LiteralExpression3D, ...], children))
@@ -69,6 +69,6 @@ def rotate(coord: float | d.Tuple3D, *children: d.LiteralExpression):
 
 
 def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
-    if _is_2d([child]):
-        return d.Background2D(child)
-    return d.Background3D(child)
+    if _is_2d(child):
+        return d.Background2D(_cast(d.LiteralShape2D, child))
+    return d.Background3D(_cast(d.LiteralShape3D, child))

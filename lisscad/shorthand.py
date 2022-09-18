@@ -67,9 +67,8 @@ def rotate(coord: float | d.Tuple3D, *children: d.LiteralExpression):
 
 
 def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
-    if _is_2d(child):
-        return d.Background2D(_cast(d.LiteralShape2D, child))
-    return d.Background3D(_cast(d.LiteralShape3D, child))
+    return _cast(d.Background2D | d.Background3D,
+                 _modify(d.Background2D, d.Background3D, child))
 
 
 ############
@@ -78,13 +77,23 @@ def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
 
 
 def _is_2d(*expressions):
+    assert expressions
     return all(isinstance(e, d.Base2D) for e in expressions)
+
+
+def _modify(type_2d: _Type[d.BaseModifier2D], type_3d: _Type[d.BaseModifier3D],
+            child: d.LiteralExpression) -> d.BaseModifier2D | d.BaseModifier3D:
+    """Wrap up a single expression of known dimensionality."""
+    if _is_2d(child):
+        return type_2d(_cast(d.LiteralExpression2D, child))
+    return type_3d(_cast(d.LiteralExpression3D, child))
 
 
 def _contain(
     type_2d: _Type[d.BaseBoolean2D], type_3d: _Type[d.BaseBoolean3D],
     children: tuple[d.LiteralExpression, ...]
 ) -> d.BaseBoolean2D | d.BaseBoolean3D:
+    """Wrap up 1+ expressions of known dimensionality."""
     if _is_2d(*children):
         return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
     return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))

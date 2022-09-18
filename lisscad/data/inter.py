@@ -4,6 +4,8 @@ These are object-orieneted, intended to provide type safety with some automatic
 parsing by Pydantic, an abstraction layer for multiple front-end shorthands,
 and strong introspection in applications.
 
+In this data model, angles are uniformly described in radians, as in scad-clj.
+
 """
 
 from __future__ import annotations
@@ -251,7 +253,11 @@ LiteralExpression3D = Union[LiteralModifier3D, LiteralBoolean3D,
                             LiteralShape3D, LiteralTransformation3D]
 LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D]
 
-update_forward_refs(Background2D, Debug2D, Root2D, Background3D, Debug3D,
-                    Root3D, Union2D, Union3D, Difference2D, Difference3D,
-                    Intersection2D, Intersection3D, Translation2D,
-                    Translation3D)
+###############
+# FINALIZATON #
+###############
+
+update_forward_refs(Background2D, Debug2D, Root2D, Union2D, Difference2D,
+                    Intersection2D, Translation2D, Rotation2D)
+update_forward_refs(Background3D, Debug3D, Root3D, Union3D, Difference3D,
+                    Intersection3D, Translation3D, Rotation3D)

@@ -1,4 +1,5 @@
 from functools import partial, singledispatch
+from math import pi
 from typing import Generator
 
 from lisscad.data import inter as d
@@ -121,18 +122,23 @@ def _(datum: d.Translation3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Rotation2D) -> LineGen:
-    yield from _rotate(f'a={datum.angle}', *datum.children)
+    a = _rad_to_deg(datum.angle)
+    yield from _rotate(f'a={a}', *datum.children)
 
 
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
-    coord = ', '.join(transpile(datum.angle))
-    yield from _rotate(f'a=[{coord}]', *datum.children)
+    angles = ', '.join(transpile(tuple(map(_rad_to_deg, datum.angle))))
+    yield from _rotate(f'a=[{angles}]', *datum.children)
 
 
 ############
 # BACK END #
 ############
+
+
+def _rad_to_deg(radians: float):
+    return (radians * 180) / pi
 
 
 def _modifier(symbol: str, target: d.LiteralExpression) -> LineGen:

@@ -74,8 +74,8 @@ def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
                            _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def rotate(coord: float | d.Tuple3D, *children: d.LiteralExpression):
-    if isinstance(coord, float):
+def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
+    if isinstance(coord, (float, int)):
         return d.Rotation2D(coord,
                             _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Rotation3D(coord,

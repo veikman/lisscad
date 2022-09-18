@@ -4,6 +4,7 @@ This interface is patterned after scad-clj.
 
 """
 
+from typing import Type as _Type
 from typing import cast as _cast
 
 import lisscad.data.inter as d
@@ -13,26 +14,30 @@ def _is_2d(*expressions):
     return all(isinstance(e, d.Base2D) for e in expressions)
 
 
-def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
+def _contain(
+    type_2d: _Type[d.BaseBoolean2D], type_3d: _Type[d.BaseBoolean3D],
+    children: tuple[d.LiteralExpression, ...]
+) -> d.BaseBoolean2D | d.BaseBoolean3D:
     if _is_2d(*children):
-        return d.Union2D(_cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Union3D(_cast(tuple[d.LiteralExpression3D, ...], children))
+        return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
+    return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
+    return _cast(d.Union2D | d.Union3D, _contain(d.Union2D, d.Union3D,
+                                                 children))
 
 
 def difference(
         *children: d.LiteralExpression) -> d.Difference2D | d.Difference3D:
-    if _is_2d(*children):
-        return d.Difference2D(
-            _cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Difference3D(_cast(tuple[d.LiteralExpression3D, ...], children))
+    return _cast(d.Difference2D | d.Difference3D,
+                 _contain(d.Difference2D, d.Difference3D, children))
 
 
 def intersection(
         *children: d.LiteralExpression) -> d.Intersection2D | d.Intersection3D:
-    if _is_2d(*children):
-        return d.Intersection2D(
-            _cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Intersection3D(_cast(tuple[d.LiteralExpression3D, ...], children))
+    return _cast(d.Intersection2D | d.Intersection3D,
+                 _contain(d.Intersection2D, d.Intersection3D, children))
 
 
 def circle(radius: float) -> d.Circle:

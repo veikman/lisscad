@@ -1,1 +1,1 @@
-%circle(r=1.0);
+%sphere(r=1.0);

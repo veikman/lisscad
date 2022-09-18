@@ -57,6 +57,16 @@ def _(datum: d.Root3D) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Disable2D) -> LineGen:
+    yield from _disable(datum.child)
+
+
+@transpile.register
+def _(datum: d.Disable3D) -> LineGen:
+    yield from _disable(datum.child)
+
+
+@transpile.register
 def _(datum: d.Union2D) -> LineGen:
     yield from _union(*datum.children)
 
@@ -99,7 +109,7 @@ def _(datum: d.Square) -> LineGen:
 
 @transpile.register
 def _(datum: d.Sphere) -> LineGen:
-    yield f'circle(r={datum.radius});'
+    yield f'sphere(r={datum.radius});'
 
 
 @transpile.register
@@ -150,6 +160,7 @@ def _modifier(symbol: str, target: d.LiteralExpression) -> LineGen:
 _background = partial(_modifier, '%')
 _debug = partial(_modifier, '#')
 _root = partial(_modifier, '!')
+_disable = partial(_modifier, '*')
 
 
 def _contain(keyword: str, head: str, *body: d.LiteralExpression) -> LineGen:

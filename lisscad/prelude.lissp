@@ -14,16 +14,26 @@
   ;; not needed here.
   `(progn
      (prelude)
+
+     ;; Imports:
      (exec "from lisscad.shorthand import *" (globals))
      (exec "from lisscad.app import write" (globals))
+
+     ;; Constants:
      (define π math..pi)
-     (define | lisscad.shorthand..union)
-     (define & lisscad.shorthand..intersection)
-     (define - lisscad.op..sub)
+
+     ;; OpenSCAD’s single-character modifiers, {% # 1 *}:
      (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
      (define % lisscad.shorthand..background)  ; Replace the Hissp prelude’s %.
      (exec "del _macro_.QzHASH_" (globals))  ; Drop the Hissp prelude’s #.
      (define \# lisscad.shorthand..debug)  ; Replace the Hissp prelude’s #.
      ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.
      ;; The use of ! as in OpenSCAD therefore requires an escape.
-     (define \! lisscad.shorthand..root)))
+     (define \! lisscad.shorthand..root)
+     ;; * inspects its arguments to do either multiplication or disable.
+     (define * lisscad.op..mul)
+
+     ;; Further single-character operators for OpenSCAD and maths:
+     (define | lisscad.shorthand..union)
+     (define & lisscad.shorthand..intersection)
+     (define - lisscad.op..sub)))

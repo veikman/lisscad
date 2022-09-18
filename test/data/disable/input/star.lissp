@@ -1,0 +1,9 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (dict : name "2d" model (* (circle 42)))
+       (dict : name "3d" model (* (sphere 42)))
+       (dict : name "maths" model (sphere (* 2 21)))
+       (dict : name "unaliased" model (disable (sphere (* 2 3))))
+       (dict : name "mixed" model (| (disable (sphere (* 3 3)))
+                                     (* (sphere (* 4 4)))
+                                     (sphere (* 5 5)))))

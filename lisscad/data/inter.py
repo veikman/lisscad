@@ -100,7 +100,12 @@ class Root2D(BaseModifier2D):
     pass
 
 
-LiteralModifier2D = Background2D | Debug2D | Root2D
+@dataclass(frozen=True)
+class Disable2D(BaseModifier2D):
+    pass
+
+
+LiteralModifier2D = Background2D | Debug2D | Root2D | Disable2D
 
 ################
 # 3D MODIFIERS #
@@ -122,7 +127,12 @@ class Root3D(BaseModifier3D):
     pass
 
 
-LiteralModifier3D = Background3D | Debug3D | Root3D
+@dataclass(frozen=True)
+class Disable3D(BaseModifier3D):
+    pass
+
+
+LiteralModifier3D = Background3D | Debug3D | Root3D | Disable3D
 
 ###############
 # 2D BOOLEANS #
@@ -257,7 +267,7 @@ LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D]
 # FINALIZATON #
 ###############
 
-update_forward_refs(Background2D, Debug2D, Root2D, Union2D, Difference2D,
-                    Intersection2D, Translation2D, Rotation2D)
-update_forward_refs(Background3D, Debug3D, Root3D, Union3D, Difference3D,
-                    Intersection3D, Translation3D, Rotation3D)
+update_forward_refs(Background2D, Debug2D, Root2D, Disable2D, Union2D,
+                    Difference2D, Intersection2D, Translation2D, Rotation2D)
+update_forward_refs(Background3D, Debug3D, Root3D, Disable3D, Union3D,
+                    Difference3D, Intersection3D, Translation3D, Rotation3D)

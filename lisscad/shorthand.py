@@ -17,19 +17,25 @@ import lisscad.data.inter as d
 
 
 def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
-    """Implement OpenSCAD’s % modifier."""
+    """Implement OpenSCAD’s % modifier, known as transparent or background."""
     return _cast(d.Background2D | d.Background3D,
                  _modify(d.Background2D, d.Background3D, child))
 
 
 def debug(child: d.LiteralExpression) -> d.Debug2D | d.Debug3D:
-    """Implement OpenSCAD’s # modifier."""
+    """Implement OpenSCAD’s # modifier, known as highlight or debug."""
     return _cast(d.Debug2D | d.Debug3D, _modify(d.Debug2D, d.Debug3D, child))
 
 
 def root(child: d.LiteralExpression) -> d.Root2D | d.Root3D:
-    """Implement OpenSCAD’s ! modifier."""
+    """Implement OpenSCAD’s ! modifier, known as show-only or root."""
     return _cast(d.Root2D | d.Root3D, _modify(d.Root2D, d.Root3D, child))
+
+
+def disable(child: d.LiteralExpression) -> d.Disable2D | d.Disable3D:
+    """Implement OpenSCAD’s * modifier, known as disable."""
+    return _cast(d.Disable2D | d.Disable3D,
+                 _modify(d.Disable2D, d.Disable3D, child))
 
 
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:

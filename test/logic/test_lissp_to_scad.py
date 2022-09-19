@@ -20,6 +20,8 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     with real outputs from the system under test, assuming correctness.
 
     """
+    adopt = pytestconfig.getoption('adopt')
+
     dir_in = case / 'input'
     print(dir_in)
     dir_oracle = case / 'oracle'
@@ -34,7 +36,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
         fail(f'No files in {dir_in}.')
 
     files_oracle = list(dir_oracle.glob('**/*.*'))
-    if not files_oracle:
+    if not files_oracle and not adopt:
         fail(f'No files in {dir_oracle}.')
 
     with patch(
@@ -50,6 +52,16 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
                 fail(f'Lissp compiler error: {e!r}')
 
     adopted = False
+
+    for file_out in sorted(tmp_path.glob('*.scad')):
+        matching_oracle = dir_oracle / file_out.name
+        if not matching_oracle.is_file():
+            if adopt:
+                matching_oracle.write_text(file_out.read_text())
+                adopted = True
+                continue
+            fail(f'No oracle for output {file_out.name}.')
+
     for stored_oracle in files_oracle:
         file_out = tmp_path / (stored_oracle.relative_to(dir_oracle))
         content_out = file_out.read_text().rstrip()
@@ -58,10 +70,11 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
         try:
             assert content_out == content_oracle
         except AssertionError:
-            if pytestconfig.getoption('adopt'):
+            if adopt:
                 stored_oracle.write_text(content_out + '\n')
                 adopted = True
                 continue
             raise
+
     if adopted:
         skip('New output adopted.')

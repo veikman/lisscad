@@ -121,25 +121,55 @@ def _(datum: d.Cube) -> LineGen:
 @transpile.register
 def _(datum: d.Translation2D) -> LineGen:
     coord = ', '.join(transpile(datum.coord))
-    yield from _translate(f'[{coord}]', *datum.children)
+    yield from _translate(*datum.children, head=f'[{coord}]')
 
 
 @transpile.register
 def _(datum: d.Translation3D) -> LineGen:
     coord = ', '.join(transpile(datum.coord))
-    yield from _translate(f'[{coord}]', *datum.children)
+    yield from _translate(*datum.children, head=f'[{coord}]')
 
 
 @transpile.register
 def _(datum: d.Rotation2D) -> LineGen:
     a = _rad_to_deg(datum.angle)
-    yield from _rotate(f'a={a}', *datum.children)
+    yield from _rotate(*datum.children, head=f'a={a}')
 
 
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
     angles = ', '.join(transpile(tuple(map(_rad_to_deg, datum.angle))))
-    yield from _rotate(f'a=[{angles}]', *datum.children)
+    yield from _rotate(*datum.children, head=f'a=[{angles}]')
+
+
+@transpile.register
+def _(datum: d.ModuleDefinition2D) -> LineGen:
+    yield from _module(datum.name, *datum.children)
+
+
+@transpile.register
+def _(datum: d.ModuleDefinition3D) -> LineGen:
+    yield from _module(datum.name, *datum.children)
+
+
+@transpile.register
+def _(datum: d.ModuleCall2D) -> LineGen:
+    yield from _contain(datum.name, *datum.children)
+
+
+@transpile.register
+def _(datum: d.ModuleCall3D) -> LineGen:
+    yield from _contain(datum.name, *datum.children)
+
+
+@transpile.register
+def _(datum: d.ModuleCallND) -> LineGen:
+    yield from _contain(datum.name)
+
+
+@transpile.register
+def _(datum: d.ModuleChildren) -> LineGen:
+    yield 'children();'
 
 
 ############
@@ -163,16 +193,25 @@ _root = partial(_modifier, '!')
 _disable = partial(_modifier, '*')
 
 
-def _contain(keyword: str, head: str, *body: d.LiteralExpression) -> LineGen:
-    yield f'{keyword}({head}) {{'
-    for child in body:
-        for line in transpile(child):
-            yield f'    {line}'
-    yield '};'
+def _contain(keyword: str,
+             *body: d.LiteralExpression,
+             prefix: str = '',
+             head: str = '',
+             postfix: str = ';') -> LineGen:
+    lead = f'{prefix}{keyword}({head}) '
+    if body:
+        yield lead + '{'
+        for child in body:
+            for line in transpile(child):
+                yield f'    {line}'
+        yield '}' + postfix
+    else:
+        yield lead + '{}' + postfix
 
 
-_union = partial(_contain, 'union', '')
-_difference = partial(_contain, 'difference', '')
-_intersection = partial(_contain, 'intersection', '')
+_union = partial(_contain, 'union')
+_difference = partial(_contain, 'difference')
+_intersection = partial(_contain, 'intersection')
 _translate = partial(_contain, 'translate')
 _rotate = partial(_contain, 'rotate')
+_module = partial(_contain, prefix='module ')

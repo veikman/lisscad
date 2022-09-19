@@ -5,4 +5,4 @@
     (translate '(0 4) (square '(1 2)))
     (square '(2 1))))
 
-(write (dict : name "kanxe" model model))
+(write (@ model))

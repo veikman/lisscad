@@ -88,6 +88,46 @@ def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
                         _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def define_module(
+    name: str, *children: d.LiteralExpression
+) -> d.ModuleDefinition2D | d.ModuleDefinition3D:
+    """Define an OpenSCAD module.
+
+    This is intended for use in limiting the sheer amount of OpenSCAD code
+    generated for a repetitive design. Depending on the development of
+    OpenSCAD, there may be caching benefits as well.
+
+    Like scad-clj, lisscad does not support arguments to modules.
+
+    """
+    if _is_2d(*children):
+        return d.ModuleDefinition2D(
+            name, _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.ModuleDefinition3D(
+        name, _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def call_module(
+    name: str, *children: d.LiteralExpression
+) -> d.ModuleCall2D | d.ModuleCall3D | d.ModuleCallND:
+    if children:
+        if _is_2d(*children):
+            return d.ModuleCall2D(
+                name, _cast(tuple[d.LiteralExpression2D, ...], children))
+        return d.ModuleCall3D(
+            name, _cast(tuple[d.LiteralExpression3D, ...], children))
+    return d.ModuleCallND(name)
+
+
+def children():
+    """Place the children of a call to a module inside that module.
+
+    Neither indexing nor counting of children are currently supported.
+
+    """
+    return d.ModuleChildren()
+
+
 ############
 # INTERNAL #
 ############

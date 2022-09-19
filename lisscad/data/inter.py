@@ -34,28 +34,32 @@ class Base3D(BaseExpression):
     pass
 
 
+class BaseND(BaseExpression):
+    pass
+
+
 class BaseModifier(BaseExpression):
     """A modifier such as “%”, “#” or “!”. Scoped for just one expression."""
 
 
 @dataclass(frozen=True)
 class BaseModifier2D(Base2D, BaseModifier):
-    child: LiteralExpression2D
+    child: LiteralExpressionNon3D
 
 
 @dataclass(frozen=True)
 class BaseModifier3D(Base3D, BaseModifier):
-    child: LiteralExpression3D
+    child: LiteralExpressionNon2D
 
 
 @dataclass(frozen=True)
 class BaseBoolean2D(Base2D):
-    children: tuple[LiteralExpression2D, ...]
+    children: tuple[LiteralExpressionNon3D, ...]
 
 
 @dataclass(frozen=True)
 class BaseBoolean3D(Base3D):
-    children: tuple[LiteralExpression3D, ...]
+    children: tuple[LiteralExpressionNon2D, ...]
 
 
 class BaseTransformation2D(Base2D):
@@ -72,6 +76,16 @@ class BaseShape2D(Base2D):
 
 class BaseShape3D(Base3D):
     pass
+
+
+@dataclass(frozen=True)
+class BaseModuleDefinition(BaseExpression):
+    name: str
+
+
+@dataclass(frozen=True)
+class BaseModuleCall(BaseExpression):
+    name: str
 
 
 def update_forward_refs(*model):
@@ -223,13 +237,13 @@ LiteralShape3D = Sphere | Cube
 @dataclass(frozen=True)
 class Translation2D(BaseTransformation2D):
     coord: Tuple2D
-    children: tuple[LiteralExpression2D, ...]
+    children: tuple[LiteralExpressionNon3D, ...]
 
 
 @dataclass(frozen=True)
 class Rotation2D(BaseTransformation2D):
     angle: float
-    children: tuple[LiteralExpression2D, ...]
+    children: tuple[LiteralExpressionNon3D, ...]
 
 
 LiteralTransformation2D = Translation2D | Rotation2D
@@ -242,32 +256,90 @@ LiteralTransformation2D = Translation2D | Rotation2D
 @dataclass(frozen=True)
 class Translation3D(BaseTransformation3D):
     coord: Tuple3D
-    children: tuple[LiteralExpression3D, ...]
+    children: tuple[LiteralExpressionNon2D, ...]
 
 
 @dataclass(frozen=True)
 class Rotation3D(BaseTransformation3D):
     angle: Tuple3D
-    children: tuple[LiteralExpression3D, ...]
+    children: tuple[LiteralExpressionNon2D, ...]
 
 
 LiteralTransformation3D = Translation3D | Rotation3D
+
+##############
+# 2D MODULES #
+##############
+
+
+@dataclass(frozen=True)
+class ModuleDefinition2D(Base2D, BaseModuleDefinition):
+    children: tuple[LiteralExpressionNon3D, ...]
+
+
+@dataclass(frozen=True)
+class ModuleCall2D(Base2D, BaseModuleCall):
+    children: tuple[LiteralExpressionNon3D, ...]
+
+
+LiteralModule2D = ModuleDefinition2D | ModuleCall2D
+
+##############
+# 3D MODULES #
+##############
+
+
+@dataclass(frozen=True)
+class ModuleDefinition3D(Base3D, BaseModuleDefinition):
+    children: tuple[LiteralExpressionNon2D, ...]
+
+
+@dataclass(frozen=True)
+class ModuleCall3D(Base3D, BaseModuleCall):
+    children: tuple[LiteralExpressionNon2D, ...]
+
+
+LiteralModule3D = ModuleDefinition3D | ModuleCall3D
+
+###########################
+# ANY-DIMENSIONAL MODULES #
+###########################
+
+
+@dataclass(frozen=True)
+class ModuleCallND(BaseND, BaseModuleCall):
+    pass
+
+
+@dataclass(frozen=True)
+class ModuleChildren(BaseND):
+    pass
+
 
 ##########
 # ROSTER #
 ##########
 
 LiteralExpression2D = Union[LiteralModifier2D, LiteralBoolean2D,
-                            LiteralShape2D, LiteralTransformation2D]
+                            LiteralShape2D, LiteralTransformation2D,
+                            LiteralModule2D]
 LiteralExpression3D = Union[LiteralModifier3D, LiteralBoolean3D,
-                            LiteralShape3D, LiteralTransformation3D]
-LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D]
+                            LiteralShape3D, LiteralTransformation3D,
+                            LiteralModule3D]
+LiteralExpressionND = Union[ModuleCallND, ModuleChildren]
+
+LiteralExpressionNon2D = Union[LiteralExpression3D, LiteralExpressionND]
+LiteralExpressionNon3D = Union[LiteralExpression2D, LiteralExpressionND]
+LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
+                          LiteralExpressionND]
 
 ###############
 # FINALIZATON #
 ###############
 
 update_forward_refs(Background2D, Debug2D, Root2D, Disable2D, Union2D,
-                    Difference2D, Intersection2D, Translation2D, Rotation2D)
+                    Difference2D, Intersection2D, Translation2D, Rotation2D,
+                    ModuleDefinition2D, ModuleCall2D)
 update_forward_refs(Background3D, Debug3D, Root3D, Disable3D, Union3D,
-                    Difference3D, Intersection3D, Translation3D, Rotation3D)
+                    Difference3D, Intersection3D, Translation3D, Rotation3D,
+                    ModuleDefinition3D, ModuleCall3D)

@@ -1,0 +1,9 @@
+(lisscad.prelude.._macro_.standard)
+
+(define m1 "module1")
+(define m2 "module2")
+
+(write (@ (define_module m1 (sphere 1))
+          (call_module m1))
+       (@ (define_module m2 (rotate (/ π 4) (children)))
+          (call_module m2 (square (@ 1 3)))))

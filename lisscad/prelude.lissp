@@ -38,4 +38,7 @@
      (define & lisscad.shorthand..intersection)
      (define + lisscad.op..add)
      (define - lisscad.op..sub)
-     (define / lisscad.op..div)))
+     (define / lisscad.op..div)
+
+     ;; Longer aliases, mainly for idiomatic kebab case.
+     (define call-module (partial lisscad.shorthand..module : call True))))

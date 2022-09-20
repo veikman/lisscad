@@ -5,7 +5,7 @@ This interface is patterned after scad-clj rather than OpenSCAD itself.
 """
 
 # Imports are styled so as to limit pollution when this module is star-imported
-# via lisscad.prelude.
+# via lisscad.prelude. TODO: Transition to __all__.
 from typing import Type as _Type
 from typing import cast as _cast
 
@@ -88,35 +88,18 @@ def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
                         _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def define_module(
-    name: str, *children: d.LiteralExpression
-) -> d.ModuleDefinition2D | d.ModuleDefinition3D:
-    """Define an OpenSCAD module.
+def module(name: str, *children: d.LiteralExpression, call=False):
+    """Define an OpenSCAD module, or call one.
 
-    This is intended for use in limiting the sheer amount of OpenSCAD code
-    generated for a repetitive design. Depending on the development of
-    OpenSCAD, there may be caching benefits as well.
-
-    Like scad-clj, lisscad does not support arguments to modules.
+    This function does both partly because a name like “define_module” would be
+    non-idiomatic in Lissp, partly because the OpenSCAD syntax to call a module
+    is just the name of it with postfix parentheses.
 
     """
-    if _is_2d(*children):
-        return d.ModuleDefinition2D(
-            name, _cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.ModuleDefinition3D(
-        name, _cast(tuple[d.LiteralExpression3D, ...], children))
-
-
-def call_module(
-    name: str, *children: d.LiteralExpression
-) -> d.ModuleCall2D | d.ModuleCall3D | d.ModuleCallND:
-    if children:
-        if _is_2d(*children):
-            return d.ModuleCall2D(
-                name, _cast(tuple[d.LiteralExpression2D, ...], children))
-        return d.ModuleCall3D(
-            name, _cast(tuple[d.LiteralExpression3D, ...], children))
-    return d.ModuleCallND(name)
+    if call:
+        return _call_module(name, *children)
+    assert children
+    return _define_module(name, *children)
 
 
 def children():
@@ -154,3 +137,34 @@ def _contain(
     if _is_2d(*children):
         return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
     return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def _define_module(
+    name: str, *children: d.LiteralExpression
+) -> d.ModuleDefinition2D | d.ModuleDefinition3D:
+    """Define an OpenSCAD module.
+
+    This is intended for use in limiting the sheer amount of OpenSCAD code
+    generated for a repetitive design. Depending on the development of
+    OpenSCAD, there may be caching benefits as well.
+
+    Like scad-clj, lisscad does not support arguments to modules.
+
+    """
+    if _is_2d(*children):
+        return d.ModuleDefinition2D(
+            name, _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.ModuleDefinition3D(
+        name, _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def _call_module(
+    name: str, *children: d.LiteralExpression
+) -> d.ModuleCall2D | d.ModuleCall3D | d.ModuleCallND:
+    if children:
+        if _is_2d(*children):
+            return d.ModuleCall2D(
+                name, _cast(tuple[d.LiteralExpression2D, ...], children))
+        return d.ModuleCall3D(
+            name, _cast(tuple[d.LiteralExpression3D, ...], children))
+    return d.ModuleCallND(name)

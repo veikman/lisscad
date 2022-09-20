@@ -4,4 +4,4 @@
   (->> (cube '(1 2 4))
     (translate '(0 0 8))))
 
-(write (dict : name "bliku" content model))
+(write (dict : name "pluja" content model))

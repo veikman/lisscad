@@ -1,3 +1,0 @@
-(lisscad.prelude.._macro_.standard)
-
-(write (dict : name "bliku" content (cube '(1 2 4))))

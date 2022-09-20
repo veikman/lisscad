@@ -70,6 +70,11 @@ class BaseTransformation3D(Base3D):
     pass
 
 
+@dataclass(frozen=True)
+class BaseMirror(BaseExpression):
+    axes: tuple[int, int, int]
+
+
 class BaseShape2D(Base2D):
     pass
 
@@ -246,7 +251,12 @@ class Rotation2D(BaseTransformation2D):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-LiteralTransformation2D = Translation2D | Rotation2D
+@dataclass(frozen=True)
+class Mirror2D(BaseTransformation2D, BaseMirror):
+    children: tuple[LiteralExpressionNon3D, ...]
+
+
+LiteralTransformation2D = Translation2D | Rotation2D | Mirror2D
 
 ######################
 # 3D TRANSFORMATIONS #
@@ -265,7 +275,12 @@ class Rotation3D(BaseTransformation3D):
     children: tuple[LiteralExpressionNon2D, ...]
 
 
-LiteralTransformation3D = Translation3D | Rotation3D
+@dataclass(frozen=True)
+class Mirror3D(BaseTransformation3D, BaseMirror):
+    children: tuple[LiteralExpressionNon2D, ...]
+
+
+LiteralTransformation3D = Translation3D | Rotation3D | Mirror3D
 
 ##############
 # 2D MODULES #
@@ -339,7 +354,9 @@ LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
 
 update_forward_refs(Background2D, Debug2D, Root2D, Disable2D, Union2D,
                     Difference2D, Intersection2D, Translation2D, Rotation2D,
+                    Mirror2D,
                     ModuleDefinition2D, ModuleCall2D)
 update_forward_refs(Background3D, Debug3D, Root3D, Disable3D, Union3D,
                     Difference3D, Intersection3D, Translation3D, Rotation3D,
+                    Mirror3D,
                     ModuleDefinition3D, ModuleCall3D)

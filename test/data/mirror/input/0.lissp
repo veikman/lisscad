@@ -1,0 +1,7 @@
+(lisscad.prelude.._macro_.standard)
+
+(define c (translate '(10 4 0) (cube '(1 4 2))))
+(define s (translate '(10 -4) (square '(1 4))))
+
+(write (@ c (mirror '(1 0 0) c))
+       (@ s (mirror '(0 1 0) s)))

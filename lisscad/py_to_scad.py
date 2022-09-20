@@ -143,6 +143,16 @@ def _(datum: d.Rotation3D) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Mirror2D) -> LineGen:
+    yield from _mirror(datum)
+
+
+@transpile.register
+def _(datum: d.Mirror3D) -> LineGen:
+    yield from _mirror(datum)
+
+
+@transpile.register
 def _(datum: d.ModuleDefinition2D) -> LineGen:
     yield from _module(datum.name, *datum.children)
 
@@ -207,6 +217,11 @@ def _contain(keyword: str,
         yield '}' + postfix
     else:
         yield lead + '{}' + postfix
+
+
+def _mirror(datum: d.Mirror2D | d.Mirror3D):
+    axes = ', '.join(map(str, datum.axes))
+    yield from _contain('mirror', *datum.children, head=f'v=[{axes}]')
 
 
 _union = partial(_contain, 'union')

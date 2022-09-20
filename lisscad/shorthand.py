@@ -88,6 +88,13 @@ def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
                         _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def mirror(axes: tuple[int, int, int], *children: d.LiteralExpression):
+    if _is_2d(*children):
+        return d.Mirror2D(axes,
+                          _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Mirror3D(axes, _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

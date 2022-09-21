@@ -17,9 +17,9 @@ class Asset:
 
     @validator('content', pre=True)
     def _to_list(cls, value):
-        """Convert content to a tuple if it’s just one expression.
+        """Convert content to a maker of a tuple.
 
-        This is a convenience for use in CAD scripts.
+        This flexibility is a convenience for use in CAD scripts.
 
         """
         if isinstance(value, BaseExpression):

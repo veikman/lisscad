@@ -10,6 +10,9 @@ class Asset:
     content: tuple[LiteralExpression, ...]
     name: str = 'untitled'
 
+    chiral: bool = False
+    mirrored: bool = False
+
     @validator('content', pre=True)
     def _to_list(cls, value):
         """Convert content to a tuple if it’s just one expression.

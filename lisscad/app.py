@@ -4,13 +4,15 @@ This module is intended to be imported from a Lissp script.
 
 """
 
+from dataclasses import replace
 from itertools import count
 from pathlib import Path
-from typing import Callable, cast
+from typing import Callable, Generator, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
 from lisscad.py_to_scad import transpile
+from lisscad.shorthand import mirror, module, union
 
 #############
 # INTERFACE #
@@ -18,6 +20,12 @@ from lisscad.py_to_scad import transpile
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
+
+
+def refine(asset: Asset, flip_chiral=True) -> Asset:
+    content = tuple(e for a in _prepend_modules(asset, flip_chiral)
+                    for e in a.content())
+    return replace(asset, content=lambda: content)
 
 
 def write(*assets: Asset | dict | BaseExpression | list[BaseExpression],
@@ -76,3 +84,21 @@ def _package_asset(raw: Asset | dict | BaseExpression | list[BaseExpression]
                      name=name)
 
     raise TypeError(f'Unable to process {raw!r} as a lisscad asset.')
+
+
+def _prepend_modules(asset: Asset,
+                     flip_chiral: bool) -> Generator[Asset, None, None]:
+    for m in asset.modules:
+        content = m.content()
+        if len(content) > 1:
+            content = (union(*content), )
+        mirrored = m.mirrored
+        if m.chiral and not mirrored and flip_chiral:
+            mirrored = True
+            content = (mirror((1, 0, 0), content[0]), )
+        content = (module(m.name, *content), )
+        yield replace(m,
+                      content=lambda: content,
+                      modules=(),
+                      mirrored=mirrored)
+    yield replace(asset, modules=())

@@ -1,5 +1,7 @@
 """Metadata model, for data that is not OpenSCAD."""
 
+from __future__ import annotations
+
 from typing import Callable
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
@@ -10,6 +12,7 @@ from pydantic.dataclasses import dataclass
 @dataclass(frozen=True)
 class Asset:
     content: Callable[[], tuple[LiteralExpression, ...]]
+    modules: tuple[Asset, ...] = ()
     name: str = 'untitled'
 
     chiral: bool = False

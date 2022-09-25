@@ -9,11 +9,18 @@ extend-ignore = 'D102,D103,D105,D107,E203'
 plugins = ['pydantic.mypy']
 show_error_codes = true
 
-
 [[tool.mypy.overrides]]
 # The following should be checked periodically in case they appear on typeshed.
 module = [
   'hissp.reader',
   'inotify_simple',
+  'invoke',
 ]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Ignore generated code.
+module = [
+  'lisscad.prelude',
+]
+ignore_errors = true

@@ -7,4 +7,3 @@ module module2() {
 module2() {
     square(size=[1.0, 3.0], center=true);
 };
-

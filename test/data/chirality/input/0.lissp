@@ -1,0 +1,37 @@
+(lisscad.prelude.._macro_.standard)
+
+;; This placeholder for a screw hole is not threaded, because it should be easy
+;; to inspect OpenSCAD output from the test. It is instead slightly rotated to
+;; make the difference visually detectable.
+(define screw
+  (Asset : name "screw"
+           content (rotate (@ 0.2 0 0.2) (cube '(0.7 0.7 5)))
+           chiral True))
+
+;; The sprocket asset represents an achiral module.
+(define sprocket
+  (Asset : name "sprocket"
+           content (sphere 1)))
+
+(define console
+  (- (| (translate '(0 0 2) (cube '(2 1 5)))
+        (translate '(2 0 0) (cube '(5 2 1)))
+        (translate '(0 2 0) (cube '(1 5 2))))
+     (translate '(3 0 0) (module "screw" : call True))
+     (translate '(0 0 3) (module "sprocket" : call True))))
+
+(write
+  ;; The achiral asset should not be flipped in any way;
+  ;; it should be exactly as designed in this script.
+  (dict : name "achiral"
+          content console
+          modules (@ screw sprocket))
+  ;; The chiral asset should be produced in two versions:
+  ;; One that is identical in content to the achiral asset,
+  ;; and another one in a separate file where the console module is flipped
+  ;; *and* it uses a screw module that is flipped (again) to retain its
+  ;; original orientation, but still has the name “screw”.
+  (dict : name "chiral"
+          content console
+          modules (@ screw sprocket)
+          chiral True))

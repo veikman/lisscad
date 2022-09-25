@@ -7,4 +7,3 @@ mirror(v=[0, 1, 0]) {
         square(size=[1.0, 4.0], center=true);
     };
 };
-

@@ -23,7 +23,6 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     adopt = pytestconfig.getoption('adopt')
 
     dir_in = case / 'input'
-    print(dir_in)
     dir_oracle = case / 'oracle'
 
     if not dir_in.is_dir():

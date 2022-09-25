@@ -18,6 +18,7 @@
      ;; Imports:
      (exec "from lisscad.shorthand import *" (globals))
      (exec "from lisscad.app import write" (globals))
+     (exec "from lisscad.data.other import Asset" (globals))
 
      ;; Constants:
      (define π math..pi)

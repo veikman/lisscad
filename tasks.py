@@ -36,7 +36,3 @@ def new_case(c, name):
     with p.open('w') as f:
         f.write('(lisscad.prelude.._macro_.standard)\n\n')
         f.write('(write ())\n')
-
-    p = r / 'oracle/untitled_0_0.scad'
-    p.parent.mkdir()
-    p.write_text('')

@@ -1,5 +1,6 @@
 """Automated integration testing using lissp subprocesses."""
 
+from functools import partial
 from itertools import count
 from pathlib import Path
 from unittest.mock import patch
@@ -7,7 +8,7 @@ from unittest.mock import patch
 from hissp.reader import Lissp
 from pytest import fail, mark, skip
 
-from lisscad.app import _compose_scad_output_path
+from lisscad.app import _compose_scad_output_path, write
 
 CASES = [(p.name, p) for p in sorted(Path('test/data/').glob('*'))]
 
@@ -38,9 +39,14 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     if not files_oracle and not adopt:
         fail(f'No files in {dir_oracle}.')
 
-    with patch(
+    # Unlike the lissp CLI, pytest leaves sys.argv intact after parsing its own
+    # arguments. An empty vector is passed to write here via patch, so that
+    # write’s internal CLI parser does not exit with an error when pytest is
+    # called with an argument.
+    with (patch(
             'lisscad.app._compose_scad_output_path',
-            new=lambda _, asset: _compose_scad_output_path(tmp_path, asset)):
+            new=lambda _, asset: _compose_scad_output_path(tmp_path, asset)),
+          patch('lisscad.app.write', new=partial(write, argv=[]))):
         for file_in in files_input:
             code = file_in.read_text()
             try:

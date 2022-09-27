@@ -3,17 +3,18 @@
 This module is intended to be imported from a Lissp script.
 
 """
-
 import sys
+from argparse import ArgumentParser
 from collections.abc import Iterable
 from dataclasses import replace
 from itertools import count
+from multiprocessing import Pool
 from pathlib import Path
 from typing import Callable, Generator, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
-from lisscad.py_to_scad import transpile
+from lisscad.py_to_scad import LineGen, transpile
 from lisscad.shorthand import mirror, module, union
 
 #############
@@ -35,6 +36,7 @@ def refine(asset: Asset, **kwargs) -> Asset:
 def write(*protoasset: Asset | dict | BaseExpression
           | Iterable[BaseExpression]
           | Callable[[], tuple[BaseExpression, ...]],
+          argv: str = None,
           dir_scad: Path = DIR_SCAD,
           **kwargs):
     """Convert intermediate representations to OpenSCAD code.
@@ -47,6 +49,9 @@ def write(*protoasset: Asset | dict | BaseExpression
     _asset_ordinal = count()
     paths: set[Path] = set()
 
+    args = _define_cli().parse_args(sys.argv[1:] if argv is None else argv)
+    jobs: list[tuple[bool, str, Path]] = []
+
     for p in protoasset:
         source_asset = _name_asset(p, n_invocation, next(_asset_ordinal))
         for asset in _refine_nonmodule(source_asset, **kwargs):
@@ -54,16 +59,18 @@ def write(*protoasset: Asset | dict | BaseExpression
 
             if file_out in paths:
                 print(f'Duplicate output path: “{file_out}”.', file=sys.stderr)
-
-            file_out.parent.mkdir(parents=True, exist_ok=True)
-
-            with file_out.open('w') as f:
-                for expression in asset.content():
-                    for line in transpile(expression):
-                        f.write(line + '\n')
-                    f.write('\n')
-
             paths.add(file_out)
+
+            # Transpilation is serial because multiprocessing can’t deal with
+            # arbitrary types.
+            scad = '\n'.join(_asset_to_scad(asset))
+
+            jobs.append((args.render, scad, file_out))
+
+    # Do the remainder of the work in parallel. Maximum of one subprocess per
+    # processor on the user’s machine.
+    with Pool() as pool:
+        pool.starmap(_process, jobs)
 
 
 ############
@@ -166,3 +173,41 @@ def _refine_nonmodule(asset: Asset,
     yield _flatten(asset, flip_chiral=False, **kwargs)
     if asset.chiral and not asset.mirrored and flip_chiral:
         yield _flatten(asset, flip_chiral=True, **kwargs)
+
+
+def _asset_to_scad(asset: Asset) -> LineGen:
+    """Put a blank line between assets."""
+    for expression in asset.content():
+        yield from transpile(expression)
+        yield ''
+
+
+def _process(render: bool, scad: str, file: Path):
+    """Write output file(s) corresponding to one asset.
+
+    This function has a serializable argument signature because it is designed
+    to work with multiprocessing.
+
+    """
+    file.parent.mkdir(parents=True, exist_ok=True)
+
+    with file.open('w') as f:
+        f.write(scad)
+
+
+def _define_cli():
+    """Define a command-line interface for controlling CAD output.
+
+    This is designed to let the CAD engineer do temporary behavioural tweaks
+    without having to set environment variables or modify input files. It’s not
+    related to lisscad.__main__, and unlike lisscad.__main__, it doesn’t use
+    Typer because it isn’t modal and can’t act immediately on its arguments.
+
+    """
+    parser = ArgumentParser()
+    parser.add_argument('-r',
+                        '--render',
+                        default=False,
+                        action='store_true',
+                        help='Call OpenSCAD to render to e.g. STL.')
+    return parser

@@ -3,17 +3,20 @@
 This module is intended to be imported from a Lissp script.
 
 """
+
 import sys
 from argparse import ArgumentParser
 from collections.abc import Iterable
 from dataclasses import replace
+from functools import partial
 from itertools import count
 from multiprocessing import Pool
 from pathlib import Path
+from subprocess import run
 from typing import Callable, Generator, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
-from lisscad.data.other import Asset
+from lisscad.data.other import Asset, Gimbal, Image, Vector
 from lisscad.py_to_scad import LineGen, transpile
 from lisscad.shorthand import mirror, module, union
 
@@ -25,6 +28,7 @@ Renamer = Callable[[str], str]
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
+DIR_RENDER = DIR_OUTPUT / 'render'
 
 
 def refine(asset: Asset, **kwargs) -> Asset:
@@ -37,7 +41,9 @@ def write(*protoasset: Asset | dict | BaseExpression
           | Iterable[BaseExpression]
           | Callable[[], tuple[BaseExpression, ...]],
           argv: str = None,
+          rendering_program: Path = Path('openscad'),
           dir_scad: Path = DIR_SCAD,
+          dir_render: Path = DIR_RENDER,
           **kwargs):
     """Convert intermediate representations to OpenSCAD code.
 
@@ -50,22 +56,32 @@ def write(*protoasset: Asset | dict | BaseExpression
     paths: set[Path] = set()
 
     args = _define_cli().parse_args(sys.argv[1:] if argv is None else argv)
-    jobs: list[tuple[bool, str, Path]] = []
+    jobs: list[tuple[str, Path, list[list[str]]]] = []
+
+    dir_scad.mkdir(parents=True, exist_ok=True)
+    if args.render:
+        dir_render.mkdir(parents=True, exist_ok=True)
 
     for p in protoasset:
         source_asset = _name_asset(p, n_invocation, next(_asset_ordinal))
         for asset in _refine_nonmodule(source_asset, **kwargs):
-            file_out = _compose_scad_output_path(dir_scad, asset)
+            file_scad = _compose_scad_output_path(dir_scad, asset)
 
-            if file_out in paths:
-                print(f'Duplicate output path: “{file_out}”.', file=sys.stderr)
-            paths.add(file_out)
+            if file_scad in paths:
+                print(f'Duplicate output path: “{file_scad}”.',
+                      file=sys.stderr)
+            paths.add(file_scad)
 
             # Transpilation is serial because multiprocessing can’t deal with
-            # arbitrary types.
+            # the arbitrary types used in the intermediate data model.
             scad = '\n'.join(_asset_to_scad(asset))
 
-            jobs.append((args.render, scad, file_out))
+            cmds = list(
+                _prepare_commands(
+                    partial(_compose_openscad_command, rendering_program,
+                            file_scad), asset, file_scad, dir_render,
+                    args.render))
+            jobs.append((scad, file_scad, cmds))
 
     # Do the remainder of the work in parallel. Maximum of one subprocess per
     # processor on the user’s machine.
@@ -81,7 +97,50 @@ _INVOCATION_ORDINAL = count()
 
 
 def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:
+    """Compose OpenSCAD output/input file path."""
     return dirpath / f'{asset.name}.scad'
+
+
+def _compose_openscad_command(rendering_program: Path,
+                              input: Path,
+                              output: Path = None,
+                              image: Image = None) -> LineGen:
+    """Compose a complete, shell-ready command for running OpenSCAD."""
+    yield str(rendering_program)
+    if output:
+        yield '-o'
+        yield str(output)
+    if image:
+        if image.camera:
+            c = image.camera
+            yield '--camera'
+            if isinstance(c, Gimbal):
+                yield ','.join(
+                    map(str,
+                        list(c.translation) + list(c.rotation) + [c.distance]))
+            assert isinstance(c, Vector)
+            yield ','.join(map(str, list(c.eye) + list(c.center)))
+        if image.size:
+            yield '--imgsize'
+            yield ','.join(map(str, image.size))
+        if image.colorscheme:
+            yield '--colorscheme'
+            yield image.colorscheme
+    yield str(input)
+
+
+def _prepare_commands(compose, asset: Asset, file_scad: Path, dir_render: Path,
+                      render: bool) -> Generator[list[str], None, None]:
+    if not render:
+        return
+
+    # Assume 3D geometry and OpenSCAD’s default flavour of STL.
+    file_stl = (dir_render / file_scad.name).with_suffix('.stl')
+    yield list(compose(output=file_stl))
+
+    for image in asset.images:
+        file_img = dir_render / image.path
+        yield list(compose(output=file_img, image=image))
 
 
 def _name_asset(raw: Asset | dict | BaseExpression
@@ -182,17 +241,18 @@ def _asset_to_scad(asset: Asset) -> LineGen:
         yield ''
 
 
-def _process(render: bool, scad: str, file: Path):
+def _process(scad: str, file_scad: Path, render_cmds: list[list[str]]):
     """Write output file(s) corresponding to one asset.
 
     This function has a serializable argument signature because it is designed
     to work with multiprocessing.
 
     """
-    file.parent.mkdir(parents=True, exist_ok=True)
-
-    with file.open('w') as f:
+    with file_scad.open('w') as f:
         f.write(scad)
+
+    for cmd in render_cmds:
+        run(cmd, capture_output=True, check=True)
 
 
 def _define_cli():

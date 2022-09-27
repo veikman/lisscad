@@ -2,20 +2,50 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Callable, cast
 
-from lisscad.data.inter import BaseExpression, LiteralExpression
-from pydantic import validator
+from lisscad.data.inter import BaseExpression, LiteralExpression, Tuple3D
+from pydantic import PositiveFloat, validator
 from pydantic.dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Gimbal:
+    """A gimbal camera setup."""
+
+    translation: Tuple3D
+    rotation: Tuple3D
+    distance: PositiveFloat
+
+
+@dataclass(frozen=True)
+class Vector:
+    """A vector camera setup."""
+
+    eye: Tuple3D
+    center: Tuple3D
+
+
+@dataclass(frozen=True)
+class Image:
+    """A two-dimensional picture of an asset."""
+
+    path: Path  # Relative to render directory.
+    camera: Gimbal | Vector | None = None
+    size: tuple[int, int] | None = None
+    colorscheme: str = ''
 
 
 @dataclass(frozen=True)
 class Asset:
     """A CAD asset composed of zero or more OpenSCAD models."""
+
     content: Callable[[], tuple[LiteralExpression, ...]]
 
     name: str = 'untitled'
     modules: tuple[Asset, ...] = ()
+    images: tuple[Image, ...] = ()
     chiral: bool = False
     mirrored: bool = False
 

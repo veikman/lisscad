@@ -1,16 +1,19 @@
 """Automated integration testing using lissp subprocesses."""
 
+from ast import literal_eval
 from functools import partial
 from itertools import count
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from hissp.reader import Lissp
 from pytest import fail, mark, skip
 
-from lisscad.app import _compose_scad_output_path, write
+from lisscad.app import _compose_scad_output_path, _process_all, write
 
 CASES = [(p.name, p) for p in sorted(Path('test/data/').glob('*'))]
+
+FILE_RENDERCALLS = 'rendercalls.py'
 
 
 @mark.parametrize('_, case', CASES)
@@ -28,6 +31,10 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
 
     if not dir_in.is_dir():
         fail(f'No input directory at {dir_in}.')
+
+    if adopt:
+        dir_oracle.mkdir(exist_ok=True)
+
     if not dir_oracle.is_dir():
         fail(f'No reference directory at {dir_in}.')
 
@@ -39,14 +46,34 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     if not files_oracle and not adopt:
         fail(f'No files in {dir_oracle}.')
 
-    # Unlike the lissp CLI, pytest leaves sys.argv intact after parsing its own
-    # arguments. An empty vector is passed to write here via patch, so that
-    # write’s internal CLI parser does not exit with an error when pytest is
-    # called with an argument.
-    with (patch(
-            'lisscad.app._compose_scad_output_path',
-            new=lambda _, asset: _compose_scad_output_path(tmp_path, asset)),
-          patch('lisscad.app.write', new=partial(write, argv=[]))):
+    def mock_fork(scadjobs, renderjobs):
+        """Skip the forking."""
+        _process_all(Mock(), scadjobs, renderjobs)
+
+    runs = []
+
+    def _replace_tmp(cmd: list[str]) -> list[str]:
+        """Paper over the uniqueness of tmp_path."""
+        return [c.replace(str(tmp_path), 'fixture') for c in cmd]
+
+    def mock_render_all(_, renderjobs):
+        """Skip the process pool."""
+        for _, __, cmd in renderjobs:
+            runs.append(_replace_tmp(cmd))
+
+    with (
+            # Place files in /tmp.
+            patch('lisscad.app._compose_scad_output_path',
+                  new=lambda _, asset: _compose_scad_output_path(
+                      tmp_path, asset)),
+            # Don’t create processes or wait for their reports.
+            patch('lisscad.app._fork', new=mock_fork),
+            patch('lisscad.app._render_all', new=mock_render_all),
+            # Unlike the lissp CLI, pytest leaves sys.argv intact after parsing
+            # its own arguments. An empty vector is passed to write here via
+            # patch, so that write’s internal CLI parser does not exit with an
+            # error when pytest is called with an argument.
+            patch('lisscad.app.write', new=partial(write, argv=[]))):
         for file_in in files_input:
             code = file_in.read_text()
             try:
@@ -56,7 +83,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
             except Exception as e:
                 fail(f'Lissp compiler error: {e!r}')
 
-    adopted = False
+    adopted = _check_processes(adopt, case / FILE_RENDERCALLS, runs)
 
     for file_out in sorted(tmp_path.glob('*.scad')):
         matching_oracle = dir_oracle / file_out.name
@@ -68,7 +95,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
             fail(f'No oracle for output {file_out.name}.')
 
     for stored_oracle in files_oracle:
-        file_out = tmp_path / (stored_oracle.relative_to(dir_oracle))
+        file_out = tmp_path / stored_oracle.relative_to(dir_oracle)
         content_out = file_out.read_text().rstrip()
         content_oracle = stored_oracle.read_text().rstrip()
 
@@ -83,3 +110,43 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
 
     if adopted:
         skip('New output adopted.')
+
+
+class _MockProcess(Mock):
+    """Imitate the interface of multiprocessing.Process."""
+
+    def __init__(self, target, args):
+        super().__init__()
+        target(*args)  # Call target in calling thread.
+
+    def start(self):
+        pass
+
+    def join(self):
+        pass
+
+
+def _check_processes(adopt: bool, file: Path, calls: list[tuple[str,
+                                                                ...]]) -> bool:
+    if file.exists():
+        oracle = literal_eval(file.read_text())
+        try:
+            assert calls == oracle
+        except AssertionError:
+            if calls and adopt:
+                file.write_text(str(calls))
+                return True
+            raise
+        else:
+            return False
+
+    # Else file does not exist.
+    if calls:
+        if calls and adopt:
+            file.write_text(str(calls))
+            return True
+
+        fail('Called to render.')
+
+    # No oracle, no calls.
+    return False

@@ -1,0 +1,16 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (dict : name "pa"
+               content (sphere 1)
+               images (@ (dict : path "papa.png")))
+       (dict : name "re"
+               content (sphere 2)
+               images (@ (dict : path "repa.png"
+                                 camera (dict : eye '(100 100 20)))
+                         (dict : path "rere.jpg"
+                                 camera (dict : translation '(20 -30 5)
+                                                rotation '(-5 0 -40)
+                                                distance 30))))
+       ;; Rather than order rendering as metadata about the test case,
+       ;; it is ordered here. This would not be a typical usage.
+       : argv (@ "--render"))

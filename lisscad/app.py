@@ -9,10 +9,10 @@ from argparse import ArgumentParser
 from collections.abc import Iterable
 from dataclasses import replace
 from functools import partial
-from itertools import count
-from multiprocessing import Pool
+from itertools import chain, count
+from multiprocessing import Manager, Pool, Process, Queue
 from pathlib import Path
-from subprocess import run
+from subprocess import CalledProcessError, run
 from typing import Callable, Generator, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
@@ -25,6 +25,8 @@ from lisscad.shorthand import mirror, module, union
 #############
 
 Renamer = Callable[[str], str]
+
+RenderJob = tuple[str, str, list[str]]
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
@@ -40,7 +42,7 @@ def refine(asset: Asset, **kwargs) -> Asset:
 def write(*protoasset: Asset | dict | BaseExpression
           | Iterable[BaseExpression]
           | Callable[[], tuple[BaseExpression, ...]],
-          argv: str = None,
+          argv: list[str] = None,
           rendering_program: Path = Path('openscad'),
           dir_scad: Path = DIR_SCAD,
           dir_render: Path = DIR_RENDER,
@@ -51,42 +53,29 @@ def write(*protoasset: Asset | dict | BaseExpression
     scripts.
 
     """
-    n_invocation = next(_INVOCATION_ORDINAL)
-    _asset_ordinal = count()
-    paths: set[Path] = set()
-
+    # CLI arguments control whether to render etc. These can be overridden from
+    # the script itself, mainly for unit testing purposes.
     args = _define_cli().parse_args(sys.argv[1:] if argv is None else argv)
-    jobs: list[tuple[str, Path, list[list[str]]]] = []
+
+    scadjobs: dict[str, tuple[Asset, Path]] = {}
+    renderjobs: list[RenderJob] = []
 
     dir_scad.mkdir(parents=True, exist_ok=True)
     if args.render:
         dir_render.mkdir(parents=True, exist_ok=True)
 
-    for p in protoasset:
-        source_asset = _name_asset(p, n_invocation, next(_asset_ordinal))
-        for asset in _refine_nonmodule(source_asset, **kwargs):
-            file_scad = _compose_scad_output_path(dir_scad, asset)
+    assets_paths = map(
+        partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
+        zip(count(), protoasset))
+    for asset, file_scad in chain(*assets_paths):
+        scadjobs[asset.name] = (asset, file_scad)
+        steps_cmds = _prepare_commands(
+            partial(_compose_openscad_command, rendering_program, file_scad),
+            asset, file_scad, dir_render, args.render)
+        for step, cmd in steps_cmds:
+            renderjobs.append((asset.name, step, cmd))
 
-            if file_scad in paths:
-                print(f'Duplicate output path: “{file_scad}”.',
-                      file=sys.stderr)
-            paths.add(file_scad)
-
-            # Transpilation is serial because multiprocessing can’t deal with
-            # the arbitrary types used in the intermediate data model.
-            scad = '\n'.join(_asset_to_scad(asset))
-
-            cmds = list(
-                _prepare_commands(
-                    partial(_compose_openscad_command, rendering_program,
-                            file_scad), asset, file_scad, dir_render,
-                    args.render))
-            jobs.append((scad, file_scad, cmds))
-
-    # Do the remainder of the work in parallel. Maximum of one subprocess per
-    # processor on the user’s machine.
-    with Pool() as pool:
-        pool.starmap(_process, jobs)
+    _fork(scadjobs, renderjobs)
 
 
 ############
@@ -94,6 +83,10 @@ def write(*protoasset: Asset | dict | BaseExpression
 ############
 
 _INVOCATION_ORDINAL = count()
+
+_STEP_SCAD = 'scad'
+_STEP_GEOMETRY = 'geo'
+_STEP_IMAGES = 'img'
 
 
 def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:
@@ -118,8 +111,9 @@ def _compose_openscad_command(rendering_program: Path,
                 yield ','.join(
                     map(str,
                         list(c.translation) + list(c.rotation) + [c.distance]))
-            assert isinstance(c, Vector)
-            yield ','.join(map(str, list(c.eye) + list(c.center)))
+            else:
+                assert isinstance(c, Vector)
+                yield ','.join(map(str, list(c.eye) + list(c.center)))
         if image.size:
             yield '--imgsize'
             yield ','.join(map(str, image.size))
@@ -129,18 +123,34 @@ def _compose_openscad_command(rendering_program: Path,
     yield str(input)
 
 
-def _prepare_commands(compose, asset: Asset, file_scad: Path, dir_render: Path,
-                      render: bool) -> Generator[list[str], None, None]:
+def _prepare_assets(paths: set[Path], dir_scad, n_invocation: int,
+                    numbered: tuple[int, Asset],
+                    **kwargs) -> Generator[tuple[Asset, Path], None, None]:
+    n_protoasset, protoasset = numbered
+    source_asset = _name_asset(protoasset, n_invocation, n_protoasset)
+    for asset in _refine_nonmodule(source_asset, **kwargs):
+        file_scad = _compose_scad_output_path(dir_scad, asset)
+
+        if file_scad in paths:
+            print(f'Duplicate output path: “{file_scad}”.', file=sys.stderr)
+        paths.add(file_scad)
+
+        yield (asset, file_scad)
+
+
+def _prepare_commands(
+        compose, asset: Asset, file_scad: Path, dir_render: Path,
+        render: bool) -> Generator[tuple[str, list[str]], None, None]:
     if not render:
         return
 
     # Assume 3D geometry and OpenSCAD’s default flavour of STL.
     file_stl = (dir_render / file_scad.name).with_suffix('.stl')
-    yield list(compose(output=file_stl))
+    yield (_STEP_GEOMETRY, list(compose(output=file_stl)))
 
     for image in asset.images:
         file_img = dir_render / image.path
-        yield list(compose(output=file_img, image=image))
+        yield (_STEP_IMAGES, list(compose(output=file_img, image=image)))
 
 
 def _name_asset(raw: Asset | dict | BaseExpression
@@ -241,18 +251,64 @@ def _asset_to_scad(asset: Asset) -> LineGen:
         yield ''
 
 
-def _process(scad: str, file_scad: Path, render_cmds: list[list[str]]):
-    """Write output file(s) corresponding to one asset.
+def _write_scad(asset: Asset, file: Path) -> None:
+    scad = '\n'.join(_asset_to_scad(asset))
+    file.write_text(scad)
+
+
+def _render(q: Queue, asset: str, step: str, cmd: list[str]):
+    """Write one file of rendered output based on one asset.
 
     This function has a serializable argument signature because it is designed
     to work with multiprocessing.
 
     """
-    with file_scad.open('w') as f:
-        f.write(scad)
-
-    for cmd in render_cmds:
+    try:
         run(cmd, capture_output=True, check=True)
+    except CalledProcessError:
+        q.put([asset, step, False])
+    else:
+        q.put([asset, step, True])
+
+
+def _render_all(q, renderjobs):
+    if not renderjobs:
+        return
+    with Pool() as pool:
+        pool.starmap(_render, ([q] + list(r) for r in renderjobs))
+
+
+def _process_all(q, scadjobs, renderjobs: list[RenderJob]):
+    """Write all output files.
+
+    Transpilation to OpenSCAD happens first because it must be complete before
+    each asset can be rendered. It is serial because it is assumed to be
+    blocked mainly by file I/O, not CPU, and is relatively fast.
+
+    The rest of the work is done in parallel where possible, using a maximum of
+    one subprocess per processor on the user’s machine.
+
+    """
+    for name, job in scadjobs.items():
+        try:
+            _write_scad(*job)
+        except Exception:
+            raise
+            q.put([name, _STEP_SCAD, False])
+        else:
+            q.put([name, _STEP_SCAD, True])
+
+    _render_all(q, renderjobs)
+
+
+def _fork(scadjobs, renderjobs: list[RenderJob]):
+    manager = Manager()
+    q = manager.Queue()
+    process = Process(target=_process_all, args=(q, scadjobs, renderjobs))
+    process.start()
+    for n in range(len(scadjobs) + len(renderjobs)):
+        print(q.get())
+    process.join()
 
 
 def _define_cli():

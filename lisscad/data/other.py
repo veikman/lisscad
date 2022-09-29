@@ -24,7 +24,7 @@ class Vector:
     """A vector camera setup."""
 
     eye: Tuple3D
-    center: Tuple3D
+    center: Tuple3D = (0, 0, 0)
 
 
 @dataclass(frozen=True)

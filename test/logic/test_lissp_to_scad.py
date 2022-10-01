@@ -46,9 +46,11 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
     if not files_oracle and not adopt:
         fail(f'No files in {dir_oracle}.')
 
-    def mock_fork(scadjobs, renderjobs):
+    def mock_fork(scadjobs, renderjobs, report_progress, report_failure):
         """Skip the forking."""
         _process_all(Mock(), scadjobs, renderjobs)
+        assert callable(report_progress)
+        assert callable(report_failure)
 
     runs = []
 

@@ -8,9 +8,9 @@
                images (@ (dict : path "repa.png"
                                  camera (dict : eye '(100 100 20)))
                          (dict : path "rere.png"
-                                 camera (dict : translation '(20 -30 5)
-                                                rotation '(-5 0 -40)
-                                                distance 30))))
+                                 camera (dict : translation '(0 0 0)
+                                                rotation '(-10 5 0)
+                                                distance 20))))
        ;; Rather than order rendering as metadata about the test case,
        ;; it is ordered here. This would not be a typical usage.
        : argv (@ "--render"))

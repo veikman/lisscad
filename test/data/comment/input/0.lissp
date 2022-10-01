@@ -1,0 +1,5 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (@ (comment "This next one is a real beauty."
+            (sphere 1.1))
+          (comment "Ain’t it?")))

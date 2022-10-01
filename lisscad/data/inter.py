@@ -99,6 +99,28 @@ def update_forward_refs(*model):
         m.__pydantic_model__.update_forward_refs()
 
 
+############
+# COMMENTS #
+############
+
+
+@dataclass(frozen=True)
+class Comment(BaseND):
+    content: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class Commented2D(Base2D):
+    comment: Comment
+    subject: LiteralExpressionNon3D
+
+
+@dataclass(frozen=True)
+class Commented3D(Base3D):
+    comment: Comment
+    subject: LiteralExpressionNon2D
+
+
 ################
 # 2D MODIFIERS #
 ################
@@ -335,13 +357,13 @@ class ModuleChildren(BaseND):
 # ROSTER #
 ##########
 
-LiteralExpression2D = Union[LiteralModifier2D, LiteralBoolean2D,
+LiteralExpression2D = Union[Commented2D, LiteralModifier2D, LiteralBoolean2D,
                             LiteralShape2D, LiteralTransformation2D,
                             LiteralModule2D]
-LiteralExpression3D = Union[LiteralModifier3D, LiteralBoolean3D,
+LiteralExpression3D = Union[Commented3D, LiteralModifier3D, LiteralBoolean3D,
                             LiteralShape3D, LiteralTransformation3D,
                             LiteralModule3D]
-LiteralExpressionND = Union[ModuleCallND, ModuleChildren]
+LiteralExpressionND = Union[Comment, ModuleCallND, ModuleChildren]
 
 LiteralExpressionNon2D = Union[LiteralExpression3D, LiteralExpressionND]
 LiteralExpressionNon3D = Union[LiteralExpression2D, LiteralExpressionND]
@@ -352,9 +374,9 @@ LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
 # FINALIZATON #
 ###############
 
-update_forward_refs(Background2D, Debug2D, Root2D, Disable2D, Union2D,
-                    Difference2D, Intersection2D, Translation2D, Rotation2D,
-                    Mirror2D, ModuleDefinition2D, ModuleCall2D)
-update_forward_refs(Background3D, Debug3D, Root3D, Disable3D, Union3D,
-                    Difference3D, Intersection3D, Translation3D, Rotation3D,
-                    Mirror3D, ModuleDefinition3D, ModuleCall3D)
+update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
+                    Union2D, Difference2D, Intersection2D, Translation2D,
+                    Rotation2D, Mirror2D, ModuleDefinition2D, ModuleCall2D)
+update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
+                    Union3D, Difference3D, Intersection3D, Translation3D,
+                    Rotation3D, Mirror3D, ModuleDefinition3D, ModuleCall3D)

@@ -27,6 +27,24 @@ def _(datum: tuple) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Comment) -> LineGen:
+    for line in datum.content:
+        yield f'// {line}'
+
+
+@transpile.register
+def _(datum: d.Commented2D) -> LineGen:
+    yield from transpile(datum.comment)
+    yield from transpile(datum.subject)
+
+
+@transpile.register
+def _(datum: d.Commented3D) -> LineGen:
+    yield from transpile(datum.comment)
+    yield from transpile(datum.subject)
+
+
+@transpile.register
 def _(datum: d.Background2D) -> LineGen:
     yield from _background(datum.child)
 

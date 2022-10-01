@@ -16,6 +16,26 @@ import lisscad.data.inter as d
 #############
 
 
+def comment(
+    content: str | tuple[str, ...],
+    subject: d.LiteralExpression | None = None
+) -> d.Commented2D | d.Commented3D | d.Comment:
+    """Export a comment in OpenSCAD code.
+
+    This is intended for metadata like license statements, as well as for
+    debugging outputs by making them more searchable.
+
+    """
+    if isinstance(content, str):
+        content = (content, )
+    c = d.Comment(content)
+    if subject is None:
+        return c
+    if _dimensionality('comment', subject) == 2:
+        return d.Commented2D(c, _cast(d.LiteralExpression2D, subject))
+    return d.Commented3D(c, _cast(d.LiteralExpression3D, subject))
+
+
 def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
     """Implement OpenSCAD’s % modifier, known as transparent or background."""
     return _cast(d.Background2D | d.Background3D,

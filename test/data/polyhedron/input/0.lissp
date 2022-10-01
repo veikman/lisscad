@@ -1,0 +1,10 @@
+(lisscad.prelude.._macro_.standard)
+
+(define l 7)
+(define w 5)
+(define h 4)
+
+(write (- (polyhedron `((0 0 0) (,l 0 0) (,l ,w 0) (0 ,w 0) (0 ,w ,h) (,l ,w ,h))
+                     '((0 1 2 3) (5 4 3 2) (0 4 5 1) (0 3 4) (5 2 1)))
+          (comment "This is here just to provide the validity of the polyhedron:"
+            (translate (@ 0 w 0) (cube '(4 4 10))))))

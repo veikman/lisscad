@@ -179,6 +179,16 @@ def _(datum: d.Frustum) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Polyhedron) -> LineGen:
+    points = _csv(datum.points)
+    faces = _csv(datum.faces)
+    tail = ''
+    if datum.convexity > 1:
+        tail += f', convexity={datum.convexity}'
+    yield f'polyhedron(points={points}, faces={faces}{tail});'
+
+
+@transpile.register
 def _(datum: d.Translation2D) -> LineGen:
     yield from _translate(*datum.children, head=_csv(datum.coord))
 

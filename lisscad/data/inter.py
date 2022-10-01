@@ -276,7 +276,14 @@ class Frustum(BaseShape3D):
     center: bool
 
 
-LiteralShape3D = Sphere | Cube | Cylinder | Frustum
+@dataclass(frozen=True)
+class Polyhedron(BaseShape3D):
+    points: tuple[Tuple3D, ...]
+    faces: tuple[tuple[int, ...], ...] = ()
+    convexity: PositiveInt = 1
+
+
+LiteralShape3D = Sphere | Cube | Cylinder | Frustum | Polyhedron
 
 ######################
 # 2D TRANSFORMATIONS #

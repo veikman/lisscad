@@ -104,6 +104,12 @@ def cylinder(radius: float | tuple[float, float],
     return d.Frustum(radius, height, center)
 
 
+def polyhedron(points: tuple[d.Tuple3D, ...],
+               faces=tuple[tuple[int, ...], ...],
+               **kwargs):
+    return d.Polyhedron(points, faces, **kwargs)
+
+
 def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
     if len(coord) == 2:
         return d.Translation2D(

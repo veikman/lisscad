@@ -28,12 +28,6 @@ from lisscad.shorthand import mirror, module, union
 # INTERFACE #
 #############
 
-Renamer = Callable[[str], str]
-ScadJob = tuple[Asset, Path]
-RenderJob = tuple[str, str, list[str]]
-Report = tuple[str, str, bool, dict[str, str]]
-Reporter = Callable[[Queue, list[ScadJob], list[RenderJob]], None]
-
 REPORTKEY_INSTRUCTION = 'instruction'
 REPORTKEY_OUTPUT = 'output'
 
@@ -50,6 +44,14 @@ class Failure(Exception):
         self.description = kwargs
 
 
+ScadJob = tuple[Asset, Path]
+RenderJob = tuple[str, str, list[str]]
+Renamer = Callable[[str], str]
+Report = tuple[str, str, bool, dict[str, str]]
+Reporter = Callable[[Queue, list[ScadJob], list[RenderJob]], None]
+Failer = Callable[[Failure], None]
+
+
 def refine(asset: Asset, **kwargs) -> Asset:
     content = tuple(e for a in _prepend_modules(asset, **kwargs)
                     for e in a.content())
@@ -62,6 +64,7 @@ def write(*protoasset: Asset | dict | BaseExpression
           argv: list[str] = None,
           rendering_program: Path = Path('openscad'),
           report: Reporter = None,
+          fail: Failer = None,
           dir_scad: Path = DIR_SCAD,
           dir_render: Path = DIR_RENDER,
           **kwargs):
@@ -93,7 +96,7 @@ def write(*protoasset: Asset | dict | BaseExpression
         for step, cmd in steps_cmds:
             renderjobs.append((asset.name, step, cmd))
 
-    _fork(scadjobs, renderjobs, report=report or _report)
+    _fork(scadjobs, renderjobs, report or _report, fail or _fail)
 
 
 ############
@@ -342,9 +345,22 @@ def _report(q: Queue, scadjobs: list[ScadJob],
             progress.update(tasks[name], advance=1)
 
 
-def _fork(scadjobs: list[ScadJob],
-          renderjobs: list[RenderJob],
-          report=_report):
+def _fail(e: Failure):
+    """Display information about a failure to transpile or render."""
+    pprint(f'[bold red]Error:[/bold red] {e}')
+    if REPORTKEY_INSTRUCTION in e.description:
+        print('Command used to render asset:')
+        print('    ' + e.description[REPORTKEY_INSTRUCTION])
+        if REPORTKEY_OUTPUT in e.description:
+            print('Output from command:')
+            pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+    elif REPORTKEY_OUTPUT in e.description:
+        print('Traceback:')
+        pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+
+
+def _fork(scadjobs: list[ScadJob], renderjobs: list[RenderJob],
+          report: Reporter, fail: Failer):
     manager = Manager()
     q = manager.Queue()
 
@@ -352,18 +368,9 @@ def _fork(scadjobs: list[ScadJob],
     process.start()
 
     try:
-        report(q, scadjobs, renderjobs)
+        report(cast(Queue, q), scadjobs, renderjobs)
     except Failure as e:
-        pprint(f'[bold red]Error:[/bold red] {e}')
-        if REPORTKEY_INSTRUCTION in e.description:
-            print('Command used to render asset:')
-            print('    ' + e.description[REPORTKEY_INSTRUCTION])
-            if REPORTKEY_OUTPUT in e.description:
-                print('Output from command:')
-                pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
-        elif REPORTKEY_OUTPUT in e.description:
-            print('Traceback:')
-            pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+        fail(e)
 
     process.join()
 

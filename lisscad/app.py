@@ -29,6 +29,7 @@ from lisscad.shorthand import mirror, module, union
 Renamer = Callable[[str], str]
 ScadJob = tuple[Asset, Path]
 RenderJob = tuple[str, str, list[str]]
+Reporter = Callable[[Queue, list[ScadJob], list[RenderJob]], None]
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
@@ -50,6 +51,7 @@ def write(*protoasset: Asset | dict | BaseExpression
           | Callable[[], tuple[BaseExpression, ...]],
           argv: list[str] = None,
           rendering_program: Path = Path('openscad'),
+          report: Reporter = None,
           dir_scad: Path = DIR_SCAD,
           dir_render: Path = DIR_RENDER,
           **kwargs):
@@ -81,7 +83,7 @@ def write(*protoasset: Asset | dict | BaseExpression
         for step, cmd in steps_cmds:
             renderjobs.append((asset.name, step, cmd))
 
-    _fork(scadjobs, renderjobs)
+    _fork(scadjobs, renderjobs, report=report or _report)
 
 
 ############
@@ -310,6 +312,7 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
 
 def _report(q: Queue, scadjobs: list[ScadJob],
             renderjobs: list[RenderJob]) -> None:
+    """Display progress bars, one per asset, in terminal."""
     total_steps = len(scadjobs) + len(renderjobs)
     step_counts_by_name: dict[str, int] = {a.name: 1 for a, _ in scadjobs}
     for name, _, _ in renderjobs:

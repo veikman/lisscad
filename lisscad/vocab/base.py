@@ -6,6 +6,8 @@ This interface is patterned after scad-clj rather than OpenSCAD itself.
 
 # Imports are styled so as to limit pollution when this module is star-imported
 # via lisscad.prelude. TODO: Transition to __all__.
+
+from functools import partial as _partial
 from pathlib import Path as _Path
 from typing import Type as _Type
 from typing import cast as _cast
@@ -109,6 +111,20 @@ def import_(file: _Path, **kwargs) -> d.Import2D | d.Import3D:
         case '.svg':
             return d.Import2D(file, **kwargs)
     raise ValueError(f'Unknown file suffix for {file}.')
+
+
+def projection(child: d.LiteralExpressionNon2D,
+               cut: bool = False) -> d.Projection:
+    """Implement an OpenSCAD projection.
+
+    For ease of use in threading macros, cutting is also available as a
+    separate operation (“cut”), as in scad-clj.
+
+    """
+    return d.Projection(cut, child)
+
+
+cut = _partial(projection, cut=True)
 
 
 def sphere(radius: float) -> d.Sphere:

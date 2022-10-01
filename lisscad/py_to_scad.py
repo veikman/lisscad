@@ -174,6 +174,13 @@ def _(datum: d.Import3D) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Projection) -> LineGen:
+    yield from _contain('projection',
+                        datum.child,
+                        head=f'cut={str(datum.cut).lower()}')
+
+
+@transpile.register
 def _(datum: d.Sphere) -> LineGen:
     yield f'sphere(r={_minimize(datum.radius)});'
 
@@ -364,8 +371,8 @@ def _contain(keyword: str,
 
 
 def _mirror(datum: d.Mirror2D | d.Mirror3D):
-    axes = ', '.join(map(str, datum.axes))
-    yield from _contain('mirror', *datum.children, head=f'v=[{axes}]')
+    axes = _csv(datum.axes)
+    yield from _contain('mirror', *datum.children, head=f'v={axes}')
 
 
 _union = partial(_contain, 'union')

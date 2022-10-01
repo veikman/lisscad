@@ -23,7 +23,7 @@ from rich.progress import Progress, TaskID
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset, Gimbal, Image, Vector
 from lisscad.py_to_scad import LineGen, transpile
-from lisscad.shorthand import mirror, module, union
+from lisscad.vocab.base import mirror, module, union
 
 #############
 # INTERFACE #

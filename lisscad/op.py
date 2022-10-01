@@ -7,7 +7,7 @@ from operator import mul as _mul
 from operator import sub as _sub
 from operator import truediv as _div
 
-from lisscad.shorthand import difference, disable
+from lisscad.vocab.base import difference, disable
 
 #############
 # AGNOSTICS #

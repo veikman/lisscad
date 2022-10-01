@@ -16,7 +16,7 @@
      (prelude)
 
      ;; Imports:
-     (exec "from lisscad.shorthand import *" (globals))
+     (exec "from lisscad.vocab.base import *" (globals))
      (exec "from lisscad.app import write" (globals))
      (exec "from lisscad.data.other import Asset" (globals))
 
@@ -25,21 +25,21 @@
 
      ;; OpenSCAD’s single-character modifiers, {% # 1 *}:
      (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
-     (define % lisscad.shorthand..background)  ; Replace the Hissp prelude’s %.
+     (define % lisscad.vocab.base..background)  ; Replace the Hissp prelude’s %.
      (exec "del _macro_.QzHASH_" (globals))  ; Drop the Hissp prelude’s #.
-     (define \# lisscad.shorthand..debug)  ; Replace the Hissp prelude’s #.
+     (define \# lisscad.vocab.base..debug)  ; Replace the Hissp prelude’s #.
      ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.
      ;; The use of ! as in OpenSCAD therefore requires an escape.
-     (define \! lisscad.shorthand..root)
+     (define \! lisscad.vocab.base..root)
      ;; * inspects its arguments to do either multiplication or disable.
      (define * lisscad.op..mul)
 
      ;; Further single-character operators for OpenSCAD and maths:
-     (define | lisscad.shorthand..union)
-     (define & lisscad.shorthand..intersection)
+     (define | lisscad.vocab.base..union)
+     (define & lisscad.vocab.base..intersection)
      (define + lisscad.op..add)
      (define - lisscad.op..sub)
      (define / lisscad.op..div)
 
      ;; Longer aliases, mainly for idiomatic kebab case.
-     (define call-module (partial lisscad.shorthand..module : call True))))
+     (define call-module (partial lisscad.vocab.base..module : call True))))

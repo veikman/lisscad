@@ -1,1 +1,1 @@
-%cube(size=[1.0, 1.0, 1.0], center=true);
+%cube(size=[1, 1, 1], center=true);

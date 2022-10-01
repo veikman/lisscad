@@ -83,6 +83,10 @@ def square(size: d.Tuple2D, center: bool = True) -> d.Square:
     return d.Square(size, center)
 
 
+def polygon(points: tuple[d.Tuple2D, ...], **kwargs) -> d.Polygon:
+    return d.Polygon(points, **kwargs)
+
+
 def sphere(radius: float) -> d.Sphere:
     return d.Sphere(radius)
 

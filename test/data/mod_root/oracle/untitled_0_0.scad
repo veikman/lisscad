@@ -1,4 +1,4 @@
 union() {
-    cube(size=[2.0, 3.0, 2.0], center=true);
-    !cube(size=[3.0, 2.0, 2.0], center=true);
+    cube(size=[2, 3, 2], center=true);
+    !cube(size=[3, 2, 2], center=true);
 };

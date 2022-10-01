@@ -5,5 +5,5 @@ module module2() {
 };
 
 module2() {
-    square(size=[1.0, 3.0], center=true);
+    square(size=[1, 3], center=true);
 };

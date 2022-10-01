@@ -1,2 +1,1 @@
-cube(size=[1.0, 2.0, 4.0], center=true);
-
+cube(size=[1, 2, 4], center=true);

@@ -1,6 +1,6 @@
 from functools import partial, singledispatch
 from math import pi
-from typing import Generator
+from typing import Generator, Iterable
 
 from lisscad.data import inter as d
 
@@ -22,8 +22,24 @@ def transpile(datum) -> LineGen:
 
 
 @transpile.register
+def _(datum: int) -> LineGen:
+    yield str(datum)
+
+
+@transpile.register
+def _(datum: float) -> LineGen:
+    if datum.is_integer():
+        # Cut off redundant decimals; likely added by Pydantic.
+        yield from transpile(int(datum))
+        return
+    yield str(datum)
+
+
+@transpile.register
 def _(datum: tuple) -> LineGen:
-    yield from map(str, datum)
+    # Comma-separate values and wrap them in an OpenSCAD list.
+    # Assume contents are nested tuples of numbers, or numbers.
+    yield '[' + ', '.join(s for g in map(transpile, datum) for s in g) + ']'
 
 
 @transpile.register
@@ -121,8 +137,19 @@ def _(datum: d.Circle) -> LineGen:
 
 @transpile.register
 def _(datum: d.Square) -> LineGen:
-    size = ', '.join(transpile(datum.size))
-    yield f'square(size=[{size}], center={str(datum.center).lower()});'
+    yield (f'square(size={_csv(datum.size)}, '
+           f'center={str(datum.center).lower()});')
+
+
+@transpile.register
+def _(datum: d.Polygon) -> LineGen:
+    points = _csv(datum.points)
+    tail = ''
+    if datum.paths:
+        tail += f', paths={_csv(datum.paths)}'
+    if datum.convexity > 1:
+        tail += f', convexity={datum.convexity}'
+    yield f'polygon(points={points}{tail});'
 
 
 @transpile.register
@@ -132,20 +159,18 @@ def _(datum: d.Sphere) -> LineGen:
 
 @transpile.register
 def _(datum: d.Cube) -> LineGen:
-    size = ', '.join(transpile(datum.size))
-    yield f'cube(size=[{size}], center={str(datum.center).lower()});'
+    yield (f'cube(size={_csv(datum.size)}, '
+           f'center={str(datum.center).lower()});')
 
 
 @transpile.register
 def _(datum: d.Translation2D) -> LineGen:
-    coord = ', '.join(transpile(datum.coord))
-    yield from _translate(*datum.children, head=f'[{coord}]')
+    yield from _translate(*datum.children, head=_csv(datum.coord))
 
 
 @transpile.register
 def _(datum: d.Translation3D) -> LineGen:
-    coord = ', '.join(transpile(datum.coord))
-    yield from _translate(*datum.children, head=f'[{coord}]')
+    yield from _translate(*datum.children, head=_csv(datum.coord))
 
 
 @transpile.register
@@ -156,8 +181,8 @@ def _(datum: d.Rotation2D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
-    angles = ', '.join(transpile(tuple(map(_rad_to_deg, datum.angle))))
-    yield from _rotate(*datum.children, head=f'a=[{angles}]')
+    angles = _csv(tuple(map(_rad_to_deg, datum.angle)))
+    yield from _rotate(*datum.children, head=f'a={angles}')
 
 
 @transpile.register
@@ -203,6 +228,12 @@ def _(datum: d.ModuleChildren) -> LineGen:
 ############
 # BACK END #
 ############
+
+
+def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
+    data = list(transpile(values))
+    assert len(data) == 1
+    return data[0]
 
 
 def _rad_to_deg(radians: float):

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from typing import Union
 
+from pydantic import PositiveInt
 from pydantic.dataclasses import dataclass
 
 #########
@@ -236,7 +237,14 @@ class Square(BaseShape2D):
     center: bool
 
 
-LiteralShape2D = Circle | Square
+@dataclass(frozen=True)
+class Polygon(BaseShape2D):
+    points: tuple[Tuple2D, ...]
+    paths: tuple[tuple[int, ...], ...] = ()
+    convexity: PositiveInt = 1
+
+
+LiteralShape2D = Circle | Square | Polygon
 
 #############
 # 3D SHAPES #

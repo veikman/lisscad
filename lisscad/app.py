@@ -12,9 +12,11 @@ from functools import partial
 from itertools import chain, count
 from multiprocessing import Manager, Pool, Process, Queue
 from pathlib import Path
-from subprocess import CalledProcessError, run
+from subprocess import PIPE, STDOUT, CalledProcessError, run
 from typing import Callable, Generator, cast
 
+from rich import print as pprint
+from rich.panel import Panel
 from rich.progress import Progress, TaskID
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
@@ -29,7 +31,11 @@ from lisscad.shorthand import mirror, module, union
 Renamer = Callable[[str], str]
 ScadJob = tuple[Asset, Path]
 RenderJob = tuple[str, str, list[str]]
+Report = tuple[str, str, bool, dict[str, str]]
 Reporter = Callable[[Queue, list[ScadJob], list[RenderJob]], None]
+
+REPORTKEY_INSTRUCTION = 'instruction'
+REPORTKEY_OUTPUT = 'output'
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
@@ -38,6 +44,10 @@ DIR_RENDER = DIR_OUTPUT / 'render'
 
 class Failure(Exception):
     """A failure in transpilation or rendering."""
+
+    def __init__(self, message, **kwargs):
+        super().__init__(message)
+        self.description = kwargs
 
 
 def refine(asset: Asset, **kwargs) -> Asset:
@@ -272,11 +282,14 @@ def _render(q: Queue, asset: str, step: str, cmd: list[str]):
 
     """
     try:
-        run(cmd, capture_output=True, check=True)
-    except CalledProcessError:
-        q.put([asset, step, False])
+        run(cmd, check=True, text=True, stdout=PIPE, stderr=STDOUT)
+    except CalledProcessError as e:
+        q.put((asset, step, False, {
+            REPORTKEY_INSTRUCTION: ' '.join(cmd),
+            REPORTKEY_OUTPUT: e.stdout
+        }))
     else:
-        q.put([asset, step, True])
+        q.put((asset, step, True, {}))
 
 
 def _render_all(q, renderjobs):
@@ -301,11 +314,10 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
         asset, _ = job
         try:
             _write_scad(*job)
-        except Exception:
-            raise
-            q.put([asset.name, _STEP_SCAD, False])
+        except Exception as e:
+            q.put((asset.name, _STEP_SCAD, False, {REPORTKEY_OUTPUT: repr(e)}))
         else:
-            q.put([asset.name, _STEP_SCAD, True])
+            q.put((asset.name, _STEP_SCAD, True, {}))
 
     _render_all(q, renderjobs)
 
@@ -324,9 +336,9 @@ def _report(q: Queue, scadjobs: list[ScadJob],
             tasks[name] = progress.add_task(name, total=n)
 
         for i in range(total_steps):
-            name, step, result = q.get()
+            name, step, result, other = q.get()
             if not result:
-                raise Failure(f'Failed to {step} for asset {name!r}.')
+                raise Failure(f'Failed to {step} for asset {name!r}.', **other)
             progress.update(tasks[name], advance=1)
 
 
@@ -342,7 +354,16 @@ def _fork(scadjobs: list[ScadJob],
     try:
         report(q, scadjobs, renderjobs)
     except Failure as e:
-        print(f'Error: {e}', file=sys.stderr)
+        pprint(f'[bold red]Error:[/bold red] {e}')
+        if REPORTKEY_INSTRUCTION in e.description:
+            print('Command used to render asset:')
+            print('    ' + e.description[REPORTKEY_INSTRUCTION])
+            if REPORTKEY_OUTPUT in e.description:
+                print('Output from command:')
+                pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+        elif REPORTKEY_OUTPUT in e.description:
+            print('Traceback:')
+            pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
 
     process.join()
 

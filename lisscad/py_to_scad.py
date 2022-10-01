@@ -1,6 +1,7 @@
 from dataclasses import fields
 from functools import partial, singledispatch
 from math import pi
+from pathlib import Path
 from shlex import split
 from typing import Generator
 
@@ -156,8 +157,20 @@ def _(datum: d.Polygon) -> LineGen:
 
 @transpile.register
 def _(datum: d.Text) -> LineGen:
-    values = ', '.join(_generate_text_params(datum))
+    values = ', '.join(_from_dataclass(datum))
     yield f'text({values});'
+
+
+@transpile.register
+def _(datum: d.Import2D) -> LineGen:
+    values = ', '.join(_from_dataclass(datum))
+    yield f'import({values});'
+
+
+@transpile.register
+def _(datum: d.Import3D) -> LineGen:
+    values = ', '.join(_from_dataclass(datum))
+    yield f'import({values});'
 
 
 @transpile.register
@@ -299,14 +312,18 @@ def _string(value: str) -> str:
 
 
 def _scalar(value: int | float | str) -> str:
-    if isinstance(value, str):
+    if isinstance(value, (str, Path)):
         return _string(value)
     return _minimize(value)
 
 
-def _generate_text_params(datum: d.Text) -> LineGen:
-    # Incidentally, field names on the intermediate class match OpenSCAD.
-    # Generate key-value pairs for all non-default values including “text”.
+def _from_dataclass(datum: d.Text | d.Import2D | d.Import3D) -> LineGen:
+    """Generate minimal OpenSCAD from dataclass fields.
+
+    This will only work where field names on the dataclass already match
+    OpenSCAD.
+
+    """
     for f in fields(datum):
         value = getattr(datum, f.name)
         if value == f.default:

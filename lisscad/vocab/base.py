@@ -6,6 +6,7 @@ This interface is patterned after scad-clj rather than OpenSCAD itself.
 
 # Imports are styled so as to limit pollution when this module is star-imported
 # via lisscad.prelude. TODO: Transition to __all__.
+from pathlib import Path as _Path
 from typing import Type as _Type
 from typing import cast as _cast
 
@@ -89,6 +90,25 @@ def polygon(points: tuple[d.Tuple2D, ...], **kwargs) -> d.Polygon:
 
 def text(text: str, **kwargs) -> d.Text:
     return d.Text(text, **kwargs)
+
+
+def import_(file: _Path, **kwargs) -> d.Import2D | d.Import3D:
+    # The word “import” is reserved in Python, unusable in Lissp.
+    # The alias “import_” is also used in SolidPython.
+    match _Path(file).suffix.lower():
+        case '.3mf':
+            return d.Import3D(file, **kwargs)
+        case '.amf':
+            return d.Import3D(file, **kwargs)
+        case '.dxf':
+            return d.Import2D(file, **kwargs)
+        case '.off':
+            return d.Import3D(file, **kwargs)
+        case '.stl':
+            return d.Import3D(file, **kwargs)
+        case '.svg':
+            return d.Import2D(file, **kwargs)
+    raise ValueError(f'Unknown file suffix for {file}.')
 
 
 def sphere(radius: float) -> d.Sphere:

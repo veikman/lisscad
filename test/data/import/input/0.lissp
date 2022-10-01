@@ -1,0 +1,4 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (@ (translate '(-10 0) (import_ "rhino.dxf" : layer "boxart"))
+          (translate '(10 0 -3) (import_ "secretary.stl"))))

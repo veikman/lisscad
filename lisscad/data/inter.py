@@ -7,9 +7,9 @@ and strong introspection in applications.
 In this data model, angles are uniformly described in radians, as in scad-clj.
 
 """
-
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Literal, Union
 
 from pydantic import PositiveFloat, PositiveInt
@@ -257,7 +257,14 @@ class Text(BaseShape2D):
     script: str = 'latin'
 
 
-LiteralShape2D = Circle | Square | Polygon | Text
+@dataclass(frozen=True)
+class Import2D(BaseShape2D):
+    file: Path
+    layer: str = ''
+    convexity: PositiveInt = 1
+
+
+LiteralShape2D = Circle | Square | Polygon | Text | Import2D
 
 #############
 # 3D SHAPES #
@@ -296,7 +303,14 @@ class Polyhedron(BaseShape3D):
     convexity: PositiveInt = 1
 
 
-LiteralShape3D = Sphere | Cube | Cylinder | Frustum | Polyhedron
+@dataclass(frozen=True)
+class Import3D(BaseShape3D):
+    file: Path
+    layer: str = ''
+    convexity: PositiveInt = 1
+
+
+LiteralShape3D = Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
 
 ######################
 # 2D TRANSFORMATIONS #

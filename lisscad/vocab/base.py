@@ -89,7 +89,7 @@ def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
 
 
 def mirror(axes: tuple[int, int, int], *children: d.LiteralExpression):
-    if _is_2d(*children):
+    if _dimensionality('mirror', *children) == 2:
         return d.Mirror2D(axes,
                           _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Mirror3D(axes, _cast(tuple[d.LiteralExpression3D, ...], children))
@@ -123,15 +123,37 @@ def children():
 ############
 
 
-def _is_2d(*expressions):
+def _dimensionality(verb: str, *expressions) -> int:
+    """Determine the common dimensionality of children."""
     assert expressions
-    return all(isinstance(e, d.Base2D) for e in expressions)
+    two = []
+    three = []
+
+    for e in expressions:
+        if isinstance(e, d.Base2D):
+            two.append(e)
+        elif isinstance(e, d.Base3D):
+            three.append(e)
+        elif isinstance(e, d.BaseND):
+            pass
+        else:
+            raise TypeError(
+                f'Cannot {verb} unknown OpenSCAD operation {type(e)!r}.')
+
+    if two and three:
+        # OpenSCAD’s behaviour is poorely defined. Best not to transpile.
+        raise TypeError(f'Cannot {verb} mixed 2D and 3D expressions.')
+
+    if two:
+        return 2
+    # Assume object(s) of unknown dimensionality can be treated as 3D.
+    return 3
 
 
 def _modify(type_2d: _Type[d.BaseModifier2D], type_3d: _Type[d.BaseModifier3D],
             child: d.LiteralExpression) -> d.BaseModifier2D | d.BaseModifier3D:
     """Wrap up a single expression of known dimensionality."""
-    if _is_2d(child):
+    if _dimensionality('modify', child) == 2:
         return type_2d(_cast(d.LiteralExpression2D, child))
     return type_3d(_cast(d.LiteralExpression3D, child))
 
@@ -141,7 +163,7 @@ def _contain(
     children: tuple[d.LiteralExpression, ...]
 ) -> d.BaseBoolean2D | d.BaseBoolean3D:
     """Wrap up 1+ expressions of known dimensionality."""
-    if _is_2d(*children):
+    if _dimensionality('contain', *children) == 2:
         return type_2d(_cast(tuple[d.LiteralExpression2D, ...], children))
     return type_3d(_cast(tuple[d.LiteralExpression3D, ...], children))
 
@@ -158,7 +180,7 @@ def _define_module(
     Like scad-clj, lisscad does not support arguments to modules.
 
     """
-    if _is_2d(*children):
+    if _dimensionality('define module of', *children) == 2:
         return d.ModuleDefinition2D(
             name, _cast(tuple[d.LiteralExpression2D, ...], children))
     return d.ModuleDefinition3D(
@@ -169,7 +191,7 @@ def _call_module(
     name: str, *children: d.LiteralExpression
 ) -> d.ModuleCall2D | d.ModuleCall3D | d.ModuleCallND:
     if children:
-        if _is_2d(*children):
+        if _dimensionality('call module using', *children) == 2:
             return d.ModuleCall2D(
                 name, _cast(tuple[d.LiteralExpression2D, ...], children))
         return d.ModuleCall3D(

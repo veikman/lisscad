@@ -37,8 +37,8 @@ def _(datum: float) -> LineGen:
 
 @transpile.register
 def _(datum: tuple) -> LineGen:
+    # Assume contents are numbers or (nested) tuples of numbers.
     # Comma-separate values and wrap them in an OpenSCAD list.
-    # Assume contents are nested tuples of numbers, or numbers.
     yield '[' + ', '.join(s for g in map(transpile, datum) for s in g) + ']'
 
 

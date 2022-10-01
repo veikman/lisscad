@@ -126,14 +126,14 @@ def children():
 def _dimensionality(verb: str, *expressions) -> int:
     """Determine the common dimensionality of children."""
     assert expressions
-    two = []
-    three = []
+    two: list[int] = []
+    three: list[int] = []
 
-    for e in expressions:
+    for i, e in enumerate(expressions):
         if isinstance(e, d.Base2D):
-            two.append(e)
+            two.append(i)
         elif isinstance(e, d.Base3D):
-            three.append(e)
+            three.append(i)
         elif isinstance(e, d.BaseND):
             pass
         else:
@@ -142,7 +142,12 @@ def _dimensionality(verb: str, *expressions) -> int:
 
     if two and three:
         # OpenSCAD’s behaviour is poorely defined. Best not to transpile.
-        raise TypeError(f'Cannot {verb} mixed 2D and 3D expressions.')
+        s = f'Cannot {verb} mixed 2D and 3D expressions.'
+        if len(two) == 1 and len(three) != 1:
+            s += f' One, in place {two[0] + 1} of {len(expressions)}, is 2D.'
+        elif len(two) != 1 and len(three) == 1:
+            s += f' One, in place {three[0] + 1} of {len(expressions)}, is 3D.'
+        raise TypeError(s)
 
     if two:
         return 2

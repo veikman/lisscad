@@ -95,6 +95,15 @@ def cube(size: d.Tuple3D, center: bool = True) -> d.Cube:
     return d.Cube(size, center)
 
 
+def cylinder(radius: float | tuple[float, float],
+             height: float,
+             center: bool = True) -> d.Cylinder | d.Frustum:
+    # Take the radius argument first, like scad-clj.
+    if isinstance(radius, (int, float)):
+        return d.Cylinder(radius, height, center)
+    return d.Frustum(radius, height, center)
+
+
 def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
     if len(coord) == 2:
         return d.Translation2D(

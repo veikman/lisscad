@@ -1,0 +1,4 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (cylinder 1 4)
+       (cylinder '(1.d 0.5) 4))

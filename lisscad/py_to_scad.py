@@ -1,6 +1,6 @@
 from functools import partial, singledispatch
 from math import pi
-from typing import Generator, Iterable
+from typing import Generator
 
 from lisscad.data import inter as d
 
@@ -164,6 +164,21 @@ def _(datum: d.Cube) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Cylinder) -> LineGen:
+    yield (f'cylinder(r={_minimize(datum.radius)}, '
+           f'h={_minimize(datum.height)}, '
+           f'center={str(datum.center).lower()});')
+
+
+@transpile.register
+def _(datum: d.Frustum) -> LineGen:
+    yield (f'cylinder(r1={_minimize(datum.radii[0])}, '
+           f'r2={_minimize(datum.radii[1])}, '
+           f'h={_minimize(datum.height)}, '
+           f'center={str(datum.center).lower()});')
+
+
+@transpile.register
 def _(datum: d.Translation2D) -> LineGen:
     yield from _translate(*datum.children, head=_csv(datum.coord))
 
@@ -230,10 +245,20 @@ def _(datum: d.ModuleChildren) -> LineGen:
 ############
 
 
-def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
+def _numeric(
+    values: int | float | tuple[int | float | tuple[int | float, ...], ...]
+) -> str:
     data = list(transpile(values))
     assert len(data) == 1
     return data[0]
+
+
+def _minimize(value: int | float) -> str:
+    return _numeric(value)
+
+
+def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
+    return _numeric(values)
 
 
 def _rad_to_deg(radians: float):

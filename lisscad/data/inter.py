@@ -262,7 +262,21 @@ class Cube(BaseShape3D):
     center: bool
 
 
-LiteralShape3D = Sphere | Cube
+@dataclass(frozen=True)
+class Cylinder(BaseShape3D):
+    radius: float
+    height: float
+    center: bool
+
+
+@dataclass(frozen=True)
+class Frustum(BaseShape3D):
+    radii: tuple[float, float]
+    height: float
+    center: bool
+
+
+LiteralShape3D = Sphere | Cube | Cylinder | Frustum
 
 ######################
 # 2D TRANSFORMATIONS #

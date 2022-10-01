@@ -15,6 +15,8 @@ from pathlib import Path
 from subprocess import CalledProcessError, run
 from typing import Callable, Generator, cast
 
+from rich.progress import Progress, TaskID
+
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset, Gimbal, Image, Vector
 from lisscad.py_to_scad import LineGen, transpile
@@ -25,12 +27,16 @@ from lisscad.shorthand import mirror, module, union
 #############
 
 Renamer = Callable[[str], str]
-
+ScadJob = tuple[Asset, Path]
 RenderJob = tuple[str, str, list[str]]
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
 DIR_RENDER = DIR_OUTPUT / 'render'
+
+
+class Failure(Exception):
+    """A failure in transpilation or rendering."""
 
 
 def refine(asset: Asset, **kwargs) -> Asset:
@@ -57,7 +63,7 @@ def write(*protoasset: Asset | dict | BaseExpression
     # the script itself, mainly for unit testing purposes.
     args = _define_cli().parse_args(sys.argv[1:] if argv is None else argv)
 
-    scadjobs: dict[str, tuple[Asset, Path]] = {}
+    scadjobs: list[ScadJob] = []
     renderjobs: list[RenderJob] = []
 
     dir_scad.mkdir(parents=True, exist_ok=True)
@@ -68,7 +74,7 @@ def write(*protoasset: Asset | dict | BaseExpression
         partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
         zip(count(), protoasset))
     for asset, file_scad in chain(*assets_paths):
-        scadjobs[asset.name] = (asset, file_scad)
+        scadjobs.append((asset, file_scad))
         steps_cmds = _prepare_commands(
             partial(_compose_openscad_command, rendering_program, file_scad),
             asset, file_scad, dir_render, args.render)
@@ -84,9 +90,9 @@ def write(*protoasset: Asset | dict | BaseExpression
 
 _INVOCATION_ORDINAL = count()
 
-_STEP_SCAD = 'scad'
-_STEP_GEOMETRY = 'geo'
-_STEP_IMAGES = 'img'
+_STEP_SCAD = 'compose OpenSCAD code'
+_STEP_GEOMETRY = 'render geometry'
+_STEP_IMAGES = 'render image'
 
 
 def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:
@@ -278,7 +284,7 @@ def _render_all(q, renderjobs):
         pool.starmap(_render, ([q] + list(r) for r in renderjobs))
 
 
-def _process_all(q, scadjobs, renderjobs: list[RenderJob]):
+def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
     """Write all output files.
 
     Transpilation to OpenSCAD happens first because it must be complete before
@@ -289,25 +295,52 @@ def _process_all(q, scadjobs, renderjobs: list[RenderJob]):
     one subprocess per processor on the user’s machine.
 
     """
-    for name, job in scadjobs.items():
+    for job in scadjobs:
+        asset, _ = job
         try:
             _write_scad(*job)
         except Exception:
             raise
-            q.put([name, _STEP_SCAD, False])
+            q.put([asset.name, _STEP_SCAD, False])
         else:
-            q.put([name, _STEP_SCAD, True])
+            q.put([asset.name, _STEP_SCAD, True])
 
     _render_all(q, renderjobs)
 
 
-def _fork(scadjobs, renderjobs: list[RenderJob]):
+def _report(q: Queue, scadjobs: list[ScadJob],
+            renderjobs: list[RenderJob]) -> None:
+    total_steps = len(scadjobs) + len(renderjobs)
+    step_counts_by_name: dict[str, int] = {a.name: 1 for a, _ in scadjobs}
+    for name, _, _ in renderjobs:
+        step_counts_by_name[name] += 1
+    tasks: dict[str, TaskID] = {}
+
+    with Progress() as progress:
+        for name, n in step_counts_by_name.items():
+            tasks[name] = progress.add_task(name, total=n)
+
+        for i in range(total_steps):
+            name, step, result = q.get()
+            if not result:
+                raise Failure(f'Failed to {step} for asset {name!r}.')
+            progress.update(tasks[name], advance=1)
+
+
+def _fork(scadjobs: list[ScadJob],
+          renderjobs: list[RenderJob],
+          report=_report):
     manager = Manager()
     q = manager.Queue()
+
     process = Process(target=_process_all, args=(q, scadjobs, renderjobs))
     process.start()
-    for n in range(len(scadjobs) + len(renderjobs)):
-        print(q.get())
+
+    try:
+        report(q, scadjobs, renderjobs)
+    except Failure as e:
+        print(f'Error: {e}', file=sys.stderr)
+
     process.join()
 
 

@@ -31,6 +31,7 @@ from lisscad.shorthand import mirror, module, union
 
 REPORTKEY_INSTRUCTION = 'instruction'
 REPORTKEY_OUTPUT = 'output'
+REPORTKEY_TRACEBACK = 'traceback'
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
@@ -320,7 +321,7 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
             _write_scad(*job)
         except Exception:
             q.put((asset.name, _STEP_SCAD, False, {
-                REPORTKEY_OUTPUT: format_exc()
+                REPORTKEY_TRACEBACK: format_exc()
             }))
         else:
             q.put((asset.name, _STEP_SCAD, True, {}))
@@ -344,7 +345,7 @@ def _report(q: Queue, scadjobs: list[ScadJob],
         for i in range(total_steps):
             name, step, result, other = q.get()
             if not result:
-                raise Failure(f'Failed to {step} for asset {name!r}.', **other)
+                raise Failure(f'Failed to {step} for asset “{name}”.', **other)
             progress.update(tasks[name], advance=1)
 
 
@@ -352,14 +353,14 @@ def _fail(e: Failure):
     """Display information about a failure to transpile or render."""
     pprint(f'[bold red]Error:[/bold red] {e}')
     if REPORTKEY_INSTRUCTION in e.description:
-        print('Command used to render asset:')
+        print('External command used:')
         print('    ' + e.description[REPORTKEY_INSTRUCTION])
         if REPORTKEY_OUTPUT in e.description:
-            print('Output from command:')
+            print('Output from external command:')
             pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
-    elif REPORTKEY_OUTPUT in e.description:
-        print('Traceback:')
-        pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+    if REPORTKEY_TRACEBACK in e.description:
+        # This will start with a line like “Traceback (most recent call last):”
+        print(e.description[REPORTKEY_TRACEBACK])
 
 
 def _fork(scadjobs: list[ScadJob], renderjobs: list[RenderJob],

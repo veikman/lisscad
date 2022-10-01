@@ -1,5 +1,7 @@
+from dataclasses import fields
 from functools import partial, singledispatch
 from math import pi
+from shlex import split
 from typing import Generator
 
 from lisscad.data import inter as d
@@ -153,6 +155,12 @@ def _(datum: d.Polygon) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Text) -> LineGen:
+    values = ', '.join(_generate_text_params(datum))
+    yield f'text({values});'
+
+
+@transpile.register
 def _(datum: d.Sphere) -> LineGen:
     yield f'sphere(r={_minimize(datum.radius)});'
 
@@ -269,6 +277,41 @@ def _minimize(value: int | float) -> str:
 
 def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
     return _numeric(values)
+
+
+def _string(value: str) -> str:
+    """Format a string for use in OpenSCAD
+
+    OpenSCAD needs double quotes.
+
+    Check for badly nested quotation marks assuming shell-like syntax. Raise
+    ValueError if there’s a problem.
+
+    """
+    candidate = f'"{value}"'
+    n = len(
+        split(candidate))  # May raise e.g. “ValueError: No closing quotation”.
+    if n != 1:
+        # Escape codes needed.
+        raise ValueError(
+            'Python string {value!r} would form multiple OpenSCAD strings.')
+    return candidate
+
+
+def _scalar(value: int | float | str) -> str:
+    if isinstance(value, str):
+        return _string(value)
+    return _minimize(value)
+
+
+def _generate_text_params(datum: d.Text) -> LineGen:
+    # Incidentally, field names on the intermediate class match OpenSCAD.
+    # Generate key-value pairs for all non-default values including “text”.
+    for f in fields(datum):
+        value = getattr(datum, f.name)
+        if value == f.default:
+            continue
+        yield f'{f.name}={_scalar(value)}'
 
 
 def _rad_to_deg(radians: float):

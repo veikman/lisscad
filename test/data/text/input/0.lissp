@@ -1,0 +1,5 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (@ (text "milxe")
+          (text "carmi" : size 26.2 halign "center" valign "top"
+                          spacing 1.1 direction "rtl")))

@@ -87,6 +87,10 @@ def polygon(points: tuple[d.Tuple2D, ...], **kwargs) -> d.Polygon:
     return d.Polygon(points, **kwargs)
 
 
+def text(text: str, **kwargs) -> d.Text:
+    return d.Text(text, **kwargs)
+
+
 def sphere(radius: float) -> d.Sphere:
     return d.Sphere(radius)
 

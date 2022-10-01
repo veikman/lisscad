@@ -10,9 +10,9 @@ In this data model, angles are uniformly described in radians, as in scad-clj.
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Literal, Union
 
-from pydantic import PositiveInt
+from pydantic import PositiveFloat, PositiveInt
 from pydantic.dataclasses import dataclass
 
 #########
@@ -244,7 +244,20 @@ class Polygon(BaseShape2D):
     convexity: PositiveInt = 1
 
 
-LiteralShape2D = Circle | Square | Polygon
+@dataclass(frozen=True)
+class Text(BaseShape2D):
+    text: str
+    size: PositiveFloat = 10
+    font: str = ''
+    halign: Literal['left', 'center', 'right'] = 'left'
+    valign: Literal['top', 'center', 'baseline', 'bottom'] = 'baseline'
+    spacing: PositiveFloat = 1
+    direction: Literal['ltr', 'rtl', 'ttb', 'btt'] = 'ltr'
+    language: str = 'en'
+    script: str = 'latin'
+
+
+LiteralShape2D = Circle | Square | Polygon | Text
 
 #############
 # 3D SHAPES #

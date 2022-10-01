@@ -7,7 +7,7 @@
                content (sphere 2)
                images (@ (dict : path "repa.png"
                                  camera (dict : eye '(100 100 20)))
-                         (dict : path "rere.jpg"
+                         (dict : path "rere.png"
                                  camera (dict : translation '(20 -30 5)
                                                 rotation '(-5 0 -40)
                                                 distance 30))))

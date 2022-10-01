@@ -1,3 +1,0 @@
-(lisscad.prelude.._macro_.standard)
-
-(write (rotate 1 (square '(1 10))))

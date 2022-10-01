@@ -1,3 +1,0 @@
-(lisscad.prelude.._macro_.standard)
-
-(write (rotate (@ (/ π 2) 0 (/ π 4)) (cube (@ 10 1 2.5))))

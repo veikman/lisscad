@@ -1,3 +1,0 @@
-(lisscad.prelude.._macro_.standard)
-
-(write (% (sphere 1)))

@@ -1,3 +1,7 @@
 (lisscad.prelude.._macro_.standard)
 
+;; Not aliased:
 (write (background (cube (@ 1 1 1))))
+
+;; Aliased:
+(write (% (sphere 1)))

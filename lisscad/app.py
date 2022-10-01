@@ -13,6 +13,7 @@ from itertools import chain, count
 from multiprocessing import Manager, Pool, Process, Queue
 from pathlib import Path
 from subprocess import PIPE, STDOUT, CalledProcessError, run
+from traceback import format_exc
 from typing import Callable, Generator, cast
 
 from rich import print as pprint
@@ -317,8 +318,10 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
         asset, _ = job
         try:
             _write_scad(*job)
-        except Exception as e:
-            q.put((asset.name, _STEP_SCAD, False, {REPORTKEY_OUTPUT: repr(e)}))
+        except Exception:
+            q.put((asset.name, _STEP_SCAD, False, {
+                REPORTKEY_OUTPUT: format_exc()
+            }))
         else:
             q.put((asset.name, _STEP_SCAD, True, {}))
 

@@ -1,1 +1,1 @@
-*sphere(r=6.0);
+*sphere(r=6);

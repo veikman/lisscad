@@ -1,1 +1,1 @@
-*circle(r=42.0);
+*circle(r=42);

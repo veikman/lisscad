@@ -132,7 +132,7 @@ def _(datum: d.Intersection3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Circle) -> LineGen:
-    yield f'circle(r={datum.radius});'
+    yield f'circle(r={_minimize(datum.radius)});'
 
 
 @transpile.register
@@ -154,7 +154,7 @@ def _(datum: d.Polygon) -> LineGen:
 
 @transpile.register
 def _(datum: d.Sphere) -> LineGen:
-    yield f'sphere(r={datum.radius});'
+    yield f'sphere(r={_minimize(datum.radius)});'
 
 
 @transpile.register

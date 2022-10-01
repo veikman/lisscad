@@ -1,1 +1,1 @@
-sphere(r=2.0);
+sphere(r=2);

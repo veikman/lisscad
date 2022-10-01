@@ -1,1 +1,1 @@
-*sphere(r=42.0);
+*sphere(r=42);

@@ -7,7 +7,7 @@ module screw() {
 };
 
 module sprocket() {
-    sphere(r=1.0);
+    sphere(r=1);
 };
 
 mirror(v=[1, 0, 0]) {

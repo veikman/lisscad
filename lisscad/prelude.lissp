@@ -39,7 +39,11 @@
      (define & lisscad.vocab.base..intersection)
      (define + lisscad.op..add)
      (define - lisscad.op..sub)
-     (define / lisscad.op..div)
+     (define / lisscad.op..div)))
 
-     ;; Longer aliases, mainly for idiomatic kebab case.
-     (define call-module (partial lisscad.vocab.base..module : call True))))
+(defmacro lisp ()
+  "Provide unambiguous aliases in kebab case, traditionally idiomatic for Lisp."
+  `(progn
+     (define call-module (partial lisscad.vocab.base..module : call True))
+     (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
+     (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))

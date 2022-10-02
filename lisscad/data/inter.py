@@ -9,6 +9,7 @@ In this data model, angles are uniformly described in radians, as in scad-clj.
 """
 from __future__ import annotations
 
+from math import tau
 from pathlib import Path
 from typing import Literal, Union
 
@@ -82,6 +83,12 @@ class BaseShape2D(Base2D):
 
 class BaseShape3D(Base3D):
     pass
+
+
+@dataclass(frozen=True)
+class BaseExtrusion(Base3D):
+    children: tuple[LiteralExpressionNon3D, ...]
+    convexity: PositiveInt = 1
 
 
 @dataclass(frozen=True)
@@ -316,7 +323,22 @@ class Import3D(BaseShape3D):
     convexity: PositiveInt = 1
 
 
-LiteralShape3D = Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
+@dataclass(frozen=True)
+class LinearExtrusion(BaseExtrusion):
+    height: PositiveFloat = 100  # Default not documented in OpenSCAD manual.
+    center: bool = False
+    twist: float = 0
+    slices: PositiveInt | None = None  # Variable default in OpenSCAD.
+    scale: PositiveFloat = 1
+
+
+@dataclass(frozen=True)
+class RotationalExtrusion(BaseExtrusion):
+    angle: float = tau
+
+
+LiteralShape3D = (Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
+                  | LinearExtrusion | RotationalExtrusion)
 
 ######################
 # 2D TRANSFORMATIONS #
@@ -442,4 +464,5 @@ update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
                     Projection)
 update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
                     Union3D, Difference3D, Intersection3D, Translation3D,
-                    Rotation3D, Mirror3D, ModuleDefinition3D, ModuleCall3D)
+                    Rotation3D, Mirror3D, ModuleDefinition3D, ModuleCall3D,
+                    LinearExtrusion, RotationalExtrusion)

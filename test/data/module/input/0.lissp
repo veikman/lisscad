@@ -1,4 +1,5 @@
 (lisscad.prelude.._macro_.standard)
+(lisscad.prelude.._macro_.lisp)
 
 (define m1 "module1")
 (define m2 "module2")

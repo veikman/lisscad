@@ -217,6 +217,18 @@ def _(datum: d.Polyhedron) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.LinearExtrusion) -> LineGen:
+    head = ', '.join(_from_dataclass(datum))
+    yield from _contain('linear_extrude', *datum.children, head=head)
+
+
+@transpile.register
+def _(datum: d.RotationalExtrusion) -> LineGen:
+    head = ', '.join(_from_dataclass(datum))
+    yield from _contain('rotate_extrude', *datum.children, head=head)
+
+
+@transpile.register
 def _(datum: d.Translation2D) -> LineGen:
     yield from _translate(*datum.children, head=_csv(datum.coord))
 
@@ -299,6 +311,10 @@ def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
     return _numeric(values)
 
 
+def _bool(value: bool) -> str:
+    return str(value).lower()
+
+
 def _string(value: str) -> str:
     """Format a string for use in OpenSCAD
 
@@ -319,12 +335,19 @@ def _string(value: str) -> str:
 
 
 def _scalar(value: int | float | str) -> str:
+    if isinstance(value, bool):
+        return _bool(value)
     if isinstance(value, (str, Path)):
         return _string(value)
     return _minimize(value)
 
 
-def _from_dataclass(datum: d.Text | d.Import2D | d.Import3D) -> LineGen:
+def _from_dataclass(
+        datum: (d.Text | d.Import2D | d.Import3D | d.LinearExtrusion
+                | d.RotationalExtrusion),
+        denylist: frozenset[str] = frozenset(['child', 'children']),
+        rad: frozenset[str] = frozenset(['angle', 'twist']),
+) -> LineGen:
     """Generate minimal OpenSCAD from dataclass fields.
 
     This will only work where field names on the dataclass already match
@@ -332,13 +355,17 @@ def _from_dataclass(datum: d.Text | d.Import2D | d.Import3D) -> LineGen:
 
     """
     for f in fields(datum):
+        if f.name in denylist:
+            continue
         value = getattr(datum, f.name)
         if value == f.default:
             continue
+        if f.name in rad:
+            value = _rad_to_deg(value)
         yield f'{f.name}={_scalar(value)}'
 
 
-def _rad_to_deg(radians: float):
+def _rad_to_deg(radians: float) -> float:
     return (radians * 180) / pi
 
 

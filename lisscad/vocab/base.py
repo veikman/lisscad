@@ -150,6 +150,16 @@ def polyhedron(points: tuple[d.Tuple3D, ...],
     return d.Polyhedron(points, faces, **kwargs)
 
 
+def extrude(*children: d.LiteralExpressionNon3D,
+            rotate: bool | None = None,
+            center: bool = True,
+            **kwargs) -> d.LinearExtrusion | d.RotationalExtrusion:
+    """Extrude translationally by default."""
+    if rotate is True or (rotate is None and 'angle' in kwargs):
+        return d.RotationalExtrusion(children=children, **kwargs)
+    return d.LinearExtrusion(children=children, center=center, **kwargs)
+
+
 def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
     if len(coord) == 2:
         return d.Translation2D(

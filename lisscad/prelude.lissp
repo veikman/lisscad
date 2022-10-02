@@ -42,8 +42,10 @@
      (define / lisscad.op..div)))
 
 (defmacro lisp ()
-  "Provide unambiguous aliases in kebab case, traditionally idiomatic for Lisp."
+  "Provide unambiguous aliases in kebab case, traditionally idiomatic for Lisp.
+  This is a superset of the standard prelude."
   `(progn
+     (standard)
      (define call-module (partial lisscad.vocab.base..module : call True))
      (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
      (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))

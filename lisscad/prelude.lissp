@@ -25,7 +25,7 @@
 
      ;; OpenSCAD’s single-character modifiers, {% # 1 *}:
      (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
-     (define % lisscad.vocab.base..background)  ; Replace the Hissp prelude’s %.
+     (define % lisscad.op..background_dict)  ; Replace the Hissp prelude’s %.
      (exec "del _macro_.QzHASH_" (globals))  ; Drop the Hissp prelude’s #.
      (define \# lisscad.vocab.base..debug)  ; Replace the Hissp prelude’s #.
      ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.

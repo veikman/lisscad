@@ -7,13 +7,13 @@ from operator import mul as _mul
 from operator import sub as _sub
 from operator import truediv as _div
 
-from lisscad.vocab.base import difference, disable
+from lisscad.vocab.base import background, difference, disable
 
 #############
 # AGNOSTICS #
 #############
 
-# Functions to act upon numbers and OpenSCAD expressions.
+# Functions to act upon numbers and OpenSCAD expressions:
 # By design, for the sake of functional-programming simplicity, these are
 # variary and do not use Python’s object-oriented magic methods.
 
@@ -42,6 +42,23 @@ def mul(*args):
     if len(args) != 1:
         raise Exception('Non-numeric “*” requires exactly one operand.')
     return disable(*args)
+
+
+# Similarly, functions to make collections or act upon OpenSCAD expressions:
+
+
+def background_dict(*args):
+    """Make a dict or apply OpenSCAD’s background modifier."""
+    if len(args) == 1:
+        return background(args[0])
+
+    # Emulate hissp.macros.._macro_.% by imperative means.
+    # Overwrite any repeated keys.
+    assert len(args) % 2 == 0
+    coll = {}
+    for i in map(lambda n: 2 * n, range(len(args) // 2)):
+        coll[args[i]] = args[i + 1]
+    return coll
 
 
 ##############

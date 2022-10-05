@@ -71,7 +71,7 @@ def debug_set(arg, *args):
         return debug(arg)
 
     # Emulate hissp.macros.._macro_.#.
-    return set([arg]).union(args)
+    return {arg}.union(args)
 
 
 ##############

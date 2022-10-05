@@ -337,8 +337,16 @@ class RotationalExtrusion(BaseExtrusion):
     angle: float = tau
 
 
+@dataclass(frozen=True)
+class Surface(BaseShape3D):
+    file: Path
+    center: bool = False
+    invert: bool = False
+    convexity: PositiveInt = 1
+
+
 LiteralShape3D = (Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
-                  | LinearExtrusion | RotationalExtrusion)
+                  | LinearExtrusion | RotationalExtrusion | Surface)
 
 ######################
 # 2D TRANSFORMATIONS #

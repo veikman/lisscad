@@ -160,6 +160,10 @@ def extrude(*children: d.LiteralExpressionNon3D,
     return d.LinearExtrusion(children=children, center=center, **kwargs)
 
 
+def surface(file: _Path, center: bool = True, **kwargs) -> d.Surface:
+    return d.Surface(file, center=center, **kwargs)
+
+
 def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
     if len(coord) == 2:
         return d.Translation2D(

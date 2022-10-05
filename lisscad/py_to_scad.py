@@ -229,6 +229,12 @@ def _(datum: d.RotationalExtrusion) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Surface) -> LineGen:
+    head = ', '.join(_from_dataclass(datum))
+    yield f'surface({head});'
+
+
+@transpile.register
 def _(datum: d.Translation2D) -> LineGen:
     yield from _translate(*datum.children, head=_csv(datum.coord))
 
@@ -344,7 +350,7 @@ def _scalar(value: int | float | str) -> str:
 
 def _from_dataclass(
         datum: (d.Text | d.Import2D | d.Import3D | d.LinearExtrusion
-                | d.RotationalExtrusion),
+                | d.RotationalExtrusion | d.Surface),
         denylist: frozenset[str] = frozenset(['child', 'children']),
         rad: frozenset[str] = frozenset(['angle', 'twist']),
 ) -> LineGen:

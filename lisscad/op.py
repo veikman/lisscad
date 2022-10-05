@@ -7,7 +7,8 @@ from operator import mul as _mul
 from operator import sub as _sub
 from operator import truediv as _div
 
-from lisscad.vocab.base import background, difference, disable
+from lisscad.data.inter import BaseExpression
+from lisscad.vocab.base import background, debug, difference, disable
 
 #############
 # AGNOSTICS #
@@ -59,6 +60,15 @@ def background_dict(*args):
     for i in map(lambda n: 2 * n, range(len(args) // 2)):
         coll[args[i]] = args[i + 1]
     return coll
+
+
+def debug_set(arg, *args):
+    """Make a set or apply OpenSCAD’s debug modifier."""
+    if not args and isinstance(arg, BaseExpression):
+        return debug(arg)
+
+    # Emulate hissp.macros.._macro_.#.
+    return set([arg]).union(args)
 
 
 ##############

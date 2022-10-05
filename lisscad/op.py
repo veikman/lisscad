@@ -50,12 +50,15 @@ def mul(*args):
 
 def background_dict(*args):
     """Make a dict or apply OpenSCAD’s background modifier."""
-    if len(args) == 1:
+    if len(args) == 1 and isinstance(args[0], BaseExpression):
         return background(args[0])
 
     # Emulate hissp.macros.._macro_.% by imperative means.
     # Overwrite any repeated keys.
-    assert len(args) % 2 == 0
+    if len(args) % 2 != 0:
+        raise Exception(
+            '“%” takes one OpenSCAD expression or an even number of arguments.'
+        )
     coll = {}
     for i in map(lambda n: 2 * n, range(len(args) // 2)):
         coll[args[i]] = args[i + 1]

@@ -1,13 +1,13 @@
-linear_extrude(center=true) {
+linear_extrude() {
+    square(size=[1, 1], center=true);
+};
+
+linear_extrude(height=40, twist=180) {
     square(size=[2, 8], center=true);
 };
 
-linear_extrude(height=80, center=true, twist=180) {
-    square(size=[2, 8], center=true);
-};
-
-translate([0, 0, 55]) {
-    linear_extrude(height=20, scale=2) {
+translate([0, 0, 50]) {
+    linear_extrude(height=15, center=true, scale=2) {
         square(size=[2, 8], center=true);
     };
 };

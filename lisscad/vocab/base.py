@@ -152,12 +152,11 @@ def polyhedron(points: tuple[d.Tuple3D, ...],
 
 def extrude(*children: d.LiteralExpressionNon3D,
             rotate: bool | None = None,
-            center: bool = True,
             **kwargs) -> d.LinearExtrusion | d.RotationalExtrusion:
     """Extrude translationally by default."""
     if rotate is True or (rotate is None and 'angle' in kwargs):
         return d.RotationalExtrusion(children=children, **kwargs)
-    return d.LinearExtrusion(children=children, center=center, **kwargs)
+    return d.LinearExtrusion(children=children, **kwargs)
 
 
 def surface(file: _Path, center: bool = True, **kwargs) -> d.Surface:

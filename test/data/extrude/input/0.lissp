@@ -2,9 +2,9 @@
 
 (define base (square '(2 8)))
 
-(write (@ (linear-extrude base)
-          (linear-extrude base : height 80 twist π)
-          (translate '(0 0 55)
-            (linear-extrude base : center False height 20 scale 2))
+(write (@ (linear-extrude (square '(1 1)) : center False)
+          (linear-extrude base : height 40 twist π)
+          (translate '(0 0 50)
+            (linear-extrude base : center True height 15 scale 2))
           (rotate-extrude (translate '(36 0) base))
           (rotate-extrude (translate '(40 0) base) : angle (* 1.75 π))))

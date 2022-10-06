@@ -1,3 +1,5 @@
+"""Transpilation from intermediate data structures to OpenSCAD code."""
+
 from dataclasses import fields
 from functools import partial, singledispatch
 from math import pi

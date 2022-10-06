@@ -79,8 +79,9 @@ class BaseTransformation3D(Base3D):
 
 
 @dataclass(frozen=True)
-class BaseMirror(BaseExpression):
-    axes: tuple[int, int, int]
+class BaseMirror(BaseExpression, SCADTerm):
+    keyword: ClassVar[str] = 'mirror'
+    v: tuple[int, int, int]  # Coefficients by axis. Named as in OpenSCAD.
 
 
 class BaseShape2D(Base2D):

@@ -254,12 +254,12 @@ def _(datum: d.Rotation3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Mirror2D) -> LineGen:
-    yield from _mirror(datum)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Mirror3D) -> LineGen:
-    yield from _mirror(datum)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -432,11 +432,6 @@ def _from_scadterm(datum: d.SCADTerm, ) -> LineGen:
                        *children,
                        container=container,
                        head=', '.join(_fields_from_dataclass(datum)))
-
-
-def _mirror(datum: d.Mirror2D | d.Mirror3D):
-    axes = _csv(datum.axes)
-    yield from _contain('mirror', *datum.children, head=f'v={axes}')
 
 
 _union = partial(_contain, 'union')

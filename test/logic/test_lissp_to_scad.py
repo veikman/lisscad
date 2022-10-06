@@ -102,7 +102,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
         content_oracle = stored_oracle.read_text().rstrip()
 
         try:
-            assert content_out == content_oracle
+            assert content_oracle == content_out
         except AssertionError:
             if adopt:
                 stored_oracle.write_text(content_out + '\n')

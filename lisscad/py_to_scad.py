@@ -140,8 +140,12 @@ def _(datum: d.Circle) -> LineGen:
 
 @transpile.register
 def _(datum: d.Square) -> LineGen:
-    yield (f'square(size={_csv(datum.size)}, '
-           f'center={str(datum.center).lower()});')
+    yield from _from_scadterm(datum)
+
+
+@transpile.register
+def _(datum: d.Rectangle) -> LineGen:
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -157,19 +161,19 @@ def _(datum: d.Polygon) -> LineGen:
 
 @transpile.register
 def _(datum: d.Text) -> LineGen:
-    values = ', '.join(_from_dataclass(datum))
+    values = ', '.join(_fields_from_dataclass(datum))
     yield f'text({values});'
 
 
 @transpile.register
 def _(datum: d.Import2D) -> LineGen:
-    values = ', '.join(_from_dataclass(datum))
+    values = ', '.join(_fields_from_dataclass(datum))
     yield f'import({values});'
 
 
 @transpile.register
 def _(datum: d.Import3D) -> LineGen:
-    values = ', '.join(_from_dataclass(datum))
+    values = ', '.join(_fields_from_dataclass(datum))
     yield f'import({values});'
 
 
@@ -218,19 +222,19 @@ def _(datum: d.Polyhedron) -> LineGen:
 
 @transpile.register
 def _(datum: d.LinearExtrusion) -> LineGen:
-    head = ', '.join(_from_dataclass(datum))
+    head = ', '.join(_fields_from_dataclass(datum))
     yield from _contain('linear_extrude', *datum.children, head=head)
 
 
 @transpile.register
 def _(datum: d.RotationalExtrusion) -> LineGen:
-    head = ', '.join(_from_dataclass(datum))
+    head = ', '.join(_fields_from_dataclass(datum))
     yield from _contain('rotate_extrude', *datum.children, head=head)
 
 
 @transpile.register
 def _(datum: d.Surface) -> LineGen:
-    head = ', '.join(_from_dataclass(datum))
+    head = ', '.join(_fields_from_dataclass(datum))
     yield f'surface({head});'
 
 
@@ -348,9 +352,8 @@ def _scalar(value: int | float | str) -> str:
     return _minimize(value)
 
 
-def _from_dataclass(
-        datum: (d.Text | d.Import2D | d.Import3D | d.LinearExtrusion
-                | d.RotationalExtrusion | d.Surface),
+def _fields_from_dataclass(
+        datum: d.SCADTerm,
         denylist: frozenset[str] = frozenset(['child', 'children']),
         rad: frozenset[str] = frozenset(['angle', 'twist']),
 ) -> LineGen:
@@ -401,6 +404,42 @@ def _contain(keyword: str,
         yield '}' + postfix
     else:
         yield lead + '{}' + postfix
+
+
+def _terminate(keyword: str,
+               prefix: str = '',
+               head: str = '',
+               postfix: str = ';') -> str:
+    return f'{prefix}{keyword}({head}){postfix}'
+
+
+def _format(keyword: str,
+            *body: d.LiteralExpression,
+            container: bool = True,
+            **kwargs) -> LineGen:
+    if container or body:
+        yield from _contain(keyword, *body, **kwargs)
+    else:
+        yield _terminate(keyword, **kwargs)
+
+
+def _from_scadterm(datum: d.SCADTerm, ) -> LineGen:
+    container = False
+    children: tuple[d.LiteralExpression, ...] = ()
+    try:
+        children = (datum.child, )  # type: ignore[attr-defined]
+        container = True
+    except AttributeError:
+        try:
+            children = datum.children  # type: ignore[attr-defined]
+            container = True
+        except AttributeError:
+            pass
+
+    yield from _format(datum.keyword,
+                       *children,
+                       container=container,
+                       head=', '.join(_fields_from_dataclass(datum)))
 
 
 def _mirror(datum: d.Mirror2D | d.Mirror3D):

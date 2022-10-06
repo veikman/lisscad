@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from math import tau
 from pathlib import Path
-from typing import Literal, Union
+from typing import ClassVar, Literal, Union
 
 from pydantic import PositiveFloat, PositiveInt
 from pydantic.dataclasses import dataclass
@@ -22,6 +22,12 @@ from pydantic.dataclasses import dataclass
 
 Tuple2D = tuple[float, float]
 Tuple3D = tuple[float, float, float]
+
+
+class SCADTerm:
+    """A mix-in for classes that match OpenSCAD’s wording."""
+
+    keyword: ClassVar[str] = ''
 
 
 class BaseExpression:
@@ -239,9 +245,17 @@ class Circle(BaseShape2D):
 
 
 @dataclass(frozen=True)
-class Square(BaseShape2D):
+class Square(BaseShape2D, SCADTerm):
+    keyword: ClassVar[str] = 'square'
+    size: float
+    center: bool = False
+
+
+@dataclass(frozen=True)
+class Rectangle(BaseShape2D, SCADTerm):
+    keyword: ClassVar[str] = 'square'  # Sic.
     size: Tuple2D
-    center: bool
+    center: bool = False
 
 
 @dataclass(frozen=True)
@@ -252,7 +266,8 @@ class Polygon(BaseShape2D):
 
 
 @dataclass(frozen=True)
-class Text(BaseShape2D):
+class Text(BaseShape2D, SCADTerm):
+    keyword: ClassVar[str] = 'text'
     text: str
     size: PositiveFloat = 10
     font: str = ''
@@ -265,7 +280,8 @@ class Text(BaseShape2D):
 
 
 @dataclass(frozen=True)
-class Import2D(BaseShape2D):
+class Import2D(BaseShape2D, SCADTerm):
+    keyword: ClassVar[str] = 'import'
     file: Path
     layer: str = ''
     convexity: PositiveInt = 1
@@ -277,7 +293,8 @@ class Projection(BaseShape2D):
     child: LiteralExpressionNon2D
 
 
-LiteralShape2D = Circle | Square | Polygon | Text | Import2D | Projection
+LiteralShape2D = (Circle | Square | Rectangle | Polygon | Text | Import2D
+                  | Projection)
 
 #############
 # 3D SHAPES #
@@ -317,14 +334,16 @@ class Polyhedron(BaseShape3D):
 
 
 @dataclass(frozen=True)
-class Import3D(BaseShape3D):
+class Import3D(BaseShape3D, SCADTerm):
+    keyword: ClassVar[str] = 'import'
     file: Path
     layer: str = ''
     convexity: PositiveInt = 1
 
 
 @dataclass(frozen=True)
-class LinearExtrusion(BaseExtrusion):
+class LinearExtrusion(BaseExtrusion, SCADTerm):
+    keyword: ClassVar[str] = 'linear_extrude'
     height: PositiveFloat = 100  # Default not documented in OpenSCAD manual.
     center: bool = False
     twist: float = 0
@@ -333,12 +352,14 @@ class LinearExtrusion(BaseExtrusion):
 
 
 @dataclass(frozen=True)
-class RotationalExtrusion(BaseExtrusion):
+class RotationalExtrusion(BaseExtrusion, SCADTerm):
+    keyword: ClassVar[str] = 'rotate_extrude'
     angle: float = tau
 
 
 @dataclass(frozen=True)
-class Surface(BaseShape3D):
+class Surface(BaseShape3D, SCADTerm):
+    keyword: ClassVar[str] = 'surface'
     file: Path
     center: bool = False
     invert: bool = False

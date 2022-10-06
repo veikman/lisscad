@@ -82,8 +82,11 @@ def circle(radius: float) -> d.Circle:
     return d.Circle(radius)
 
 
-def square(size: d.Tuple2D, center: bool = True) -> d.Square:
-    return d.Square(size, center)
+def square(size: float | d.Tuple2D,
+           center: bool = True) -> d.Square | d.Rectangle:
+    if isinstance(size, (float, int)):
+        return d.Square(size, center=center)
+    return d.Rectangle(size, center=center)
 
 
 def polygon(points: tuple[d.Tuple2D, ...], **kwargs) -> d.Polygon:

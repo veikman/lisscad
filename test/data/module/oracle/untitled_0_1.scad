@@ -1,5 +1,5 @@
 module module2() {
-    rotate(a=45.0) {
+    rotate(a=45) {
         children();
     };
 };

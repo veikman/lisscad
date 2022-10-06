@@ -356,7 +356,7 @@ class LinearExtrusion(BaseExtrusion, SCADTerm):
 @dataclass(frozen=True)
 class RotationalExtrusion(BaseExtrusion, SCADTerm):
     keyword: ClassVar[str] = 'rotate_extrude'
-    angle: float = tau
+    angle: float = tau  # Not called “a” in OpenSCAD.
 
 
 @dataclass(frozen=True)
@@ -377,14 +377,16 @@ LiteralShape3D = (Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
 
 
 @dataclass(frozen=True)
-class Translation2D(BaseTransformation2D):
-    coord: Tuple2D
+class Translation2D(BaseTransformation2D, SCADTerm):
+    keyword: ClassVar[str] = 'translate'
+    v: Tuple2D
     children: tuple[LiteralExpressionNon3D, ...]
 
 
 @dataclass(frozen=True)
-class Rotation2D(BaseTransformation2D):
-    angle: float
+class Rotation2D(BaseTransformation2D, SCADTerm):
+    keyword: ClassVar[str] = 'rotate'
+    angle: float  # Called “a” in OpenSCAD; cf. RotationalExtrusion.
     children: tuple[LiteralExpressionNon3D, ...]
 
 
@@ -401,13 +403,15 @@ LiteralTransformation2D = Translation2D | Rotation2D | Mirror2D
 
 
 @dataclass(frozen=True)
-class Translation3D(BaseTransformation3D):
-    coord: Tuple3D
+class Translation3D(BaseTransformation3D, SCADTerm):
+    keyword: ClassVar[str] = 'translate'
+    v: Tuple3D
     children: tuple[LiteralExpressionNon2D, ...]
 
 
 @dataclass(frozen=True)
-class Rotation3D(BaseTransformation3D):
+class Rotation3D(BaseTransformation3D, SCADTerm):
+    keyword: ClassVar[str] = 'rotate'
     angle: Tuple3D
     children: tuple[LiteralExpressionNon2D, ...]
 

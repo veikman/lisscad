@@ -175,11 +175,11 @@ def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
                            _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def rotate(coord: float | int | d.Tuple3D, *children: d.LiteralExpression):
-    if isinstance(coord, (float, int)):
-        return d.Rotation2D(coord,
+def rotate(angles: float | int | d.Tuple3D, *children: d.LiteralExpression):
+    if isinstance(angles, (float, int)):
+        return d.Rotation2D(angles,
                             _cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Rotation3D(coord,
+    return d.Rotation3D(angles,
                         _cast(tuple[d.LiteralExpression3D, ...], children))
 
 

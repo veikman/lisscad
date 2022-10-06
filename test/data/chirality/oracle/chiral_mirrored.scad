@@ -13,20 +13,20 @@ module sprocket() {
 mirror(v=[1, 0, 0]) {
     difference() {
         union() {
-            translate([0, 0, 2]) {
+            translate(v=[0, 0, 2]) {
                 cube(size=[2, 1, 5], center=true);
             };
-            translate([2, 0, 0]) {
+            translate(v=[2, 0, 0]) {
                 cube(size=[5, 2, 1], center=true);
             };
-            translate([0, 2, 0]) {
+            translate(v=[0, 2, 0]) {
                 cube(size=[1, 5, 2], center=true);
             };
         };
-        translate([3, 0, 0]) {
+        translate(v=[3, 0, 0]) {
             screw() {};
         };
-        translate([0, 0, 3]) {
+        translate(v=[0, 0, 3]) {
             sprocket() {};
         };
     };

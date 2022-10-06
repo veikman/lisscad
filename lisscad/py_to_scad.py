@@ -232,24 +232,22 @@ def _(datum: d.Surface) -> LineGen:
 
 @transpile.register
 def _(datum: d.Translation2D) -> LineGen:
-    yield from _translate(*datum.children, head=_csv(datum.coord))
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Translation3D) -> LineGen:
-    yield from _translate(*datum.children, head=_csv(datum.coord))
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Rotation2D) -> LineGen:
-    a = _rad_to_deg(datum.angle)
-    yield from _rotate(*datum.children, head=f'a={a}')
+    yield from _from_scadterm(datum, field_names={'angle': 'a'})
 
 
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
-    angles = _csv(tuple(map(_rad_to_deg, datum.angle)))
-    yield from _rotate(*datum.children, head=f'a={angles}')
+    yield from _from_scadterm(datum, field_names={'angle': 'a'})
 
 
 @transpile.register
@@ -345,16 +343,18 @@ def _scalar(value: int | float | str) -> str:
 
 
 def _fields_from_dataclass(
-        datum: d.SCADTerm,
-        denylist: frozenset[str] = frozenset(['child', 'children']),
-        rad: frozenset[str] = frozenset(['angle', 'twist']),
+    datum: d.SCADTerm,
+    denylist: frozenset[str] = frozenset(['child', 'children']),
+    rad: frozenset[str] = frozenset(['angle', 'twist']),
+    field_names: dict[str, str] = None,
 ) -> LineGen:
     """Generate minimal OpenSCAD from dataclass fields.
 
     This will only work where field names on the dataclass already match
-    OpenSCAD.
+    OpenSCAD or are translated using field_names.
 
     """
+    field_names = field_names or {}
     for f in fields(datum):
         if f.name in denylist:
             continue
@@ -362,8 +362,12 @@ def _fields_from_dataclass(
         if value == f.default:
             continue
         if f.name in rad:
-            value = _rad_to_deg(value)
-        yield f'{f.name}={_scalar(value)}'
+            if isinstance(value, float):
+                value = _rad_to_deg(value)
+            else:
+                value = tuple(map(_rad_to_deg, value))
+        name = field_names.get(f.name, f.name)
+        yield f'{name}={_scalar(value)}'
 
 
 def _rad_to_deg(radians: float) -> float:
@@ -415,7 +419,7 @@ def _format(keyword: str,
         yield _terminate(keyword, **kwargs)
 
 
-def _from_scadterm(datum: d.SCADTerm, ) -> LineGen:
+def _from_scadterm(datum: d.SCADTerm, **kwargs) -> LineGen:
     container = False
     children: tuple[d.LiteralExpression, ...] = ()
     try:
@@ -431,9 +435,7 @@ def _from_scadterm(datum: d.SCADTerm, ) -> LineGen:
     yield from _format(datum.keyword,
                        *children,
                        container=container,
-                       head=', '.join(_fields_from_dataclass(datum)))
+                       head=', '.join(_fields_from_dataclass(datum, **kwargs)))
 
 
-_translate = partial(_contain, 'translate')
-_rotate = partial(_contain, 'rotate')
 _module = partial(_contain, prefix='module ')

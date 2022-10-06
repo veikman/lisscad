@@ -61,12 +61,12 @@ class BaseModifier3D(Base3D, BaseModifier):
 
 
 @dataclass(frozen=True)
-class BaseBoolean2D(Base2D):
+class BaseBoolean2D(Base2D, SCADTerm):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
 @dataclass(frozen=True)
-class BaseBoolean3D(Base3D):
+class BaseBoolean3D(Base3D, SCADTerm):
     children: tuple[LiteralExpressionNon2D, ...]
 
 
@@ -197,18 +197,18 @@ LiteralModifier3D = Background3D | Debug3D | Root3D | Disable3D
 
 @dataclass(frozen=True)
 class Union2D(BaseBoolean2D):
-    # An OpenSCAD union. No relation to typing.Union.
-    pass
+    # An OpenSCAD union, not a typing.Union.
+    keyword: ClassVar[str] = 'union'
 
 
 @dataclass(frozen=True)
 class Difference2D(BaseBoolean2D):
-    pass
+    keyword: ClassVar[str] = 'difference'
 
 
 @dataclass(frozen=True)
 class Intersection2D(BaseBoolean2D):
-    pass
+    keyword: ClassVar[str] = 'intersection'
 
 
 LiteralBoolean2D = Union2D | Difference2D | Intersection2D
@@ -220,17 +220,17 @@ LiteralBoolean2D = Union2D | Difference2D | Intersection2D
 
 @dataclass(frozen=True)
 class Union3D(BaseBoolean3D):
-    pass
+    keyword: ClassVar[str] = 'union'
 
 
 @dataclass(frozen=True)
 class Difference3D(BaseBoolean3D):
-    pass
+    keyword: ClassVar[str] = 'difference'
 
 
 @dataclass(frozen=True)
 class Intersection3D(BaseBoolean3D):
-    pass
+    keyword: ClassVar[str] = 'intersection'
 
 
 LiteralBoolean3D = Union3D | Difference3D | Intersection3D

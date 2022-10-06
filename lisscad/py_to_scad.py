@@ -105,32 +105,32 @@ def _(datum: d.Disable3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Union2D) -> LineGen:
-    yield from _union(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Union3D) -> LineGen:
-    yield from _union(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Difference2D) -> LineGen:
-    yield from _difference(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Difference3D) -> LineGen:
-    yield from _difference(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Intersection2D) -> LineGen:
-    yield from _intersection(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Intersection3D) -> LineGen:
-    yield from _intersection(*datum.children)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -434,9 +434,6 @@ def _from_scadterm(datum: d.SCADTerm, ) -> LineGen:
                        head=', '.join(_fields_from_dataclass(datum)))
 
 
-_union = partial(_contain, 'union')
-_difference = partial(_contain, 'difference')
-_intersection = partial(_contain, 'intersection')
 _translate = partial(_contain, 'translate')
 _rotate = partial(_contain, 'rotate')
 _module = partial(_contain, prefix='module ')

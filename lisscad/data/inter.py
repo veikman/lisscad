@@ -288,9 +288,10 @@ class Import2D(BaseShape2D, SCADTerm):
 
 
 @dataclass(frozen=True)
-class Projection(BaseShape2D):
-    cut: bool
+class Projection(BaseShape2D, SCADTerm):
+    keyword: ClassVar[str] = 'projection'
     child: LiteralExpressionNon2D
+    cut: bool = False
 
 
 LiteralShape2D = (Circle | Square | Rectangle | Polygon | Text | Import2D

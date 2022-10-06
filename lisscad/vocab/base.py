@@ -124,7 +124,7 @@ def projection(child: d.LiteralExpressionNon2D,
     separate operation (“cut”), as in scad-clj.
 
     """
-    return d.Projection(cut, child)
+    return d.Projection(child, cut=cut)
 
 
 cut = _partial(projection, cut=True)

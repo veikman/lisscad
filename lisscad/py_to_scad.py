@@ -176,9 +176,7 @@ def _(datum: d.Import3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Projection) -> LineGen:
-    yield from _contain('projection',
-                        datum.child,
-                        head=f'cut={str(datum.cut).lower()}')
+    yield from _from_scadterm(datum)
 
 
 @transpile.register

@@ -1,4 +1,4 @@
-"""Automated integration testing using lissp subprocesses."""
+"""Automated integration testing using the Lissp compiler on real scripts."""
 
 from ast import literal_eval
 from functools import partial

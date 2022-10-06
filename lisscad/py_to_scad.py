@@ -161,20 +161,17 @@ def _(datum: d.Polygon) -> LineGen:
 
 @transpile.register
 def _(datum: d.Text) -> LineGen:
-    values = ', '.join(_fields_from_dataclass(datum))
-    yield f'text({values});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Import2D) -> LineGen:
-    values = ', '.join(_fields_from_dataclass(datum))
-    yield f'import({values});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Import3D) -> LineGen:
-    values = ', '.join(_fields_from_dataclass(datum))
-    yield f'import({values});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -222,20 +219,17 @@ def _(datum: d.Polyhedron) -> LineGen:
 
 @transpile.register
 def _(datum: d.LinearExtrusion) -> LineGen:
-    head = ', '.join(_fields_from_dataclass(datum))
-    yield from _contain('linear_extrude', *datum.children, head=head)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.RotationalExtrusion) -> LineGen:
-    head = ', '.join(_fields_from_dataclass(datum))
-    yield from _contain('rotate_extrude', *datum.children, head=head)
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Surface) -> LineGen:
-    head = ', '.join(_fields_from_dataclass(datum))
-    yield f'surface({head});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register

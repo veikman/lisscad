@@ -212,6 +212,18 @@ def mirror(axes: tuple[int, int, int],
     return d.Mirror3D(axes, _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def multmatrix(
+    matrix: tuple[d.Tuple4D, ...], *children: d.LiteralExpression
+) -> d.AffineTransformation2D | d.AffineTransformation3D:
+    # OpenSCAD can apply a multmatrix to a two-dimensional object, but as of
+    # 2022 there are no examples or specifications in the manual.
+    if _dimensionality('transform', *children) == 2:
+        return d.AffineTransformation2D(
+            matrix, _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.AffineTransformation3D(
+        matrix, _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

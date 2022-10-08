@@ -1,0 +1,8 @@
+(lisscad.prelude.._macro_.standard)
+
+(define skew-y '((1 0 0   0)
+                 (0 1 0.7 0)
+                 (0 0 1   0)
+                 (0 0 0   1)))
+
+(write (multmatrix skew-y (cylinder 10 25)));

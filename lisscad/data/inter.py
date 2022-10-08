@@ -452,8 +452,24 @@ class Color2D(BaseTransformation2D, SCADTerm):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
+@dantaclass(frozen=True)
+class RoundedOffset(BaseTransformation2D, SCADTerm):
+    scad = SCADAdapter('offset', 'children', {'distance': 'r'})
+    distance: float
+    children: tuple[LiteralExpressionNon3D, ...]
+
+
+@dantaclass(frozen=True)
+class AngledOffset(BaseTransformation2D, SCADTerm):
+    scad = SCADAdapter('offset', 'children', {'distance': 'delta'})
+    distance: float
+    children: tuple[LiteralExpressionNon3D, ...]
+    chamfer: bool = False
+
+
 LiteralTransformation2D = (Translation2D | Rotation2D | Scaling2D | Size2D
-                           | Mirror2D | AffineTransformation2D | Color2D)
+                           | Mirror2D | AffineTransformation2D | Color2D
+                           | RoundedOffset | AngledOffset)
 
 ######################
 # 3D TRANSFORMATIONS #
@@ -583,8 +599,8 @@ LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
 update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
                     Union2D, Difference2D, Intersection2D, Translation2D,
                     Rotation2D, Scaling2D, Size2D, Mirror2D,
-                    AffineTransformation2D, Color2D, ModuleDefinition2D,
-                    ModuleCall2D, Projection)
+                    AffineTransformation2D, Color2D, RoundedOffset,
+                    AngledOffset, ModuleDefinition2D, ModuleCall2D, Projection)
 update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
                     Union3D, Difference3D, Intersection3D, Translation3D,
                     Rotation3D, Scaling3D, Size3D, Mirror3D,

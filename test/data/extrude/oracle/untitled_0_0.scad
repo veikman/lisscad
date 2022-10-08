@@ -8,7 +8,11 @@ linear_extrude(height=40, twist=180) {
 
 translate(v=[0, 0, 50]) {
     linear_extrude(height=15, center=true, scale=2) {
-        square(size=[2, 8], center=true);
+        offset(delta=0.5, chamfer=true) {
+            offset(delta=-0.5, chamfer=true) {
+                square(size=[2, 8], center=true);
+            };
+        };
     };
 };
 

@@ -232,6 +232,16 @@ def color(value: d.Tuple4D | str,
     return d.Color3D(value, _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def offset(distance: float,
+           *children: d.LiteralExpressionNon3D,
+           round: bool = True,
+           chamfer: bool = False) -> d.RoundedOffset | d.AngledOffset:
+    if round:
+        assert not chamfer  # Chamfering is meaningless in this context.
+        return d.RoundedOffset(distance, children)
+    return d.AngledOffset(distance, children, chamfer=chamfer)
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

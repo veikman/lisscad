@@ -224,6 +224,14 @@ def multmatrix(
         matrix, _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def color(value: d.Tuple4D | str,
+          *children: d.LiteralExpression) -> d.Color2D | d.Color3D:
+    if _dimensionality('color', *children) == 2:
+        return d.Color2D(value,
+                         _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Color3D(value, _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

@@ -242,6 +242,12 @@ def offset(distance: float,
     return d.AngledOffset(distance, children, chamfer=chamfer)
 
 
+def hull(*children: d.LiteralExpression) -> d.Hull2D | d.Hull3D:
+    if _dimensionality('form a hull around', *children) == 2:
+        return d.Hull2D(_cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Hull3D(_cast(tuple[d.LiteralExpression3D, ...], children))
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

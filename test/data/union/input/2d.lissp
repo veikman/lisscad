@@ -3,6 +3,8 @@
 (define model
   (union
     (translate '(0 4) (square '(1 2)))
-    (square '(2 1))))
+    (hull
+      (square '(2 1))
+      (translate '(4 -4) (square '(2 1))))))
 
 (write (dict : name "2d" content model))

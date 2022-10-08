@@ -248,6 +248,15 @@ def hull(*children: d.LiteralExpression) -> d.Hull2D | d.Hull3D:
     return d.Hull3D(_cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def minkowski(*children: d.LiteralExpression,
+              **kwargs) -> (d.MinkowskiSum2D | d.MinkowskiSum3D):
+    if _dimensionality('minkowski-add', *children) == 2:
+        return d.MinkowskiSum2D(
+            _cast(tuple[d.LiteralExpression2D, ...], children), **kwargs)
+    return d.MinkowskiSum3D(
+        _cast(tuple[d.LiteralExpression3D, ...], children), **kwargs)
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

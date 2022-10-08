@@ -1,0 +1,5 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (minkowski
+         (square '(20 20))
+         (scale '(1 2) (circle 4))))

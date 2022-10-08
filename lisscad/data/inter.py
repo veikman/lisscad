@@ -473,9 +473,17 @@ class Hull2D(BaseTransformation2D, SCADTerm):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
+@dantaclass(frozen=True)
+class MinkowskiSum2D(BaseTransformation2D, SCADTerm):
+    scad = SCADAdapter('minkowski', 'children')
+    children: tuple[LiteralExpressionNon3D, ...]
+    convexity: PositiveInt = 1
+
+
 LiteralTransformation2D = (Translation2D | Rotation2D | Scaling2D | Size2D
                            | Mirror2D | AffineTransformation2D | Color2D
-                           | RoundedOffset | AngledOffset | Hull2D)
+                           | RoundedOffset | AngledOffset | Hull2D
+                           | MinkowskiSum2D)
 
 ######################
 # 3D TRANSFORMATIONS #
@@ -535,9 +543,16 @@ class Hull3D(BaseTransformation3D, SCADTerm):
     children: tuple[LiteralExpressionNon2D, ...]
 
 
+@dantaclass(frozen=True)
+class MinkowskiSum3D(BaseTransformation3D, SCADTerm):
+    scad = SCADAdapter('minkowski', 'children')
+    children: tuple[LiteralExpressionNon2D, ...]
+    convexity: PositiveInt = 1
+
+
 LiteralTransformation3D = (Translation3D | Rotation3D | Scaling3D | Size3D
                            | Mirror3D | AffineTransformation3D | Color3D
-                           | Hull3D)
+                           | Hull3D | MinkowskiSum3D)
 
 ##############
 # 2D MODULES #
@@ -613,11 +628,11 @@ update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
                     Union2D, Difference2D, Intersection2D, Translation2D,
                     Rotation2D, Scaling2D, Size2D, Mirror2D,
                     AffineTransformation2D, Color2D, RoundedOffset,
-                    AngledOffset, Hull2D, ModuleDefinition2D, ModuleCall2D,
-                    Projection)
+                    AngledOffset, Hull2D, MinkowskiSum2D, ModuleDefinition2D,
+                    ModuleCall2D, Projection)
 update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
                     Union3D, Difference3D, Intersection3D, Translation3D,
                     Rotation3D, Scaling3D, Size3D, Mirror3D,
-                    AffineTransformation3D, Color3D, Hull3D,
+                    AffineTransformation3D, Color3D, Hull3D, MinkowskiSum3D,
                     ModuleDefinition3D, ModuleCall3D, LinearExtrusion,
                     RotationalExtrusion)

@@ -146,20 +146,24 @@ def _(datum: d.ModuleChildren) -> LineGen:
 def _numeric(
     values: int | float | tuple[int | float | tuple[int | float, ...], ...]
 ) -> str:
+    """Present a numeric value scalar or vector in OpenSCAD."""
     data = list(transpile(values))
     assert len(data) == 1
     return data[0]
 
 
 def _minimize(value: int | float) -> str:
+    """Drop an unneeded decimal point."""
     return _numeric(value)
 
 
 def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
+    """Comma-separate values."""
     return _numeric(values)
 
 
 def _bool(value: bool) -> str:
+    """Present a Python Boolean in OpenSCAD."""
     return str(value).lower()
 
 
@@ -183,6 +187,7 @@ def _string(value: str) -> str:
 
 
 def _scalar(value: int | float | str) -> str:
+    """Compose OpenSCAD code for simple values."""
     if isinstance(value, bool):
         return _bool(value)
     if isinstance(value, (str, Path)):
@@ -222,6 +227,7 @@ def _rad_to_deg(radians: float) -> float:
 
 
 def _modifier(symbol: str, target: d.LiteralExpression) -> LineGen:
+    """Prepend a modifier to OpenSCAD code."""
     head, *tail = transpile(target)
     yield symbol + head
     yield from tail
@@ -238,6 +244,7 @@ def _contain(keyword: str,
              prefix: str = '',
              head: str = '',
              postfix: str = ';') -> LineGen:
+    """Compose OpenSCAD code for a branch expression."""
     lead = f'{prefix}{keyword}({head}) '
     if body:
         yield lead + '{'
@@ -253,6 +260,7 @@ def _terminate(keyword: str,
                prefix: str = '',
                head: str = '',
                postfix: str = ';') -> str:
+    """Compose OpenSCAD code for a leaf expression."""
     return f'{prefix}{keyword}({head}){postfix}'
 
 
@@ -260,6 +268,7 @@ def _format(keyword: str,
             *body: d.LiteralExpression,
             container: bool = True,
             **kwargs) -> LineGen:
+    """Compose typical OpenSCAD code."""
     if container or body:
         yield from _contain(keyword, *body, **kwargs)
     else:
@@ -267,6 +276,7 @@ def _format(keyword: str,
 
 
 def _from_scadterm(datum: d.SCADTerm, **kwargs) -> LineGen:
+    """Grab metadata about a typical OpenSCAD term from its precursor."""
     container = False
     children: tuple[d.LiteralExpression, ...] = ()
     if container_attr := datum.scad.container:

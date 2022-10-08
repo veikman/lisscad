@@ -18,6 +18,9 @@ LineGen = Generator[str, None, None]
 
 @singledispatch
 def transpile(datum) -> LineGen:
+    if isinstance(datum, d.SCADTerm):
+        yield from _from_scadterm(datum)
+        return
     raise TypeError(f'Cannot transpile {datum!r}.')
 
 
@@ -103,146 +106,6 @@ def _(datum: d.Disable2D) -> LineGen:
 @transpile.register
 def _(datum: d.Disable3D) -> LineGen:
     yield from _disable(datum.child)
-
-
-@transpile.register
-def _(datum: d.Union2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Union3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Difference2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Difference3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Intersection2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Intersection3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Circle) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Square) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Rectangle) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Polygon) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Text) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Import2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Import3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Projection) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Sphere) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Cube) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Cylinder) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Frustum) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Polyhedron) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.LinearExtrusion) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.RotationalExtrusion) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Surface) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Translation2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Translation3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Rotation2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Rotation3D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Mirror2D) -> LineGen:
-    yield from _from_scadterm(datum)
-
-
-@transpile.register
-def _(datum: d.Mirror3D) -> LineGen:
-    yield from _from_scadterm(datum)
 
 
 @transpile.register

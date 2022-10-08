@@ -62,7 +62,7 @@ def _(datum: str) -> LineGen:
     if n != 1:
         # Escape codes needed.
         raise ValueError(
-            'Python string {value!r} would form multiple OpenSCAD strings.')
+            f'Python string {datum!r} would form multiple OpenSCAD strings.')
     yield candidate
 
 

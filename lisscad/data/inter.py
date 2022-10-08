@@ -531,9 +531,9 @@ LiteralExpressionNon3D = Union[LiteralExpression2D, LiteralExpressionND]
 LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
                           LiteralExpressionND]
 
-###############
-# FINALIZATON #
-###############
+################
+# FINALIZATION #
+################
 
 update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
                     Union2D, Difference2D, Intersection2D, Translation2D,

@@ -143,8 +143,8 @@ def cylinder(radius: float | tuple[float, float],
              center: bool = True) -> d.Cylinder | d.Frustum:
     # Take the radius argument first, like scad-clj.
     if isinstance(radius, (int, float)):
-        return d.Cylinder(radius, height, center)
-    return d.Frustum(radius, height, center)
+        return d.Cylinder(radius, height, center=center)
+    return d.Frustum(radius[0], radius[1], height, center=center)
 
 
 def polyhedron(points: tuple[d.Tuple3D, ...],

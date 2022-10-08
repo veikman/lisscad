@@ -137,7 +137,7 @@ def _(datum: d.Intersection3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Circle) -> LineGen:
-    yield f'circle(r={_minimize(datum.radius)});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -152,13 +152,7 @@ def _(datum: d.Rectangle) -> LineGen:
 
 @transpile.register
 def _(datum: d.Polygon) -> LineGen:
-    points = _csv(datum.points)
-    tail = ''
-    if datum.paths:
-        tail += f', paths={_csv(datum.paths)}'
-    if datum.convexity > 1:
-        tail += f', convexity={datum.convexity}'
-    yield f'polygon(points={points}{tail});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -183,38 +177,27 @@ def _(datum: d.Projection) -> LineGen:
 
 @transpile.register
 def _(datum: d.Sphere) -> LineGen:
-    yield f'sphere(r={_minimize(datum.radius)});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Cube) -> LineGen:
-    yield (f'cube(size={_csv(datum.size)}, '
-           f'center={str(datum.center).lower()});')
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Cylinder) -> LineGen:
-    yield (f'cylinder(r={_minimize(datum.radius)}, '
-           f'h={_minimize(datum.height)}, '
-           f'center={str(datum.center).lower()});')
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Frustum) -> LineGen:
-    yield (f'cylinder(r1={_minimize(datum.radii[0])}, '
-           f'r2={_minimize(datum.radii[1])}, '
-           f'h={_minimize(datum.height)}, '
-           f'center={str(datum.center).lower()});')
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Polyhedron) -> LineGen:
-    points = _csv(datum.points)
-    faces = _csv(datum.faces)
-    tail = ''
-    if datum.convexity > 1:
-        tail += f', convexity={datum.convexity}'
-    yield f'polyhedron(points={points}, faces={faces}{tail});'
+    yield from _from_scadterm(datum)
 
 
 @transpile.register

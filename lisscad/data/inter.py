@@ -256,7 +256,8 @@ LiteralBoolean3D = Union3D | Difference3D | Intersection3D
 
 
 @dantaclass(frozen=True)
-class Circle(BaseShape2D):
+class Circle(BaseShape2D, SCADTerm):
+    scad = SCADAdapter('circle', field_names={'radius': 'r'})
     radius: float
 
 
@@ -275,7 +276,8 @@ class Rectangle(BaseShape2D, SCADTerm):
 
 
 @dantaclass(frozen=True)
-class Polygon(BaseShape2D):
+class Polygon(BaseShape2D, SCADTerm):
+    scad = SCADAdapter('polygon')
     points: tuple[Tuple2D, ...]
     paths: tuple[tuple[int, ...], ...] = ()
     convexity: PositiveInt = 1
@@ -319,32 +321,43 @@ LiteralShape2D = (Circle | Square | Rectangle | Polygon | Text | Import2D
 
 
 @dantaclass(frozen=True)
-class Sphere(BaseShape3D):
+class Sphere(BaseShape3D, SCADTerm):
+    scad = SCADAdapter('sphere', field_names={'radius': 'r'})
     radius: float
 
 
 @dantaclass(frozen=True)
-class Cube(BaseShape3D):
+class Cube(BaseShape3D, SCADTerm):
+    scad = SCADAdapter('cube')
     size: Tuple3D
-    center: bool
+    center: bool = False
 
 
 @dantaclass(frozen=True)
-class Cylinder(BaseShape3D):
+class Cylinder(BaseShape3D, SCADTerm):
+    scad = SCADAdapter('cylinder', field_names={'radius': 'r', 'height': 'h'})
     radius: float
     height: float
-    center: bool
+    center: bool = False
 
 
 @dantaclass(frozen=True)
-class Frustum(BaseShape3D):
-    radii: tuple[float, float]
+class Frustum(BaseShape3D, SCADTerm):
+    scad = SCADAdapter('cylinder',
+                       field_names={
+                           'radius_bottom': 'r1',
+                           'radius_top': 'r2',
+                           'height': 'h'
+                       })
+    radius_bottom: float
+    radius_top: float
     height: float
-    center: bool
+    center: bool = False
 
 
 @dantaclass(frozen=True)
-class Polyhedron(BaseShape3D):
+class Polyhedron(BaseShape3D, SCADTerm):
+    scad = SCADAdapter('polyhedron')
     points: tuple[Tuple3D, ...]
     faces: tuple[tuple[int, ...], ...] = ()
     convexity: PositiveInt = 1

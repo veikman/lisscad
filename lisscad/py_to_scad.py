@@ -171,35 +171,6 @@ def _(datum: d.ModuleChildren) -> LineGen:
 ############
 
 
-def _fields_from_dataclass(
-        datum: d.SCADTerm,
-        denylist: frozenset[str] = frozenset(['child', 'children']),
-        rad: frozenset[str] = frozenset(['angle', 'twist']),
-) -> LineGen:
-    """Generate minimal OpenSCAD from dataclass fields.
-
-    This will only work where field names on the dataclass already match
-    OpenSCAD or are translated using field_names.
-
-    """
-    field_names = datum.scad.field_names
-    for f in fields(datum):
-        if f.name in denylist:
-            continue
-        value = getattr(datum, f.name)
-        if value == f.default:
-            continue
-        if f.name in rad:
-            if isinstance(value, float):
-                value = _rad_to_deg(value)
-            else:
-                value = tuple(map(_rad_to_deg, value))
-        name = field_names.get(f.name, f.name)
-        csv = list(transpile(value))
-        assert len(csv) == 1
-        yield f'{name}={csv[0]}'
-
-
 def _rad_to_deg(radians: float) -> float:
     return (radians * 180) / pi
 
@@ -251,6 +222,35 @@ def _format(keyword: str,
         yield from _contain(keyword, *body, **kwargs)
     else:
         yield _terminate(keyword, **kwargs)
+
+
+def _fields_from_dataclass(
+        datum: d.SCADTerm,
+        denylist: frozenset[str] = frozenset(['child', 'children']),
+        rad: frozenset[str] = frozenset(['angle', 'twist']),
+) -> LineGen:
+    """Generate minimal OpenSCAD from dataclass fields.
+
+    This will only work where field names on the dataclass already match
+    OpenSCAD or are translated using field_names in metadata.
+
+    """
+    field_names = datum.scad.field_names
+    for f in fields(datum):
+        if f.name in denylist:
+            continue
+        value = getattr(datum, f.name)
+        if value == f.default:
+            continue
+        if f.name in rad:
+            if isinstance(value, float):
+                value = _rad_to_deg(value)
+            else:
+                value = tuple(map(_rad_to_deg, value))
+        name = field_names.get(f.name, f.name)
+        csv = list(transpile(value))
+        assert len(csv) == 1
+        yield f'{name}={csv[0]}'
 
 
 def _from_scadterm(datum: d.SCADTerm, **kwargs) -> LineGen:

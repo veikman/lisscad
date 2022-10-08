@@ -30,6 +30,11 @@ def transpile(datum) -> LineGen:
 
 
 @transpile.register
+def _(datum: bool) -> LineGen:
+    yield str(datum).lower()
+
+
+@transpile.register
 def _(datum: int) -> LineGen:
     yield str(datum)
 
@@ -41,6 +46,29 @@ def _(datum: float) -> LineGen:
         yield from transpile(int(datum))
         return
     yield str(datum)
+
+
+@transpile.register
+def _(datum: str) -> LineGen:
+    """Format a string for use in OpenSCAD, with double quotes.
+
+    Check for badly nested quotation marks assuming shell-like syntax. Raise
+    ValueError if there’s a problem.
+
+    """
+    candidate = f'"{datum}"'
+    n = len(
+        split(candidate))  # May raise e.g. “ValueError: No closing quotation”.
+    if n != 1:
+        # Escape codes needed.
+        raise ValueError(
+            'Python string {value!r} would form multiple OpenSCAD strings.')
+    yield candidate
+
+
+@transpile.register
+def _(datum: Path) -> LineGen:
+    yield from transpile(str(datum))
 
 
 @transpile.register
@@ -143,58 +171,6 @@ def _(datum: d.ModuleChildren) -> LineGen:
 ############
 
 
-def _numeric(
-    values: int | float | tuple[int | float | tuple[int | float, ...], ...]
-) -> str:
-    """Present a numeric value scalar or vector in OpenSCAD."""
-    data = list(transpile(values))
-    assert len(data) == 1
-    return data[0]
-
-
-def _minimize(value: int | float) -> str:
-    """Drop an unneeded decimal point."""
-    return _numeric(value)
-
-
-def _csv(values: tuple[int | float | tuple[int | float, ...], ...]) -> str:
-    """Comma-separate values."""
-    return _numeric(values)
-
-
-def _bool(value: bool) -> str:
-    """Present a Python Boolean in OpenSCAD."""
-    return str(value).lower()
-
-
-def _string(value: str) -> str:
-    """Format a string for use in OpenSCAD
-
-    OpenSCAD needs double quotes.
-
-    Check for badly nested quotation marks assuming shell-like syntax. Raise
-    ValueError if there’s a problem.
-
-    """
-    candidate = f'"{value}"'
-    n = len(
-        split(candidate))  # May raise e.g. “ValueError: No closing quotation”.
-    if n != 1:
-        # Escape codes needed.
-        raise ValueError(
-            'Python string {value!r} would form multiple OpenSCAD strings.')
-    return candidate
-
-
-def _scalar(value: int | float | str) -> str:
-    """Compose OpenSCAD code for simple values."""
-    if isinstance(value, bool):
-        return _bool(value)
-    if isinstance(value, (str, Path)):
-        return _string(value)
-    return _minimize(value)
-
-
 def _fields_from_dataclass(
         datum: d.SCADTerm,
         denylist: frozenset[str] = frozenset(['child', 'children']),
@@ -219,7 +195,9 @@ def _fields_from_dataclass(
             else:
                 value = tuple(map(_rad_to_deg, value))
         name = field_names.get(f.name, f.name)
-        yield f'{name}={_scalar(value)}'
+        csv = list(transpile(value))
+        assert len(csv) == 1
+        yield f'{name}={csv[0]}'
 
 
 def _rad_to_deg(radians: float) -> float:

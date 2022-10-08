@@ -244,12 +244,12 @@ def _(datum: d.Translation3D) -> LineGen:
 
 @transpile.register
 def _(datum: d.Rotation2D) -> LineGen:
-    yield from _from_scadterm(datum, field_names={'angle': 'a'})
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
 def _(datum: d.Rotation3D) -> LineGen:
-    yield from _from_scadterm(datum, field_names={'angle': 'a'})
+    yield from _from_scadterm(datum)
 
 
 @transpile.register
@@ -345,10 +345,9 @@ def _scalar(value: int | float | str) -> str:
 
 
 def _fields_from_dataclass(
-    datum: d.SCADTerm,
-    denylist: frozenset[str] = frozenset(['child', 'children']),
-    rad: frozenset[str] = frozenset(['angle', 'twist']),
-    field_names: dict[str, str] = None,
+        datum: d.SCADTerm,
+        denylist: frozenset[str] = frozenset(['child', 'children']),
+        rad: frozenset[str] = frozenset(['angle', 'twist']),
 ) -> LineGen:
     """Generate minimal OpenSCAD from dataclass fields.
 
@@ -356,7 +355,7 @@ def _fields_from_dataclass(
     OpenSCAD or are translated using field_names.
 
     """
-    field_names = field_names or {}
+    field_names = datum.scad.field_names
     for f in fields(datum):
         if f.name in denylist:
             continue
@@ -424,20 +423,16 @@ def _format(keyword: str,
 def _from_scadterm(datum: d.SCADTerm, **kwargs) -> LineGen:
     container = False
     children: tuple[d.LiteralExpression, ...] = ()
-    try:
-        children = (datum.child, )  # type: ignore[attr-defined]
+    if container_attr := datum.scad.container:
         container = True
-    except AttributeError:
-        try:
-            children = datum.children  # type: ignore[attr-defined]
-            container = True
-        except AttributeError:
-            pass
+        children = getattr(datum, container_attr)
+        if not isinstance(children, tuple):
+            children = (children, )
 
-    yield from _format(datum.keyword,
+    yield from _format(datum.scad.keyword,
                        *children,
                        container=container,
-                       head=', '.join(_fields_from_dataclass(datum, **kwargs)))
+                       head=', '.join(_fields_from_dataclass(datum)))
 
 
 _module = partial(_contain, prefix='module ')

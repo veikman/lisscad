@@ -9,12 +9,27 @@ In this data model, angles are uniformly described in radians, as in scad-clj.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from math import tau
 from pathlib import Path
 from typing import ClassVar, Literal, Union
 
 from pydantic import PositiveFloat, PositiveInt
-from pydantic.dataclasses import dataclass
+from pydantic.dataclasses import dataclass as dantaclass
+
+############
+# METADATA #
+############
+
+
+@dataclass(frozen=True)
+class SCADAdapter:
+    """Metadata specific to OpenSCAD, built into a precursor class."""
+
+    keyword: str
+    container: str = ''  # Name of field for contents.
+    field_names: dict[str, str] = field(default_factory=dict)
+
 
 #########
 # BASES #
@@ -27,7 +42,7 @@ Tuple3D = tuple[float, float, float]
 class SCADTerm:
     """A mix-in for classes that match OpenSCAD’s wording."""
 
-    keyword: ClassVar[str] = ''
+    scad: ClassVar[SCADAdapter]
 
 
 class BaseExpression:
@@ -50,22 +65,22 @@ class BaseModifier(BaseExpression):
     """A modifier such as “%”, “#” or “!”. Scoped for just one expression."""
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseModifier2D(Base2D, BaseModifier):
     child: LiteralExpressionNon3D
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseModifier3D(Base3D, BaseModifier):
     child: LiteralExpressionNon2D
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseBoolean2D(Base2D, SCADTerm):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseBoolean3D(Base3D, SCADTerm):
     children: tuple[LiteralExpressionNon2D, ...]
 
@@ -78,10 +93,10 @@ class BaseTransformation3D(Base3D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseMirror(BaseExpression, SCADTerm):
-    keyword: ClassVar[str] = 'mirror'
-    v: tuple[int, int, int]  # Coefficients by axis. Named as in OpenSCAD.
+    scad = SCADAdapter('mirror', 'children', {'vector': 'v'})
+    vector: tuple[int, int, int]  # Coefficients by axis.
 
 
 class BaseShape2D(Base2D):
@@ -92,18 +107,18 @@ class BaseShape3D(Base3D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseExtrusion(Base3D):
     children: tuple[LiteralExpressionNon3D, ...]
     convexity: PositiveInt = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseModuleDefinition(BaseExpression):
     name: str
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class BaseModuleCall(BaseExpression):
     name: str
 
@@ -119,18 +134,18 @@ def update_forward_refs(*model):
 ############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Comment(BaseND):
     content: tuple[str, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Commented2D(Base2D):
     comment: Comment
     subject: LiteralExpressionNon3D
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Commented3D(Base3D):
     comment: Comment
     subject: LiteralExpressionNon2D
@@ -141,22 +156,22 @@ class Commented3D(Base3D):
 ################
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Background2D(BaseModifier2D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Debug2D(BaseModifier2D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Root2D(BaseModifier2D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Disable2D(BaseModifier2D):
     pass
 
@@ -168,22 +183,22 @@ LiteralModifier2D = Background2D | Debug2D | Root2D | Disable2D
 ################
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Background3D(BaseModifier3D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Debug3D(BaseModifier3D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Root3D(BaseModifier3D):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Disable3D(BaseModifier3D):
     pass
 
@@ -195,20 +210,20 @@ LiteralModifier3D = Background3D | Debug3D | Root3D | Disable3D
 ###############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Union2D(BaseBoolean2D):
     # An OpenSCAD union, not a typing.Union.
-    keyword: ClassVar[str] = 'union'
+    scad = SCADAdapter('union', 'children')
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Difference2D(BaseBoolean2D):
-    keyword: ClassVar[str] = 'difference'
+    scad = SCADAdapter('difference', 'children')
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Intersection2D(BaseBoolean2D):
-    keyword: ClassVar[str] = 'intersection'
+    scad = SCADAdapter('intersection', 'children')
 
 
 LiteralBoolean2D = Union2D | Difference2D | Intersection2D
@@ -218,19 +233,19 @@ LiteralBoolean2D = Union2D | Difference2D | Intersection2D
 ###############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Union3D(BaseBoolean3D):
-    keyword: ClassVar[str] = 'union'
+    scad = SCADAdapter('union', 'children')
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Difference3D(BaseBoolean3D):
-    keyword: ClassVar[str] = 'difference'
+    scad = SCADAdapter('difference', 'children')
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Intersection3D(BaseBoolean3D):
-    keyword: ClassVar[str] = 'intersection'
+    scad = SCADAdapter('intersection', 'children')
 
 
 LiteralBoolean3D = Union3D | Difference3D | Intersection3D
@@ -240,35 +255,35 @@ LiteralBoolean3D = Union3D | Difference3D | Intersection3D
 #############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Circle(BaseShape2D):
     radius: float
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Square(BaseShape2D, SCADTerm):
-    keyword: ClassVar[str] = 'square'
+    scad = SCADAdapter('square')
     size: float
     center: bool = False
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Rectangle(BaseShape2D, SCADTerm):
-    keyword: ClassVar[str] = 'square'  # Sic.
+    scad = SCADAdapter('square')  # Sic.
     size: Tuple2D
     center: bool = False
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Polygon(BaseShape2D):
     points: tuple[Tuple2D, ...]
     paths: tuple[tuple[int, ...], ...] = ()
     convexity: PositiveInt = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Text(BaseShape2D, SCADTerm):
-    keyword: ClassVar[str] = 'text'
+    scad = SCADAdapter('text')
     text: str
     size: PositiveFloat = 10
     font: str = ''
@@ -280,17 +295,17 @@ class Text(BaseShape2D, SCADTerm):
     script: str = 'latin'
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Import2D(BaseShape2D, SCADTerm):
-    keyword: ClassVar[str] = 'import'
+    scad = SCADAdapter('import')
     file: Path
     layer: str = ''
     convexity: PositiveInt = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Projection(BaseShape2D, SCADTerm):
-    keyword: ClassVar[str] = 'projection'
+    scad = SCADAdapter('projection', 'child')
     child: LiteralExpressionNon2D
     cut: bool = False
 
@@ -303,49 +318,49 @@ LiteralShape2D = (Circle | Square | Rectangle | Polygon | Text | Import2D
 #############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Sphere(BaseShape3D):
     radius: float
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Cube(BaseShape3D):
     size: Tuple3D
     center: bool
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Cylinder(BaseShape3D):
     radius: float
     height: float
     center: bool
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Frustum(BaseShape3D):
     radii: tuple[float, float]
     height: float
     center: bool
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Polyhedron(BaseShape3D):
     points: tuple[Tuple3D, ...]
     faces: tuple[tuple[int, ...], ...] = ()
     convexity: PositiveInt = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Import3D(BaseShape3D, SCADTerm):
-    keyword: ClassVar[str] = 'import'
+    scad = SCADAdapter('import')
     file: Path
     layer: str = ''
     convexity: PositiveInt = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class LinearExtrusion(BaseExtrusion, SCADTerm):
-    keyword: ClassVar[str] = 'linear_extrude'
+    scad = SCADAdapter('linear_extrude', 'children')
     height: PositiveFloat = 100  # Default not documented in OpenSCAD manual.
     center: bool = False
     twist: float = 0
@@ -353,15 +368,15 @@ class LinearExtrusion(BaseExtrusion, SCADTerm):
     scale: PositiveFloat = 1
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class RotationalExtrusion(BaseExtrusion, SCADTerm):
-    keyword: ClassVar[str] = 'rotate_extrude'
+    scad = SCADAdapter('rotate_extrude', 'children')
     angle: float = tau  # Not called “a” in OpenSCAD.
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Surface(BaseShape3D, SCADTerm):
-    keyword: ClassVar[str] = 'surface'
+    scad = SCADAdapter('surface')
     file: Path
     center: bool = False
     invert: bool = False
@@ -376,21 +391,21 @@ LiteralShape3D = (Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
 ######################
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Translation2D(BaseTransformation2D, SCADTerm):
-    keyword: ClassVar[str] = 'translate'
-    v: Tuple2D
+    scad = SCADAdapter('translate', 'children', {'vector': 'v'})
+    vector: Tuple2D
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Rotation2D(BaseTransformation2D, SCADTerm):
-    keyword: ClassVar[str] = 'rotate'
+    scad = SCADAdapter('rotate', 'children', {'angle': 'a'})
     angle: float  # Called “a” in OpenSCAD; cf. RotationalExtrusion.
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Mirror2D(BaseTransformation2D, BaseMirror):
     children: tuple[LiteralExpressionNon3D, ...]
 
@@ -402,21 +417,21 @@ LiteralTransformation2D = Translation2D | Rotation2D | Mirror2D
 ######################
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Translation3D(BaseTransformation3D, SCADTerm):
-    keyword: ClassVar[str] = 'translate'
-    v: Tuple3D
+    scad = SCADAdapter('translate', 'children', {'vector': 'v'})
+    vector: Tuple3D
     children: tuple[LiteralExpressionNon2D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Rotation3D(BaseTransformation3D, SCADTerm):
-    keyword: ClassVar[str] = 'rotate'
+    scad = SCADAdapter('rotate', 'children', {'angle': 'a'})
     angle: Tuple3D
     children: tuple[LiteralExpressionNon2D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class Mirror3D(BaseTransformation3D, BaseMirror):
     children: tuple[LiteralExpressionNon2D, ...]
 
@@ -428,12 +443,12 @@ LiteralTransformation3D = Translation3D | Rotation3D | Mirror3D
 ##############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleDefinition2D(Base2D, BaseModuleDefinition):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleCall2D(Base2D, BaseModuleCall):
     children: tuple[LiteralExpressionNon3D, ...]
 
@@ -445,12 +460,12 @@ LiteralModule2D = ModuleDefinition2D | ModuleCall2D
 ##############
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleDefinition3D(Base3D, BaseModuleDefinition):
     children: tuple[LiteralExpressionNon2D, ...]
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleCall3D(Base3D, BaseModuleCall):
     children: tuple[LiteralExpressionNon2D, ...]
 
@@ -462,12 +477,12 @@ LiteralModule3D = ModuleDefinition3D | ModuleCall3D
 ###########################
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleCallND(BaseND, BaseModuleCall):
     pass
 
 
-@dataclass(frozen=True)
+@dantaclass(frozen=True)
 class ModuleChildren(BaseND):
     pass
 

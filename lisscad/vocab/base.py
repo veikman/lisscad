@@ -195,6 +195,15 @@ def scale(factors: d.Tuple2D | d.Tuple3D,
                        _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
+def resize(size: d.Tuple2D | d.Tuple3D,
+           *children: d.LiteralExpression) -> d.Size2D | d.Size3D:
+    if len(size) == 2:
+        return d.Size2D(_cast(d.Tuple2D, size),
+                        _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Size3D(_cast(d.Tuple3D, size),
+                    _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
 def mirror(axes: tuple[int, int, int],
            *children: d.LiteralExpression) -> d.Mirror2D | d.Mirror3D:
     if _dimensionality('mirror', *children) == 2:

@@ -1,0 +1,4 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (resize '(10 10) (square '(4.5 60)))
+       (resize '(4 4 9) (sphere 3)))

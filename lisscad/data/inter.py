@@ -426,11 +426,19 @@ class Scaling2D(BaseTransformation2D, SCADTerm):
 
 
 @dantaclass(frozen=True)
+class Size2D(BaseTransformation2D, SCADTerm):
+    scad = SCADAdapter('resize', 'children', {'vector': 'newsize'})
+    vector: Tuple2D
+    children: tuple[LiteralExpressionNon3D, ...]
+
+
+@dantaclass(frozen=True)
 class Mirror2D(BaseTransformation2D, BaseMirror):
     children: tuple[LiteralExpressionNon3D, ...]
 
 
-LiteralTransformation2D = Translation2D | Rotation2D | Scaling2D | Mirror2D
+LiteralTransformation2D = (Translation2D | Rotation2D | Scaling2D | Size2D
+                           | Mirror2D)
 
 ######################
 # 3D TRANSFORMATIONS #
@@ -459,11 +467,19 @@ class Scaling3D(BaseTransformation3D, SCADTerm):
 
 
 @dantaclass(frozen=True)
+class Size3D(BaseTransformation3D, SCADTerm):
+    scad = SCADAdapter('resize', 'children', {'vector': 'newsize'})
+    vector: Tuple3D
+    children: tuple[LiteralExpressionNon2D, ...]
+
+
+@dantaclass(frozen=True)
 class Mirror3D(BaseTransformation3D, BaseMirror):
     children: tuple[LiteralExpressionNon2D, ...]
 
 
-LiteralTransformation3D = Translation3D | Rotation3D | Scaling3D | Mirror3D
+LiteralTransformation3D = (Translation3D | Rotation3D | Scaling3D | Size3D
+                           | Mirror3D)
 
 ##############
 # 2D MODULES #
@@ -537,9 +553,10 @@ LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
 
 update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
                     Union2D, Difference2D, Intersection2D, Translation2D,
-                    Rotation2D, Scaling2D, Mirror2D, ModuleDefinition2D,
-                    ModuleCall2D, Projection)
+                    Rotation2D, Scaling2D, Size2D, Mirror2D,
+                    ModuleDefinition2D, ModuleCall2D, Projection)
 update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
                     Union3D, Difference3D, Intersection3D, Translation3D,
-                    Rotation3D, Scaling3D, Mirror3D, ModuleDefinition3D,
-                    ModuleCall3D, LinearExtrusion, RotationalExtrusion)
+                    Rotation3D, Scaling3D, Size3D, Mirror3D,
+                    ModuleDefinition3D, ModuleCall3D, LinearExtrusion,
+                    RotationalExtrusion)

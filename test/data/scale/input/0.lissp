@@ -1,0 +1,4 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (scale '(10 1) (square '(1 1)))
+       (scale '(10 1 0.1) (cube '(1 1 100))))

@@ -166,7 +166,9 @@ def surface(file: _Path, center: bool = True, **kwargs) -> d.Surface:
     return d.Surface(file, center=center, **kwargs)
 
 
-def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
+def translate(
+        coord: d.Tuple2D | d.Tuple3D,
+        *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
     if len(coord) == 2:
         return d.Translation2D(
             _cast(d.Tuple2D, coord),
@@ -175,7 +177,8 @@ def translate(coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression):
                            _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def rotate(angles: float | int | d.Tuple3D, *children: d.LiteralExpression):
+def rotate(angles: float | int | d.Tuple3D,
+           *children: d.LiteralExpression) -> d.Rotation2D | d.Rotation3D:
     if isinstance(angles, (float, int)):
         return d.Rotation2D(angles,
                             _cast(tuple[d.LiteralExpression2D, ...], children))
@@ -183,7 +186,17 @@ def rotate(angles: float | int | d.Tuple3D, *children: d.LiteralExpression):
                         _cast(tuple[d.LiteralExpression3D, ...], children))
 
 
-def mirror(axes: tuple[int, int, int], *children: d.LiteralExpression):
+def scale(factors: d.Tuple2D | d.Tuple3D,
+          *children: d.LiteralExpression) -> d.Scaling2D | d.Scaling3D:
+    if len(factors) == 2:
+        return d.Scaling2D(_cast(d.Tuple2D, factors),
+                           _cast(tuple[d.LiteralExpression2D, ...], children))
+    return d.Scaling3D(_cast(d.Tuple3D, factors),
+                       _cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def mirror(axes: tuple[int, int, int],
+           *children: d.LiteralExpression) -> d.Mirror2D | d.Mirror3D:
     if _dimensionality('mirror', *children) == 2:
         return d.Mirror2D(axes,
                           _cast(tuple[d.LiteralExpression2D, ...], children))
@@ -204,7 +217,7 @@ def module(name: str, *children: d.LiteralExpression, call=False):
     return _define_module(name, *children)
 
 
-def children():
+def children() -> d.ModuleChildren:
     """Place the children of a call to a module inside that module.
 
     Neither indexing nor counting of children are currently supported.

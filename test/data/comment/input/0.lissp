@@ -1,5 +1,8 @@
 (lisscad.prelude.._macro_.standard)
 
+(define constant 11)
+
 (write (@ (comment "This next one is a real beauty."
-            (sphere 1.1))
-          (comment "Ain’t it?")))
+            (sphere constant))
+          (comment "Ain’t it?")
+          (echo (.format "Minimum clearance is {} mm." constant))))

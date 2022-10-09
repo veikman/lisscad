@@ -253,8 +253,8 @@ def minkowski(*children: d.LiteralExpression,
     if _dimensionality('minkowski-add', *children) == 2:
         return d.MinkowskiSum2D(
             _cast(tuple[d.LiteralExpression2D, ...], children), **kwargs)
-    return d.MinkowskiSum3D(
-        _cast(tuple[d.LiteralExpression3D, ...], children), **kwargs)
+    return d.MinkowskiSum3D(_cast(tuple[d.LiteralExpression3D, ...], children),
+                            **kwargs)
 
 
 def module(name: str, *children: d.LiteralExpression, call=False):
@@ -269,6 +269,15 @@ def module(name: str, *children: d.LiteralExpression, call=False):
         return _call_module(name, *children)
     assert children
     return _define_module(name, *children)
+
+
+def echo(*content: str) -> d.Echo:
+    """Order text to be printed to the OpenSCAD console.
+
+    This implementation does not support arbitrary keyword arguments.
+
+    """
+    return d.Echo(content)
 
 
 def children() -> d.ModuleChildren:

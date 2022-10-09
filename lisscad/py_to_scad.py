@@ -97,6 +97,12 @@ def _(datum: d.Commented3D) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.Echo) -> LineGen:
+    args = ', '.join(list(transpile(arg))[0] for arg in datum.content)
+    yield f'echo({args});'
+
+
+@transpile.register
 def _(datum: d.Background2D) -> LineGen:
     yield from _background(datum.child)
 

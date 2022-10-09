@@ -55,6 +55,7 @@ Failer = Callable[[Failure], None]
 
 
 def refine(asset: Asset, **kwargs) -> Asset:
+    """Refine an asset with modules, flattening it."""
     content = tuple(e for a in _prepend_modules(asset, **kwargs)
                     for e in a.content())
     return replace(asset, content=lambda: content)
@@ -69,11 +70,17 @@ def write(*protoasset: Asset | dict | BaseExpression
           fail: Failer = None,
           dir_scad: Path = DIR_SCAD,
           dir_render: Path = DIR_RENDER,
-          **kwargs):
+          **kwargs) -> None:
     """Convert intermediate representations to OpenSCAD code.
 
     This function’s profile is relaxed to minimize boilerplate in CAD
     scripts.
+
+    The function has big side effects:
+    * Increment a global-variable counter that’s used to name otherwise
+      anonymous assets.
+    * Create/update files of output.
+    * Report progress. By default, this uses the calling terminal.
 
     """
     # CLI arguments control whether to render etc. These can be overridden from

@@ -64,6 +64,8 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
             runs.append(_replace_tmp(cmd))
 
     with (
+            # Make no new subdirectories in the project directory.
+            patch('lisscad.app._make_directories'),
             # Place files in /tmp.
             patch('lisscad.app._compose_scad_output_path',
                   new=lambda _, asset: _compose_scad_output_path(

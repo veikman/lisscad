@@ -91,9 +91,7 @@ def write(*protoasset: Asset | dict | BaseExpression
     scadjobs: list[ScadJob] = []
     renderjobs: list[RenderJob] = []
 
-    dir_scad.mkdir(parents=True, exist_ok=True)
-    if args.render:
-        dir_render.mkdir(parents=True, exist_ok=True)
+    _make_directories(dir_scad, dir_render if args.render else None)
 
     assets_paths = map(
         partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
@@ -119,6 +117,13 @@ _INVOCATION_ORDINAL = count()
 _STEP_SCAD = 'compose OpenSCAD code'
 _STEP_GEOMETRY = 'render geometry'
 _STEP_IMAGES = 'render image'
+
+
+def _make_directories(*dirs: Path | None):
+    """Make directories. This function exists to be patched out in testing."""
+    for d in dirs:
+        if d:
+            d.mkdir(parents=True, exist_ok=True)
 
 
 def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:

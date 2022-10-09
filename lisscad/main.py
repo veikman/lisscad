@@ -47,6 +47,41 @@ def watch(source: Path = Argument(...,
                 break
 
 
+@app.command()
+def new(dir_new: Path = Argument(..., help='Directory to create')):
+    """Dump boilerplate into a new lisscad project."""
+    name = dir_new.name
+
+    if dir_new.exists():
+        print(f'Cannot create {dir_new}: Already exists.', file=stderr)
+        raise Exit(1)
+
+    dir_new.mkdir(parents=True)
+
+    file_script = dir_new / (name + '.lissp')
+    file_script.write_text(_TEMPLATE_SCRIPT.format(name=name))
+
+    file_gitignore = dir_new / '.gitignore'
+    file_gitignore.write_text(_TEMPLATE_GITIGNORE)
+
+
+############
+# INTERNAL #
+############
+
+_TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
+
+(define {name}
+    (circle 10))
+
+(write (% "name" "{name}"  "content" {name}))
+"""
+
+_TEMPLATE_GITIGNORE = """.*
+output/
+"""
+
+
 def _file_to_python(*source: Path) -> Generator[Path, None, None]:
     transpile_file(*source)
     for s in source:

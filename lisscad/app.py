@@ -12,7 +12,6 @@ from functools import partial
 from hashlib import sha1
 from itertools import chain, count
 from multiprocessing import Manager, Pool, Process, Queue
-from os import getenv
 from pathlib import Path
 from subprocess import PIPE, STDOUT, CalledProcessError, run
 from traceback import format_exc
@@ -23,7 +22,9 @@ from rich.panel import Panel
 from rich.progress import Progress, TaskID
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
-from lisscad.data.other import Asset, Gimbal, Image, Vector
+from lisscad.data.other import Asset
+from lisscad.misc import (DIR_RECENT, DIR_RENDER, DIR_SCAD,
+                          compose_openscad_command)
 from lisscad.py_to_scad import LineGen, transpile
 from lisscad.vocab.base import mirror, module, union
 
@@ -35,12 +36,6 @@ REPORTKEY_INSTRUCTION = 'instruction'
 REPORTKEY_PATH = 'output_path'
 REPORTKEY_STDOUT_STDERR = 'output_term'
 REPORTKEY_TRACEBACK = 'traceback'
-
-DIR_OUTPUT = Path('output')
-DIR_SCAD = DIR_OUTPUT / 'scad'
-DIR_RENDER = DIR_OUTPUT / 'render'
-DIR_RECENT = Path(getenv('XDG_DATA_HOME',
-                         Path.home() / '.local/share')) / 'lisscad/recent'
 
 
 class Failure(Exception):
@@ -80,11 +75,12 @@ def write(*protoasset: Asset | dict | BaseExpression
 
     This function’s profile is relaxed to minimize boilerplate in CAD
     scripts. It’s got big side effects:
+    * Read command-line arguments in addition to function arguments.
     * Increment a global-variable counter that’s used to name otherwise
       anonymous assets.
     * Create/update files of output. Rendering is parallelized.
     * Create/update references to files of output. These are used elsewhere in
-      lisscad for tracking recent outputs, e.g. opening OpenSCAD.
+      lisscad for recalling recent work.
     * Report progress. By default, this uses the calling terminal.
 
     """
@@ -105,7 +101,7 @@ def write(*protoasset: Asset | dict | BaseExpression
     for asset, file_scad in chain(*assets_paths):
         scadjobs.append((asset, file_scad.resolve()))
         steps_cmds = _prepare_commands(
-            partial(_compose_openscad_command, rendering_program, file_scad),
+            partial(compose_openscad_command, rendering_program, file_scad),
             asset, file_scad, dir_render, args.render)
         for step, cmd, file_render in steps_cmds:
             renderjobs.append(
@@ -128,35 +124,6 @@ _STEP_IMAGES = 'render image'
 def _compose_scad_output_path(dirpath: Path, asset: Asset) -> Path:
     """Compose OpenSCAD output/input file path."""
     return dirpath / f'{asset.name}.scad'
-
-
-def _compose_openscad_command(rendering_program: Path,
-                              input: Path,
-                              output: Path = None,
-                              image: Image = None) -> LineGen:
-    """Compose a complete, shell-ready command for running OpenSCAD."""
-    yield str(rendering_program)
-    if output:
-        yield '-o'
-        yield str(output)
-    if image:
-        if image.camera:
-            c = image.camera
-            yield '--camera'
-            if isinstance(c, Gimbal):
-                yield ','.join(
-                    map(str,
-                        list(c.translation) + list(c.rotation) + [c.distance]))
-            else:
-                assert isinstance(c, Vector)
-                yield ','.join(map(str, list(c.eye) + list(c.center)))
-        if image.size:
-            yield '--imgsize'
-            yield ','.join(map(str, image.size))
-        if image.colorscheme:
-            yield '--colorscheme'
-            yield image.colorscheme
-    yield str(input)
 
 
 def _note_recent(path: Path) -> None:

@@ -11,26 +11,6 @@ from typer import Argument, Exit, Typer
 app = Typer()
 
 
-def _file_to_python(*source: Path) -> Generator[Path, None, None]:
-    transpile_file(*source)
-    for s in source:
-        yield Path(s.stem + '.py')
-
-
-def _files_to_python(source: Path) -> Generator[Path, None, None]:
-    if source.is_dir():
-        files = list(source.glob('*.lissp'))
-        if not files:
-            print(f'Empty directory: {source}', file=stderr)
-            raise Exit(1)
-        yield from _file_to_python(*files)
-    elif source.is_file():
-        yield from _file_to_python(source)
-    else:
-        print(f'Not a file or directory: {source}', file=stderr)
-        raise Exit(1)
-
-
 @app.command()
 def to_python(source: Path = Argument(...,
                                       exists=True,
@@ -65,3 +45,23 @@ def watch(source: Path = Argument(...,
             if Path(event.name).suffix == '.lissp':
                 to_python(source)
                 break
+
+
+def _file_to_python(*source: Path) -> Generator[Path, None, None]:
+    transpile_file(*source)
+    for s in source:
+        yield Path(s.stem + '.py')
+
+
+def _files_to_python(source: Path) -> Generator[Path, None, None]:
+    if source.is_dir():
+        files = list(source.glob('*.lissp'))
+        if not files:
+            print(f'Empty directory: {source}', file=stderr)
+            raise Exit(1)
+        yield from _file_to_python(*files)
+    elif source.is_file():
+        yield from _file_to_python(source)
+    else:
+        print(f'Not a file or directory: {source}', file=stderr)
+        raise Exit(1)

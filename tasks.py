@@ -32,7 +32,7 @@ def test(c):
     c.run('pipenv run pytest', pty=True)
 
 
-@task()
+@task(pre=[compile])
 def build(c):
     """Build for distribution.
 

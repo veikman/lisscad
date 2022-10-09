@@ -12,6 +12,8 @@ DIR_RENDER = DIR_OUTPUT / 'render'
 DIR_RECENT = Path(getenv('XDG_DATA_HOME',
                          Path.home() / '.local/share')) / 'lisscad/recent'
 
+EXECUTABLE_OPENSCAD = Path('openscad')
+
 
 def compose_openscad_command(rendering_program: Path,
                              input: Path,

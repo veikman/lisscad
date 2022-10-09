@@ -24,7 +24,7 @@ from rich.progress import Progress, TaskID
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
 from lisscad.misc import (DIR_RECENT, DIR_RENDER, DIR_SCAD,
-                          compose_openscad_command)
+                          EXECUTABLE_OPENSCAD, compose_openscad_command)
 from lisscad.py_to_scad import LineGen, transpile
 from lisscad.vocab.base import mirror, module, union
 
@@ -65,7 +65,7 @@ def write(*protoasset: Asset | dict | BaseExpression
           | Iterable[BaseExpression]
           | Callable[[], tuple[BaseExpression, ...]],
           argv: list[str] = None,
-          rendering_program: Path = Path('openscad'),
+          rendering_program: Path = EXECUTABLE_OPENSCAD,
           report: Reporter = None,
           fail: Failer = None,
           dir_scad: Path = DIR_SCAD,

@@ -3,7 +3,7 @@ import re
 from itertools import islice
 from os import chdir
 from pathlib import Path
-from subprocess import run
+from subprocess import DEVNULL, Popen, run
 from sys import stderr
 from typing import Generator
 
@@ -13,6 +13,7 @@ from typer import Argument, Exit, Option, Typer
 
 from lisscad import __version__ as version
 from lisscad.app import DIR_RECENT
+from lisscad.misc import EXECUTABLE_OPENSCAD, compose_openscad_command
 
 app = Typer()
 
@@ -88,6 +89,31 @@ def list_(n: int = Option(10, '--number', '-n', help='Number of files.'),
     """Print names of recently created files to terminal."""
     for path in islice(_read_cache(pattern), n):
         print(path)
+
+
+@app.command()
+def view(
+        pattern: str = Option('.scad$', help='Regular expression filter.'),
+        prefix: str = Option('nohup', help='Prefix to OpenSCAD command.'),
+        program: Path = Option(EXECUTABLE_OPENSCAD, help='Path to OpenSCAD.'),
+        dry_run: bool = Option(False, help='Do not start subprocess.'),
+        verbose: bool = Option(False, help='Show command.'),
+):
+    """Open the most recently created file in OpenSCAD."""
+    try:
+        file = next(_read_cache(pattern))
+    except StopIteration:
+        print('Cannot view most recent file: No match for pattern.',
+              file=stderr)
+        raise Exit(1)
+
+    cmd = [prefix] if prefix else []
+    cmd.extend(compose_openscad_command(program, file))
+
+    if verbose:
+        print(*cmd)
+    if not dry_run:
+        Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
 
 
 ############

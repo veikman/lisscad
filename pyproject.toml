@@ -1,6 +1,49 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ['setuptools', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'lisscad'
+description = 'CAD in Lissp'
+readme = 'README.md'
+license = {text = 'GPL-3.0-only'}
+keywords = [
+    'CAD',
+    'CSG',
+    'Lissp',
+    'OpenSCAD',
+    'code generation',
+    'geometry',
+    'lisp',
+    'modeling',
+]
+classifiers = [
+    'Development Status :: 2 - Pre-Alpha',
+    'Intended Audience :: Developers',
+    'Intended Audience :: End Users/Desktop',
+    'Intended Audience :: Manufacturing',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Operating System :: OS Independent',
+    'Programming Language :: Lisp',
+    'Programming Language :: Python :: 3',
+    'Topic :: Multimedia :: Graphics :: 3D Modeling',
+    'Topic :: Software Development :: Libraries :: Application Frameworks',
+]
+requires-python = '>=3.10'
+dependencies = [  # The following information is duplicated from Pipfile.
+    'hissp',
+    'inotify_simple',
+    'pydantic',
+    'rich',
+    'typer',
+]
+dynamic = ['version']
+
+[project.scripts]
+lisscad = "lisscad.main:app"
+
+[tool.setuptools.dynamic]
+version = {attr = "lisscad.__version__"}
 
 [tool.flake8]
 extend-ignore = 'D102,D103,D105,D107,E203'

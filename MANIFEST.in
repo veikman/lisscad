@@ -1,0 +1,4 @@
+# This file is to be obviated: https://github.com/pypa/setuptools/issues/3341
+
+# Ship source code for prelude.py.
+include lisscad/prelude.lissp

@@ -62,7 +62,7 @@ def new(dir_new: Path = Argument(..., help='Directory to create')):
 
     dir_new.mkdir(parents=True)
 
-    file_script = dir_new / (name + '.lissp')
+    file_script = dir_new / 'main.lissp'
     file_script.write_text(_TEMPLATE_SCRIPT.format(name=name))
 
     file_gitignore = dir_new / '.gitignore'
@@ -86,10 +86,10 @@ def new(dir_new: Path = Argument(..., help='Directory to create')):
 
 _TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
 
-(define {name}
-    (circle 10))
+(define main
+  (circle 10))
 
-(write (% "name" "{name}"  "content" {name}))
+(write (% "name" "{name}"  "content" main))
 """
 
 _TEMPLATE_GITIGNORE = """.*

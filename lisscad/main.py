@@ -128,7 +128,8 @@ _TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
 (write (% "name" "{name}"  "content" main))
 """
 
-_TEMPLATE_GITIGNORE = """.*
+_TEMPLATE_GITIGNORE = """*.out
+.*
 output/
 """
 

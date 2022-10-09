@@ -9,8 +9,10 @@ from argparse import ArgumentParser
 from collections.abc import Iterable
 from dataclasses import replace
 from functools import partial
+from hashlib import sha1
 from itertools import chain, count
 from multiprocessing import Manager, Pool, Process, Queue
+from os import getenv
 from pathlib import Path
 from subprocess import PIPE, STDOUT, CalledProcessError, run
 from traceback import format_exc
@@ -30,12 +32,15 @@ from lisscad.vocab.base import mirror, module, union
 #############
 
 REPORTKEY_INSTRUCTION = 'instruction'
-REPORTKEY_OUTPUT = 'output'
+REPORTKEY_PATH = 'output_path'
+REPORTKEY_STDOUT_STDERR = 'output_term'
 REPORTKEY_TRACEBACK = 'traceback'
 
 DIR_OUTPUT = Path('output')
 DIR_SCAD = DIR_OUTPUT / 'scad'
 DIR_RENDER = DIR_OUTPUT / 'render'
+DIR_RECENT = Path(getenv('XDG_DATA_HOME',
+                         Path.home() / '.local/share')) / 'lisscad/recent'
 
 
 class Failure(Exception):
@@ -47,7 +52,7 @@ class Failure(Exception):
 
 
 ScadJob = tuple[Asset, Path]
-RenderJob = tuple[str, str, list[str]]
+RenderJob = tuple[str, str, list[str], str]
 Renamer = Callable[[str], str]
 Report = tuple[str, str, bool, dict[str, str]]
 Reporter = Callable[[Queue, list[ScadJob], list[RenderJob]], None]
@@ -74,12 +79,12 @@ def write(*protoasset: Asset | dict | BaseExpression
     """Convert intermediate representations to OpenSCAD code.
 
     This function’s profile is relaxed to minimize boilerplate in CAD
-    scripts.
-
-    The function has big side effects:
+    scripts. It’s got big side effects:
     * Increment a global-variable counter that’s used to name otherwise
       anonymous assets.
-    * Create/update files of output.
+    * Create/update files of output. Rendering is parallelized.
+    * Create/update references to files of output. These are used elsewhere in
+      lisscad for tracking recent outputs, e.g. opening OpenSCAD.
     * Report progress. By default, this uses the calling terminal.
 
     """
@@ -98,12 +103,13 @@ def write(*protoasset: Asset | dict | BaseExpression
         partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
         zip(count(), protoasset))
     for asset, file_scad in chain(*assets_paths):
-        scadjobs.append((asset, file_scad))
+        scadjobs.append((asset, file_scad.resolve()))
         steps_cmds = _prepare_commands(
             partial(_compose_openscad_command, rendering_program, file_scad),
             asset, file_scad, dir_render, args.render)
-        for step, cmd in steps_cmds:
-            renderjobs.append((asset.name, step, cmd))
+        for step, cmd, file_render in steps_cmds:
+            renderjobs.append(
+                (asset.name, step, cmd, str(file_render.resolve())))
 
     _fork(scadjobs, renderjobs, report or _report, fail or _fail)
 
@@ -153,6 +159,18 @@ def _compose_openscad_command(rendering_program: Path,
     yield str(input)
 
 
+def _note_recent(path: Path) -> None:
+    """Update cache of recently created files, for one file.
+
+    Take an absolute path. Hash it to avoid collisions between projects.
+
+    """
+    h = sha1()  # Security is not important for this use case.
+    h.update(str(path).encode('utf-'))
+    file = DIR_RECENT / h.hexdigest()
+    file.write_text(str(path))
+
+
 def _prepare_assets(paths: set[Path], dir_scad, n_invocation: int,
                     numbered: tuple[int, Asset],
                     **kwargs) -> Generator[tuple[Asset, Path], None, None]:
@@ -170,17 +188,18 @@ def _prepare_assets(paths: set[Path], dir_scad, n_invocation: int,
 
 def _prepare_commands(
         compose, asset: Asset, file_scad: Path, dir_render: Path,
-        render: bool) -> Generator[tuple[str, list[str]], None, None]:
+        render: bool) -> Generator[tuple[str, list[str], Path], None, None]:
     if not render:
         return
 
     # Assume 3D geometry and OpenSCAD’s default flavour of STL.
     file_stl = (dir_render / file_scad.name).with_suffix('.stl')
-    yield (_STEP_GEOMETRY, list(compose(output=file_stl)))
+    yield (_STEP_GEOMETRY, list(compose(output=file_stl)), file_stl)
 
     for image in asset.images:
         file_img = dir_render / image.path
-        yield (_STEP_IMAGES, list(compose(output=file_img, image=image)))
+        yield (_STEP_IMAGES, list(compose(output=file_img,
+                                          image=image)), file_img)
 
 
 def _name_asset(raw: Asset | dict | BaseExpression
@@ -286,7 +305,7 @@ def _write_scad(asset: Asset, file: Path) -> None:
     file.write_text(scad)
 
 
-def _render(q: Queue, asset: str, step: str, cmd: list[str]):
+def _render(q: Queue, asset: str, step: str, cmd: list[str], path: str):
     """Write one file of rendered output based on one asset.
 
     This function has a serializable argument signature because it is designed
@@ -298,10 +317,10 @@ def _render(q: Queue, asset: str, step: str, cmd: list[str]):
     except CalledProcessError as e:
         q.put((asset, step, False, {
             REPORTKEY_INSTRUCTION: ' '.join(cmd),
-            REPORTKEY_OUTPUT: e.stdout
+            REPORTKEY_STDOUT_STDERR: e.stdout
         }))
     else:
-        q.put((asset, step, True, {}))
+        q.put((asset, step, True, {REPORTKEY_PATH: path}))
 
 
 def _render_all(q, renderjobs):
@@ -323,7 +342,7 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
 
     """
     for job in scadjobs:
-        asset, _ = job
+        asset, path = job
         try:
             _write_scad(*job)
         except Exception:
@@ -331,7 +350,7 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
                 REPORTKEY_TRACEBACK: format_exc()
             }))
         else:
-            q.put((asset.name, _STEP_SCAD, True, {}))
+            q.put((asset.name, _STEP_SCAD, True, {REPORTKEY_PATH: path}))
 
     _render_all(q, renderjobs)
 
@@ -341,9 +360,16 @@ def _report(q: Queue, scadjobs: list[ScadJob],
     """Display progress bars, one per asset, in terminal."""
     total_steps = len(scadjobs) + len(renderjobs)
     step_counts_by_name: dict[str, int] = {a.name: 1 for a, _ in scadjobs}
-    for name, _, _ in renderjobs:
+    for name, _, _, _ in renderjobs:
         step_counts_by_name[name] += 1
     tasks: dict[str, TaskID] = {}
+
+    cache = True
+    try:
+        DIR_RECENT.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        print(f'Failed to create cache at “{DIR_RECENT}”.', file=sys.stderr)
+        cache = False
 
     with Progress() as progress:
         for name, n in step_counts_by_name.items():
@@ -351,8 +377,13 @@ def _report(q: Queue, scadjobs: list[ScadJob],
 
         for i in range(total_steps):
             name, step, result, other = q.get()
+
             if not result:
                 raise Failure(f'Failed to {step} for asset “{name}”.', **other)
+
+            if cache and (path := other.get(REPORTKEY_PATH)):
+                _note_recent(path)
+
             progress.update(tasks[name], advance=1)
 
 
@@ -362,9 +393,9 @@ def _fail(e: Failure):
     if REPORTKEY_INSTRUCTION in e.description:
         print('External command used:')
         print('    ' + e.description[REPORTKEY_INSTRUCTION])
-        if REPORTKEY_OUTPUT in e.description:
+        if REPORTKEY_STDOUT_STDERR in e.description:
             print('Output from external command:')
-            pprint(Panel.fit(e.description[REPORTKEY_OUTPUT].rstrip()))
+            pprint(Panel.fit(e.description[REPORTKEY_STDOUT_STDERR].rstrip()))
     if REPORTKEY_TRACEBACK in e.description:
         # This will start with a line like “Traceback (most recent call last):”
         print(e.description[REPORTKEY_TRACEBACK])

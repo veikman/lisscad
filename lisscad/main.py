@@ -1,5 +1,6 @@
 """Logic for the use of lisscad itself as a CLI application."""
-
+import re
+from itertools import islice
 from os import chdir
 from pathlib import Path
 from subprocess import run
@@ -8,9 +9,10 @@ from typing import Generator
 
 from hissp.reader import transpile_file
 from inotify_simple import INotify, flags
-from typer import Argument, Exit, Typer
+from typer import Argument, Exit, Option, Typer
 
 from lisscad import __version__ as version
+from lisscad.app import DIR_RECENT
 
 app = Typer()
 
@@ -19,7 +21,7 @@ app = Typer()
 def to_python(source: Path = Argument(...,
                                       exists=True,
                                       readable=True,
-                                      help='Directory or file to read')):
+                                      help='Directory or file to read.')):
     """Transpile Lissp code to Python code once, for debugging.
 
     This will clobber Python artifacts even if they are newer than their
@@ -35,7 +37,7 @@ def watch(source: Path = Argument(...,
                                   exists=True,
                                   readable=True,
                                   file_okay=False,
-                                  help='Directory to watch')):
+                                  help='Directory to watch.')):
     """Reactively transpile Lissp code to Python code, indefinitely.
 
     The watcher is recreated in each pass, because neither its default
@@ -52,7 +54,7 @@ def watch(source: Path = Argument(...,
 
 
 @app.command()
-def new(dir_new: Path = Argument(..., help='Directory to create')):
+def new(dir_new: Path = Argument(..., help='Directory to create.')):
     """Dump boilerplate into a new lisscad project."""
     name = dir_new.name
 
@@ -78,6 +80,14 @@ def new(dir_new: Path = Argument(..., help='Directory to create')):
         _TEMPLATE_COMMIT.format(version=version, name=name)
     ],
         check=True)
+
+
+@app.command(name='list')
+def list_(n: int = Option(10, '--number', '-n', help='Number of files.'),
+          pattern: str = Option('', help='Regular expression filter.')):
+    """Print names of recently created files to terminal."""
+    for path in islice(_read_cache(pattern), n):
+        print(path)
 
 
 ############
@@ -120,3 +130,29 @@ def _files_to_python(source: Path) -> Generator[Path, None, None]:
     else:
         print(f'Not a file or directory: {source}', file=stderr)
         raise Exit(1)
+
+
+def _read_cache(pattern: str, n_discard: int = 100):
+    """Generate files matching pattern, in order from most to least recent.
+
+    Also clean the cache by deleting files older than the most recent
+    n_discard.
+
+    Use the mtime of user-created files in preference to the mtime of cached
+    references to them.
+
+    """
+    staging: list[Path] = []
+    for f in DIR_RECENT.glob('*'):
+        raw = f.read_text()
+        path = Path(raw)
+        if not path.is_file():
+            f.unlink()
+            continue
+        staging.append(path)
+    staging.sort(key=lambda p: p.stat().st_mtime)
+    while len(staging) > n_discard:
+        del staging[0]
+    for path in reversed(staging):
+        if re.search(pattern, str(path)):
+            yield path

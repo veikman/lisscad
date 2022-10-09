@@ -60,7 +60,7 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
 
     def mock_render_all(_, renderjobs):
         """Skip the process pool."""
-        for _, __, cmd in renderjobs:
+        for _, __, cmd, ___ in renderjobs:
             runs.append(_replace_tmp(cmd))
 
     with (

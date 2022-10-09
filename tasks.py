@@ -40,7 +40,14 @@ def build(c):
     package.
 
     """
-    c.run('python -m build')
+    c.run('rm dist/*', warn=True)
+    c.run('python -m build', pty=True)
+
+
+@task(pre=[build])
+def install(c):
+    """Build a wheel and forcibly install it for empirical testing."""
+    c.run('pip install --force-reinstall dist/*.whl')
 
 
 @task

@@ -257,6 +257,12 @@ def minkowski(*children: d.LiteralExpression,
                             **kwargs)
 
 
+def render(*children: d.LiteralExpressionNon2D, **kwargs) -> d.Rendering3D:
+    # OpenSCAD supports rendering 2D shapes, probably for agnosticism, but
+    # there is no practical need to do it.
+    return d.Rendering3D(children, **kwargs)
+
+
 def module(name: str, *children: d.LiteralExpression, call=False):
     """Define an OpenSCAD module, or call one.
 

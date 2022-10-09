@@ -1,0 +1,6 @@
+(lisscad.prelude.._macro_.standard)
+
+(define tube (- (cylinder 10 5) (cylinder 8 5)))
+
+(write (@ (translate '(-4 0 0) tube)
+          (translate '(4 0 0) (render tube))))

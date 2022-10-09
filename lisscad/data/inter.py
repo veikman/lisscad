@@ -555,9 +555,18 @@ class MinkowskiSum3D(BaseTransformation3D, SCADTerm):
     convexity: PositiveInt = 1
 
 
+@dantaclass(frozen=True)
+class Rendering3D(BaseTransformation3D, SCADTerm):
+    # A “render” operation does not change geometry and is not listed as a
+    # transformation in the OpenSCAD cheat sheet, but is applied like one.
+    scad = SCADAdapter('render', 'children')
+    children: tuple[LiteralExpressionNon2D, ...]
+    convexity: PositiveInt = 1
+
+
 LiteralTransformation3D = (Translation3D | Rotation3D | Scaling3D | Size3D
                            | Mirror3D | AffineTransformation3D | Color3D
-                           | Hull3D | MinkowskiSum3D)
+                           | Hull3D | MinkowskiSum3D | Rendering3D)
 
 ##############
 # 2D MODULES #
@@ -639,5 +648,5 @@ update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
                     Union3D, Difference3D, Intersection3D, Translation3D,
                     Rotation3D, Scaling3D, Size3D, Mirror3D,
                     AffineTransformation3D, Color3D, Hull3D, MinkowskiSum3D,
-                    ModuleDefinition3D, ModuleCall3D, LinearExtrusion,
-                    RotationalExtrusion)
+                    Rendering3D, ModuleDefinition3D, ModuleCall3D,
+                    LinearExtrusion, RotationalExtrusion)

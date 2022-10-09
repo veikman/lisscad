@@ -1,12 +1,16 @@
 """Logic for the use of lisscad itself as a CLI application."""
 
+from os import chdir
 from pathlib import Path
+from subprocess import run
 from sys import stderr
 from typing import Generator
 
 from hissp.reader import transpile_file
 from inotify_simple import INotify, flags
 from typer import Argument, Exit, Typer
+
+from lisscad import __version__ as version
 
 app = Typer()
 
@@ -64,6 +68,17 @@ def new(dir_new: Path = Argument(..., help='Directory to create')):
     file_gitignore = dir_new / '.gitignore'
     file_gitignore.write_text(_TEMPLATE_GITIGNORE)
 
+    chdir(dir_new)
+    run(['git', 'init'], check=True)
+    run(['git', 'commit', '--allow-empty', '-m', 'Start project'], check=True)
+    run(['git', 'add', '.'], check=True)
+    run(['git', 'add', '--force', '.gitignore'], check=True)
+    run([
+        'git', 'commit', '-m',
+        _TEMPLATE_COMMIT.format(version=version, name=name)
+    ],
+        check=True)
+
 
 ############
 # INTERNAL #
@@ -80,6 +95,11 @@ _TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
 _TEMPLATE_GITIGNORE = """.*
 output/
 """
+
+_TEMPLATE_COMMIT = """Apply template
+
+This commit instantiates a template built into lisscad {version},
+using the project name {name}."""
 
 
 def _file_to_python(*source: Path) -> Generator[Path, None, None]:

@@ -23,10 +23,10 @@
      ;; Constants:
      (define π math..pi)
 
-     ;; OpenSCAD’s single-character modifiers, {% # 1 *}:
-     (exec "del _macro_.QzPCENT_" (globals))  ; Drop the Hissp prelude’s %.
+     ;; OpenSCAD’s single-character modifiers, {% # ! *}:
+     (delattr ,'_macro_ ','%)  ; Drop the Hissp prelude’s %.
      (define % lisscad.op..background_dict)  ; Replace the Hissp prelude’s %.
-     (exec "del _macro_.QzHASH_" (globals))  ; Drop the Hissp prelude’s #.
+     (delattr ,'_macro_ ','#)  ; Drop the Hissp prelude’s #.
      (define \# lisscad.op..debug_set)  ; Replace the Hissp prelude’s #.
      ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.
      ;; The use of ! as in OpenSCAD therefore requires an escape.

@@ -97,6 +97,19 @@ def _(datum: d.Commented3D) -> LineGen:
 
 
 @transpile.register
+def _(datum: d.SpecialVariable) -> LineGen:
+    if datum.assignment_preview is None:
+        yield f'{datum.variable};'
+    elif datum.assignment_render is None:
+        v = next(transpile(datum.assignment_preview))
+        yield f'{datum.variable} = {v};'
+    else:
+        v1 = next(transpile(datum.assignment_preview))
+        v2 = next(transpile(datum.assignment_render))
+        yield f'{datum.variable} = $preview ? {v1} : {v2};'
+
+
+@transpile.register
 def _(datum: d.Echo) -> LineGen:
     args = ', '.join(list(transpile(arg))[0] for arg in datum.content)
     yield f'echo({args});'

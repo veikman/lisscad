@@ -1,0 +1,5 @@
+(lisscad.prelude.._macro_.standard)
+
+(write (@ ($fn 3)
+          (translate '(20 0 0) (cylinder 10 20))
+          (| ($fn 4 5) (cylinder 10 20))))

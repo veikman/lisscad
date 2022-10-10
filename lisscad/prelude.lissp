@@ -44,7 +44,10 @@
      ;; Other helpers.
      (define first get#0)
      (define second get#1)
-     (define third get#2)))
+     (define third get#2)
+     (define $fa ,(partial lisscad.vocab.base..special "$fa"))
+     (define $fn ,(partial lisscad.vocab.base..special "$fn"))
+     (define $fs ,(partial lisscad.vocab.base..special "$fs"))))
 
 (defmacro lisp ()
   "Provide unambiguous aliases in kebab case, traditionally idiomatic for Lisp.

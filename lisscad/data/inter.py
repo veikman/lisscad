@@ -130,9 +130,9 @@ def update_forward_refs(*model):
         m.__pydantic_model__.update_forward_refs()
 
 
-#######################
-# COMMENTS AND ECHOES #
-#######################
+################################
+# COMMENTS, ECHOES AND SIMILAR #
+################################
 
 
 @dantaclass(frozen=True)
@@ -150,6 +150,13 @@ class Commented2D(Base2D):
 class Commented3D(Base3D):
     comment: Comment
     subject: LiteralExpressionNon2D
+
+
+@dantaclass(frozen=True)
+class SpecialVariable(BaseND):
+    variable: str
+    assignment_preview: float | None = None
+    assignment_render: float | None = None
 
 
 @dantaclass(frozen=True)
@@ -627,7 +634,8 @@ LiteralExpression2D = Union[Commented2D, LiteralModifier2D, LiteralBoolean2D,
 LiteralExpression3D = Union[Commented3D, LiteralModifier3D, LiteralBoolean3D,
                             LiteralShape3D, LiteralTransformation3D,
                             LiteralModule3D]
-LiteralExpressionND = Union[Comment, Echo, ModuleCallND, ModuleChildren]
+LiteralExpressionND = Union[Comment, SpecialVariable, Echo, ModuleCallND,
+                            ModuleChildren]
 
 LiteralExpressionNon2D = Union[LiteralExpression3D, LiteralExpressionND]
 LiteralExpressionNon3D = Union[LiteralExpression2D, LiteralExpressionND]

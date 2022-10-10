@@ -61,6 +61,21 @@ def disable(child: d.LiteralExpression) -> d.Disable2D | d.Disable3D:
                  _modify(d.Disable2D, d.Disable3D, child))
 
 
+def special(variable, *values: float | int) -> d.SpecialVariable:
+    """Read or assign a value to one of OpenSCAD’s special variables.
+
+    This is crude. Neither names nor data types are enforced, you can’t use
+    this in place of a number in other expressions, and the only supported way
+    to use a special variable on the value side of the expression is as a
+    ternary on $preview, by passing two values.
+
+    Passing a complete expression as if it were a variable name is cheating; it
+    should not be considered a stable feature.
+
+    """
+    return d.SpecialVariable(variable, *values)
+
+
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
     return _cast(d.Union2D | d.Union3D, _contain(d.Union2D, d.Union3D,
                                                  children))

@@ -2,7 +2,7 @@
 
 ;; This file compiles to prelude.py because Lissp v0.4.0 cannot import .lissp.
 
-;; Define define for use in this module.
+;; Define macros for use in defining macros in this module.
 (hissp.macros.._macro_.prelude)
 
 (defmacro standard ()
@@ -57,3 +57,13 @@
      (define call-module (partial lisscad.vocab.base..module : call True))
      (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
      (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))
+
+(defmacro %->> (expr : :* forms)
+  "Act like the ->> macro but take a dict of keyword options to each step."
+  ;; This is stricter than ->> in that it requires each step to be a tuple,
+  ;; with a dict as its second element. Those restrictions may be relaxed.
+  (functools..reduce (lambda (last-step next-step)
+                       (let-from (step kwargs : :* args) next-step
+                        `(,step ,@args ,last-step : :** ,kwargs)))
+                     forms
+                     expr))

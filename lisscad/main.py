@@ -1,5 +1,7 @@
 """Logic for the use of lisscad itself as a CLI application."""
+
 import re
+import sys
 from itertools import islice
 from os import chdir
 from pathlib import Path
@@ -18,11 +20,16 @@ from lisscad.misc import EXECUTABLE_OPENSCAD, compose_openscad_command
 app = Typer()
 
 
-@app.command()
+@app.command(context_settings={
+    'allow_extra_args': True,
+    'ignore_unknown_options': True
+})
 def to_python(source: Path = Argument(...,
                                       exists=True,
                                       readable=True,
-                                      help='Directory or file to read.')):
+                                      help='Directory or file to read.'),
+              cut_argv: bool = Option(
+                  True, help='Remove CLI arguments up to “--”.')):
     """Transpile Lissp code to Python code once, for debugging.
 
     This will clobber Python artifacts even if they are newer than their
@@ -30,11 +37,16 @@ def to_python(source: Path = Argument(...,
     lissp interpreter on the file(s) instead.
 
     """
+    if cut_argv:
+        sys.argv = _recompose_argv(source, sys.argv)
     list(_files_to_python(source))
 
 
-@app.command()
-def watch(source: Path = Argument(...,
+@app.command(context_settings={
+    'allow_extra_args': True,
+    'ignore_unknown_options': True
+})
+def watch(source: Path = Argument(Path('.'),
                                   exists=True,
                                   readable=True,
                                   file_okay=False,
@@ -44,13 +56,25 @@ def watch(source: Path = Argument(...,
     The watcher is recreated in each pass, because neither its default
     behaviour nor flags.ONESHOT produce one new event per file write.
 
+    Note that, even when configured to allow_extra_args and
+    ignore_unknown_options, a Typer CLI will still attempt to parse CLI options
+    intended for a CAD script as arguments to this function. To watch the
+    current working directory and re-render the result on each change, you
+    would need to call something like this:
+
+        lisscad watch . -- --render
+
+    ... because Typer will otherwise read “--render” as the name of the
+    directory to watch.
+
     """
+    sys.argv = _recompose_argv(source, sys.argv)
     while True:
         inotify = INotify()
         inotify.add_watch(source, flags.MODIFY | flags.ONESHOT)
         for event in inotify.read():
             if Path(event.name).suffix == '.lissp':
-                to_python(source)
+                to_python(source, cut_argv=False)
                 break
 
 
@@ -139,7 +163,23 @@ This commit instantiates a template built into lisscad {version},
 using the project name {name}."""
 
 
+def _recompose_argv(source: Path, vector: list[str]) -> list[str]:
+    """Compose a new vector of CLI arguments.
+
+    This function is designed to blank out sys.argv up to the first double dash
+    (if any). This is a precaution, so that CLI options passed to lisscad.main
+    are not also passed to any CLI parser inside a target script.
+
+    """
+    try:
+        return [source.name, *vector[vector.index('--') + 1:]]
+    except ValueError:
+        # No “--” in argv.
+        return [source.name]
+
+
 def _file_to_python(*source: Path) -> Generator[Path, None, None]:
+    """Transpile Lissp file contents, thereby executing a CAD script."""
     transpile_file(*source)
     for s in source:
         yield Path(s.stem + '.py')

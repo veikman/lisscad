@@ -93,7 +93,7 @@ def new(dir_new: Path = Argument(..., help='Directory to create.')):
     file_script.write_text(_TEMPLATE_SCRIPT.format(name=name))
 
     file_gitignore = dir_new / '.gitignore'
-    file_gitignore.write_text(_TEMPLATE_GITIGNORE)
+    file_gitignore.write_text(_TEMPLATE_GITIGNORE.lstrip())
 
     chdir(dir_new)
     run(['git', 'init'], check=True)
@@ -152,7 +152,9 @@ _TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
 (write (% "name" "{name}"  "content" main))
 """
 
-_TEMPLATE_GITIGNORE = """*.out
+_TEMPLATE_GITIGNORE = """
+*.out
+*.py
 .*
 output/
 """

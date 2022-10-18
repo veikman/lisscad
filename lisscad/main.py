@@ -20,10 +20,7 @@ from lisscad.misc import EXECUTABLE_OPENSCAD, compose_openscad_command
 app = Typer()
 
 
-@app.command(context_settings={
-    'allow_extra_args': True,
-    'ignore_unknown_options': True
-})
+@app.command(context_settings={'allow_extra_args': True})
 def to_python(source: Path = Argument(...,
                                       exists=True,
                                       readable=True,
@@ -42,32 +39,25 @@ def to_python(source: Path = Argument(...,
     list(_files_to_python(source))
 
 
-@app.command(context_settings={
-    'allow_extra_args': True,
-    'ignore_unknown_options': True
-})
+@app.command(context_settings={'allow_extra_args': True})
 def watch(source: Path = Argument(Path('.'),
                                   exists=True,
                                   readable=True,
                                   file_okay=False,
                                   help='Directory to watch.')):
-    """Reactively transpile Lissp code to Python code, indefinitely.
-
-    The watcher is recreated in each pass, because neither its default
-    behaviour nor flags.ONESHOT produce one new event per file write.
-
-    Note that, even when configured to allow_extra_args and
-    ignore_unknown_options, a Typer CLI will still attempt to parse CLI options
-    intended for a CAD script as arguments to this function. To watch the
-    current working directory and re-render the result on each change, you
-    would need to call something like this:
-
-        lisscad watch . -- --render
-
-    ... because Typer will otherwise read “--render” as the name of the
-    directory to watch.
-
-    """
+    """Reactively transpile Lissp code to Python code, indefinitely."""
+    # The watcher is recreated in each pass, because neither its default
+    # behaviour nor flags.ONESHOT produce one new event per file write.
+    #
+    # Note that, even when configured to allow_extra_args, a Typer CLI will
+    # still attempt to parse CLI options intended for a CAD script as arguments
+    # to this function. To watch the current working directory and re-render
+    # the result on each change, you would need to call something like this:
+    #
+    #     lisscad watch . -- --render
+    #
+    # ... because Typer will otherwise read “--render” as the name of the
+    # directory to watch.
     sys.argv = _recompose_argv(source, sys.argv)
     while True:
         inotify = INotify()

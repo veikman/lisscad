@@ -56,8 +56,14 @@
      (standard)
      (define call-module (partial lisscad.vocab.base..module : call True))
      (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
-     (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))
-     (define pairwise-hull (partial lisscad.vocab.util..pairwise_hull))))
+     (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))
+
+(defmacro util ()
+  "Provide higher-level utilities. This is a superset of the lisp prelude."
+  `(progn
+     (lisp)
+     (define pairwise-hull lisscad.vocab.util..pairwise_hull)
+     (define round lisscad.vocab.util..round)))
 
 (defmacro %->> (expr : :* forms)
   "Act like the ->> macro but take a dict of keyword options to each step."

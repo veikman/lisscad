@@ -6,9 +6,6 @@ from pathlib import Path
 from lisscad.data.other import Gimbal, Image, Vector
 from lisscad.py_to_scad import LineGen
 
-DIR_OUTPUT = Path('output')
-DIR_SCAD = DIR_OUTPUT / 'scad'
-DIR_RENDER = DIR_OUTPUT / 'render'
 DIR_RECENT = Path(getenv('XDG_DATA_HOME',
                          Path.home() / '.local/share')) / 'lisscad/recent'
 

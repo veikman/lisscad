@@ -144,9 +144,11 @@ _TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
 
 _TEMPLATE_GITIGNORE = """
 *.out
+*.png
 *.py
+*.scad
+*.stl
 .*
-output/
 """
 
 _TEMPLATE_COMMIT = """Apply template

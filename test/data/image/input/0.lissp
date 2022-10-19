@@ -11,6 +11,7 @@
                                  camera (dict : translation '(0 0 0)
                                                 rotation '(-10 5 0)
                                                 distance 20))))
+       : dir_render (pathlib..Path "mockrender")
        ;; Rather than order rendering as metadata about the test case,
        ;; it is ordered here. This would not be a typical usage.
-       : argv (@ "--render"))
+       argv (@ "--render"))

@@ -23,8 +23,8 @@ from rich.progress import Progress, TaskID
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
-from lisscad.misc import (DIR_RECENT, DIR_RENDER, DIR_SCAD,
-                          EXECUTABLE_OPENSCAD, compose_openscad_command)
+from lisscad.misc import (DIR_RECENT, EXECUTABLE_OPENSCAD,
+                          compose_openscad_command)
 from lisscad.py_to_scad import LineGen, transpile
 from lisscad.vocab.base import mirror, module, union
 
@@ -68,8 +68,8 @@ def write(*protoasset: Asset | dict | BaseExpression
           rendering_program: Path = EXECUTABLE_OPENSCAD,
           report: Reporter = None,
           fail: Failer = None,
-          dir_scad: Path = DIR_SCAD,
-          dir_render: Path = DIR_RENDER,
+          dir_scad: Path = Path('.'),
+          dir_render: Path = Path('.'),
           **kwargs) -> None:
     """Convert intermediate representations to OpenSCAD code.
 

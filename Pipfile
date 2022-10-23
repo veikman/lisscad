@@ -9,6 +9,7 @@ typer = "*"
 hissp = "*"
 rich = "*"
 inotify-simple = "*"
+more-itertools = "<=9"
 
 [dev-packages]
 pytest = "*"

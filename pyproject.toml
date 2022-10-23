@@ -33,6 +33,7 @@ requires-python = '>=3.10'
 dependencies = [  # The following information is duplicated from Pipfile.
     'hissp',
     'inotify_simple',
+    'more-itertools',
     'pydantic',
     'rich',
     'typer',

@@ -3,7 +3,7 @@
 from builtins import round as round_number
 from itertools import pairwise
 from numbers import Number
-from typing import cast
+from typing import Any, Callable, Iterable, cast
 
 from lisscad.data.inter import (AngledOffset, LiteralExpression,
                                 LiteralExpressionNon3D, RoundedOffset)
@@ -30,3 +30,13 @@ def round(radius: float | int, *shapes: LiteralExpressionNon3D | Number,
     inner = offset(-radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes),
                    **kwargs)
     return offset(radius, inner, **kwargs)
+
+
+def union_map(function: Callable[[Any], LiteralExpression],
+              iterable: Iterable[LiteralExpression]):
+    """The union of the outputs of a mapping.
+
+    Similar to an OpenSCAD for statement.
+
+    """
+    return union(*map(function, iterable))

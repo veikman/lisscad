@@ -63,7 +63,8 @@
   `(progn
      (lisp)
      (define pairwise-hull lisscad.vocab.util..pairwise_hull)
-     (define round lisscad.vocab.util..round)))
+     (define round lisscad.vocab.util..round)
+     (define |map lisscad.vocab.util..union_map)))
 
 (defmacro %->> (expr : :* forms)
   "Act like the ->> macro but take a dict of keyword options to each step."

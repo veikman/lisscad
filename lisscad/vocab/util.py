@@ -5,6 +5,7 @@ from itertools import pairwise
 from numbers import Number
 from typing import Any, Callable, Iterable, cast
 
+import more_itertools as mi
 from lisscad.data.inter import (AngledOffset, LiteralExpression,
                                 LiteralExpressionNon3D, RoundedOffset)
 from lisscad.vocab.base import hull, offset, union
@@ -13,6 +14,10 @@ from lisscad.vocab.base import hull, offset, union
 def pairwise_hull(*shapes: LiteralExpression):
     """The combined hulls of each overlapping pair of shapes."""
     return union(*(hull(*pair) for pair in pairwise(shapes)))
+
+
+def radiate(hub: LiteralExpression, *spokes: LiteralExpression):
+    return pairwise_hull(*mi.intersperse(hub, spokes))
 
 
 def round(radius: float | int, *shapes: LiteralExpressionNon3D | Number,

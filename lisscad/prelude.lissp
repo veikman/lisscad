@@ -62,7 +62,7 @@
   "Provide higher-level utilities. This is a superset of the lisp prelude."
   `(progn
      (lisp)
-     (define pairwise-hull lisscad.vocab.util..pairwise_hull)
+     (define sliding-hull lisscad.vocab.util..sliding_hull)
      (define radiate lisscad.vocab.util..radiate)
      (define round lisscad.vocab.util..round)
      (define |map lisscad.vocab.util..union_map)))

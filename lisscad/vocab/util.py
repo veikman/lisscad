@@ -1,7 +1,6 @@
 """Utilities built on top of OpenSCAD."""
 
 from builtins import round as round_number
-from itertools import pairwise
 from numbers import Number
 from typing import Any, Callable, Iterable, cast
 
@@ -11,13 +10,20 @@ from lisscad.data.inter import (AngledOffset, LiteralExpression,
 from lisscad.vocab.base import hull, offset, union
 
 
-def pairwise_hull(*shapes: LiteralExpression):
-    """The combined hulls of each overlapping pair of shapes."""
-    return union(*(hull(*pair) for pair in pairwise(shapes)))
+def sliding_hull(*shapes: LiteralExpression, n: int = 2):
+    """Unite the hulls of each n-tuple of shapes in a sliding window.
+
+    The tuples viewed in the sliding window will have an overlap of n - 1
+    shapes. For example, at n = 3, the sliding hull of the shapes
+    [A, B, C, D, E] is the hull of [A, B, C] in a union with the hull of
+    [B, C, D] and the hull of [C, D, E].
+
+    """
+    return union(*(hull(*w) for w in mi.sliding_window(shapes, 3)))
 
 
 def radiate(hub: LiteralExpression, *spokes: LiteralExpression):
-    return pairwise_hull(*mi.intersperse(hub, spokes))
+    return sliding_hull(*mi.intersperse(hub, spokes))
 
 
 def round(radius: float | int, *shapes: LiteralExpressionNon3D | Number,

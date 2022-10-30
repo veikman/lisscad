@@ -58,6 +58,12 @@
      (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
      (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))
 
+(defmacro english ()
+  "Patch over parts of the OpenScad . This is a superset of the lisp prelude."
+  `(progn
+     (lisp)
+     (exec "from lisscad.vocab.english import *" (globals))))
+
 (defmacro util ()
   "Provide higher-level utilities. This is a superset of the lisp prelude."
   `(progn

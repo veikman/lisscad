@@ -1,1 +1,1 @@
-cube(size=[2, 2, 2], center=true);
+square(size=[1, 1], center=true);

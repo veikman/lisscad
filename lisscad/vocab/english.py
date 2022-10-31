@@ -3,6 +3,11 @@
 from lisscad.vocab import base
 
 
+def square(side: float, **kwargs):
+    """Define a literal square."""
+    return base.square((side, side), **kwargs)
+
+
 def cube(side: float, **kwargs):
     """Define a literal cube."""
     return base.cube((side, side, side), **kwargs)

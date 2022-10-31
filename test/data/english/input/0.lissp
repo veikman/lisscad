@@ -1,3 +1,4 @@
 (lisscad.prelude.._macro_.english)
 
-(write (cube 2))
+(write (square 1)
+       (cube 2))

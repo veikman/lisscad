@@ -1,4 +1,6 @@
 (lisscad.prelude.._macro_.english)
 
-(write (square 1)
-       (cube 2))
+(write (| (square 1)
+          (translate '(5 0) (rectangle '(1 2))))
+       (| (cube 2)
+          (translate '(5 0 0) (cuboid '(1 2 1)))))

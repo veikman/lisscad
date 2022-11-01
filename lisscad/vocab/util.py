@@ -19,7 +19,7 @@ def sliding_hull(*shapes: LiteralExpression, n: int = 2):
     [B, C, D] and the hull of [C, D, E].
 
     """
-    return union(*(hull(*w) for w in mi.sliding_window(shapes, 3)))
+    return union(*(hull(*w) for w in mi.sliding_window(shapes, n)))
 
 
 def radiate(hub: LiteralExpression, *spokes: LiteralExpression):

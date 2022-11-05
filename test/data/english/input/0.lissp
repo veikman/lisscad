@@ -3,4 +3,6 @@
 (write (| (square 1)
           (translate '(5 0) (rectangle '(1 2))))
        (| (cube 2)
-          (translate '(5 0 0) (cuboid '(1 2 1)))))
+          (translate '(5 0 0) (cuboid '(1 2 1))))
+       (| (sphere 2)
+          (translate '(5 0 0) (spheroid '(2 2 4)))))

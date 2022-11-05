@@ -1,5 +1,8 @@
 """Narrowed, English-friendly alternatives to OpenSCAD vocabulary."""
 
+from typing import cast
+
+import lisscad.data.inter as d
 from lisscad.vocab import base
 
 
@@ -10,6 +13,11 @@ def square(side: float, **kwargs):
 
 # OpenSCAD’s square function, as modelled in base, draws rectangles.
 rectangle = base.square
+
+
+def spheroid(size: d.Tuple3D, **kwargs) -> d.Size3D:
+    """Define a tri-axial ellipsoid aligned with the coordinate axes."""
+    return cast(d.Size3D, base.resize(size, base.sphere(max(size), **kwargs)))
 
 
 def cube(side: float, **kwargs):

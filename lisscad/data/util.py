@@ -20,7 +20,7 @@ def dimensionality(verb: str, *expressions) -> int:
             pass
         else:
             raise TypeError(
-                f'Cannot {verb} unknown OpenSCAD operation {type(e)!r}.')
+                f'Cannot {verb} non-OpenSCAD expression {type(e)!r}.')
 
     if two and three:
         # OpenSCAD’s behaviour is poorly defined. Best not to transpile.
@@ -36,6 +36,35 @@ def dimensionality(verb: str, *expressions) -> int:
 
     # Assume object(s) of unknown dimensionality can be treated as 3D.
     return 3
+
+
+def matched(verb: str, argument: tuple[float, ...],
+            expressions: tuple[d.LiteralExpression, ...]):
+    """Check that expressions match dimensionality of argument.
+
+    Assume that the argument describes the dimensionality of an operation upon
+    the expressions.
+
+    If they match, return their common dimensionality.
+
+    """
+    n0 = len(argument)
+    nx = len(expressions)
+    suffix = '' if nx == 1 else 's'
+
+    if n0 == 2:
+        n1 = 3
+    elif n0 == 3:
+        n1 = 2
+    else:
+        raise ValueError(f'Cannot {verb} OpenSCAD expression{suffix} '
+                         f'with {n0}D argument {argument}.')
+
+    if n0 == dimensionality(verb, *expressions):
+        return n0
+
+    raise ValueError(f'Cannot {verb} {n1}D OpenSCAD expression{suffix} '
+                     f'with {n0}D argument {argument}.')
 
 
 def modify(type_2d: Type[d.BaseModifier2D], type_3d: Type[d.BaseModifier3D],

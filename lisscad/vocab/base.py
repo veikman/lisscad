@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import cast
 
 import lisscad.data.inter as d
-from lisscad.data.util import contain, dimensionality, modify
+from lisscad.data.util import contain, dimensionality, matched, modify
 
 ############
 # INTERNAL #
@@ -219,7 +219,7 @@ def surface(file: Path, center: bool = True, **kwargs) -> d.Surface:
 def translate(
         coord: d.Tuple2D | d.Tuple3D,
         *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
-    if len(coord) == 2:
+    if matched('translate', coord, children) == 2:
         return d.Translation2D(
             cast(d.Tuple2D, coord),
             cast(tuple[d.LiteralExpression2D, ...], children))
@@ -240,7 +240,7 @@ def rotate(angles: float | int | d.Tuple3D,
 @_starred
 def scale(factors: d.Tuple2D | d.Tuple3D,
           *children: d.LiteralExpression) -> d.Scaling2D | d.Scaling3D:
-    if len(factors) == 2:
+    if matched('scale', factors, children) == 2:
         return d.Scaling2D(cast(d.Tuple2D, factors),
                            cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Scaling3D(cast(d.Tuple3D, factors),
@@ -250,7 +250,7 @@ def scale(factors: d.Tuple2D | d.Tuple3D,
 @_starred
 def resize(size: d.Tuple2D | d.Tuple3D,
            *children: d.LiteralExpression) -> d.Size2D | d.Size3D:
-    if len(size) == 2:
+    if matched('resize', size, children) == 2:
         return d.Size2D(cast(d.Tuple2D, size),
                         cast(tuple[d.LiteralExpression2D, ...], children))
     return d.Size3D(cast(d.Tuple3D, size),
@@ -260,6 +260,7 @@ def resize(size: d.Tuple2D | d.Tuple3D,
 @_starred
 def mirror(axes: tuple[int, int, int],
            *children: d.LiteralExpression) -> d.Mirror2D | d.Mirror3D:
+    # Do not require dimensionality of axes to match that of children.
     if dimensionality('mirror', *children) == 2:
         return d.Mirror2D(axes,
                           cast(tuple[d.LiteralExpression2D, ...], children))

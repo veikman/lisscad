@@ -3,7 +3,12 @@
 from typing import cast
 
 import lisscad.data.inter as d
+from lisscad.data.util import dimensionality
 from lisscad.vocab import base
+
+##########
+# SHAPES #
+##########
 
 
 def ellipse(size: d.Tuple2D, **kwargs):
@@ -32,3 +37,56 @@ def cube(side: float, **kwargs):
 
 # OpenSCAD’s cube function, as modelled in base, draws rectangular cuboids.
 cuboid = base.cube
+
+################
+# TRANSLATIONS #
+################
+
+# Inspired by Evan Jones’s directional helpers in SolidPython.
+
+
+def left(distance: float,
+         *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    """Translate along negative x."""
+    n = dimensionality('translate', *children)
+    if n == 2:
+        return d.Translation2D((-distance, 0),
+                               cast(tuple[d.LiteralExpression2D, ...],
+                                    children))
+    return d.Translation3D((-distance, 0, 0),
+                           cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def right(distance: float,
+          *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    """Translate along positive x."""
+    return left(-distance, *children)
+
+
+def back(distance: float,
+         *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    """Translate along negative y."""
+    n = dimensionality('translate', *children)
+    if n == 2:
+        return d.Translation2D((0, -distance),
+                               cast(tuple[d.LiteralExpression2D, ...],
+                                    children))
+    return d.Translation3D((0, -distance, 0),
+                           cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def forward(
+        distance: float,
+        *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    """Translate along positive y."""
+    return back(-distance, *children)
+
+
+def down(distance: float, *children: d.LiteralExpression3D) -> d.Translation3D:
+    """Translate along negative z."""
+    return d.Translation3D((0, 0, -distance), children)
+
+
+def up(distance: float, *children: d.LiteralExpression3D) -> d.Translation3D:
+    """Translate along positive z."""
+    return down(-distance, *children)

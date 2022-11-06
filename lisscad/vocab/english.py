@@ -6,6 +6,11 @@ import lisscad.data.inter as d
 from lisscad.vocab import base
 
 
+def ellipse(size: d.Tuple2D, **kwargs):
+    """Define an ellipse aligned with the coordinate axes."""
+    return cast(d.Size2D, base.resize(size, base.circle(max(size), **kwargs)))
+
+
 def square(side: float, **kwargs):
     """Define a literal square."""
     return base.square((side, side), **kwargs)

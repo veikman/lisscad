@@ -1,6 +1,8 @@
 union() {
-    square(size=[1, 1], center=true);
+    circle(r=1);
     translate(v=[5, 0]) {
-        square(size=[1, 2], center=true);
+        resize(newsize=[1, 2]) {
+            circle(r=2);
+        };
     };
 };

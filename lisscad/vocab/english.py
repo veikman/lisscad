@@ -38,6 +38,20 @@ def cube(side: float, **kwargs):
 # OpenSCAD’s cube function, as modelled in base, draws rectangular cuboids.
 cuboid = base.cube
 
+
+def cylinder(radius: float, *args, **kwargs):
+    """Define a literal cylinder."""
+    assert isinstance(radius, (float, int))
+    return base.cylinder(radius, *args, **kwargs)
+
+
+def frustum(radius0: float, radius1: float, *args, **kwargs):
+    """Define a frustum."""
+    assert isinstance(radius0, (float, int))
+    assert isinstance(radius1, (float, int))
+    return base.cylinder((radius0, radius1), *args, **kwargs)
+
+
 ################
 # TRANSLATIONS #
 ################

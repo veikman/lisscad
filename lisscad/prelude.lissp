@@ -59,7 +59,7 @@
      (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))
 
 (defmacro english ()
-  "Patch over parts of the OpenScad vocbulary with more literal English.
+  "Patch over parts of the OpenSCAD vocabulary with more literal English.
   This is a superset of the lisp prelude."
   `(progn
      (lisp)

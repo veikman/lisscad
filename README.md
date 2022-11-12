@@ -7,7 +7,8 @@ automatic formatter like `parinfer`, Lissp is easier than Python.
 
 * The terseness of Lisp.
 * The usability of Lisp. For example, with the `->>` threading macro, you can
-  write OpenSCAD operations in the order that they will be executed.
+  code for OpenSCAD operations in the order that they will be executed, instead
+  of the order they have in OpenSCAD scripts.
 * The `lisscad` package is executable on the command line to manage CAD
   projects, including watching a project with `inotify` to re-render work in
   progress.
@@ -27,7 +28,7 @@ See also the [goals](doc/goal.md) of the project.
 `lisscad` is in a pre-alpha state; it should not be used. The following is a
 draft.
 
-### CLI
+### Command-line interface
 
 To start a new project:
 

@@ -45,6 +45,16 @@ def cylinder(radius: float, *args, **kwargs):
     return base.cylinder(radius, *args, **kwargs)
 
 
+def cylindroid(radius0: float, radius1: float, height: float, **kwargs):
+    """Define an elliptic cylinder aligned with the coordinate axes."""
+    # This may change to a centred extrusion.
+    profile = (radius0, radius1)
+    return cast(
+        d.Size3D,
+        base.resize((*profile, height),
+                    base.cylinder(max(profile), height, **kwargs)))
+
+
 def frustum(radius0: float, radius1: float, *args, **kwargs):
     """Define a frustum."""
     assert isinstance(radius0, (float, int))

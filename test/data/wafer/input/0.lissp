@@ -1,0 +1,4 @@
+(lisscad.prelude.._macro_.util)
+
+(write (wafer (square (@ 3 5))))
+(write (wafer (translate (@ 2 0) (square (@ 3 5)))))

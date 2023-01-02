@@ -5,9 +5,10 @@ from numbers import Number
 from typing import Any, Callable, Iterable, cast
 
 import more_itertools as mi
-from lisscad.data.inter import (AngledOffset, LiteralExpression,
-                                LiteralExpressionNon3D, RoundedOffset)
-from lisscad.vocab.base import extrude, hull, offset, union
+from lisscad.data.inter import (AngledOffset, LinearExtrusion,
+                                LiteralExpression, LiteralExpressionNon3D,
+                                RoundedOffset)
+from lisscad.vocab.base import hull, offset, union
 
 μm = 0.001
 
@@ -15,13 +16,13 @@ from lisscad.vocab.base import extrude, hull, offset, union
 def wafer(*shape: LiteralExpressionNon3D, height=μm, **kwargs):
     """Extrude passed 2D shape by a small amount, to a wafer.
 
-    This is indeed just a call to extrude(), but with a height much smaller
-    than the default value built into OpenSCAD. This is intended for use with
-    sliding_hull, particularly in Lissp threading macros, where passing in a
-    height parameter can be awkward.
+    This is like base.extrude, but with a height much smaller than the default
+    value built into OpenSCAD. This is intended for use with sliding_hull,
+    particularly in Lissp threading macros, where passing in a height parameter
+    can be awkward.
 
     """
-    return extrude(shape, height=height, **kwargs)
+    return LinearExtrusion(shape, height=height, **kwargs)
 
 
 def sliding_hull(*shapes: LiteralExpression, n: int = 2):

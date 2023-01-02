@@ -72,6 +72,7 @@
      (define sliding-hull lisscad.vocab.util..sliding_hull)
      (define radiate lisscad.vocab.util..radiate)
      (define round lisscad.vocab.util..round)
+     (define wafer lisscad.vocab.util..wafer)
      (define |map lisscad.vocab.util..union_map)))
 
 (defmacro %->> (expr : :* forms)

@@ -10,10 +10,12 @@ from invoke import task
 
 
 @task()
-def snapshot_hissp(c):
+def snapshot_hissp(c, pipenv=False):
     """Install the latest development snapshot of Hissp."""
-    c.run('pipenv run '
-          'pip install -U git+https://github.com/gilch/hissp')
+    cmd = 'pip install -U git+https://github.com/gilch/hissp'
+    if pipenv:
+        cmd = 'pipenv run ' + cmd
+    c.run(cmd)
 
 
 @task()

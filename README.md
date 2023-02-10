@@ -97,6 +97,14 @@ rectangles.
 
 For the use of operators like `+`, see [here](doc/op.md).
 
+### Editor integration
+
+Lissp is not a common dialect, so you may need to inform your text editor that
+it is Lisp. Here is an example of how to do that in Vim (`~/.vimrc`) or Neovim
+(`init.vim`):
+
+    au BufRead,BufNewFile *.lissp             setfiletype lisp
+
 ## History
 
 `lisscad` is loosely patterned after `scad-clj`, ported from Clojure to another

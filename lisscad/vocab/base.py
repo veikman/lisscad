@@ -98,21 +98,27 @@ def special(variable, *values: float | int) -> d.SpecialVariable:
 
 @_starred
 def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
-    return cast(d.Union2D | d.Union3D, contain(d.Union2D, d.Union3D, children))
+    some = _some(children)
+    return cast(d.Union2D | d.Union3D, contain(d.Union2D, d.Union3D, some))
 
 
 @_starred
 def difference(
-        *children: d.LiteralExpression) -> d.Difference2D | d.Difference3D:
-    return cast(d.Difference2D | d.Difference3D,
-                contain(d.Difference2D, d.Difference3D, children))
+        minuend: d.LiteralExpression, *children: d.LiteralExpression | None
+) -> d.Difference2D | d.Difference3D:
+    subtrahend = _some(children)
+    return cast(
+        d.Difference2D | d.Difference3D,
+        contain(d.Difference2D, d.Difference3D, (minuend, *subtrahend)))
 
 
 @_starred
 def intersection(
-        *children: d.LiteralExpression) -> d.Intersection2D | d.Intersection3D:
+    *children: d.LiteralExpression | None
+) -> d.Intersection2D | d.Intersection3D:
+    some = _some(children)
     return cast(d.Intersection2D | d.Intersection3D,
-                contain(d.Intersection2D, d.Intersection3D, children))
+                contain(d.Intersection2D, d.Intersection3D, some))
 
 
 @_starred
@@ -362,6 +368,15 @@ def children() -> d.ModuleChildren:
 ############
 # INTERNAL #
 ############
+
+
+def _some(
+    items: tuple[d.LiteralExpression | None, ...]
+) -> tuple[d.LiteralExpression, ...]:
+    return tuple(
+        filter(
+            lambda x: x is not None,  # type: ignore[arg-type]
+            items))
 
 
 def _define_module(

@@ -28,6 +28,12 @@ def compile(c):
           '"')
 
 
+@task()
+def typecheck(c):
+    """Check data types."""
+    c.run('pipenv run mypy .', pty=True)
+
+
 @task(pre=[compile], default=True)
 def test(c):
     """Run unit tests."""

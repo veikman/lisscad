@@ -1,0 +1,9 @@
+(lisscad.prelude.._macro_.english)
+
+(write (| (square 1)
+          (when False (left 3 (square 2))))
+       (- (square 5)
+          (when False (left 1 (square 2))))
+       (& (rectangle '(5 2))
+          (when True (left 1 (square 3)))
+          (when False (right 1 (square 3)))))

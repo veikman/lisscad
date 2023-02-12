@@ -1,7 +1,6 @@
 """Utilities built on top of OpenSCAD."""
 
 from builtins import round as round_number
-from numbers import Number
 from typing import Any, Callable, Iterable, cast
 
 import more_itertools as mi
@@ -41,18 +40,22 @@ def radiate(hub: LiteralExpression, *spokes: LiteralExpression):
     return sliding_hull(*mi.intersperse(hub, spokes))
 
 
-def round(radius: float | int, *shapes: LiteralExpressionNon3D | Number,
+def round(radius: float | int,
+          *shapes: LiteralExpressionNon3D,
+          ndigits: int | None = None,
           **kwargs) -> RoundedOffset | AngledOffset | float:
     """Apply a pair of offsets to round off the corners of a 2D shape.
-
-    Given one or two numbers, apply builtins.round instead.
 
     The passed shapes must be large enough that the initial negative offset
     does not eliminate them.
 
+    Given a number, apply builtins.round instead. The optional ndigits
+    parameter to builtins.round must be passed via keyword.
+
     """
-    if not shapes or isinstance(shapes[0], Number):
-        return round_number(radius, *shapes)
+    if not shapes or ndigits is not None:
+        assert not shapes
+        return round_number(radius, ndigits=ndigits)
     inner = offset(-radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes),
                    **kwargs)
     return offset(radius, inner, **kwargs)

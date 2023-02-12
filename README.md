@@ -122,6 +122,6 @@ dataclasses.
 
 ## Legal
 
-Copyright (C) 2022 Viktor Eikman
+Copyright (C) 2022–2023 Viktor Eikman
 
 `lisscad` is licensed as detailed in the accompanying file COPYING.md.

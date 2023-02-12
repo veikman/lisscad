@@ -64,10 +64,10 @@ def refine(asset: Asset, **kwargs) -> Asset:
 def write(*protoasset: Asset | dict | BaseExpression
           | Iterable[BaseExpression]
           | Callable[[], tuple[BaseExpression, ...]],
-          argv: list[str] = None,
+          argv: list[str] | None = None,
           rendering_program: Path = EXECUTABLE_OPENSCAD,
-          report: Reporter = None,
-          fail: Failer = None,
+          report: Reporter | None = None,
+          fail: Failer | None = None,
           dir_scad: Path = Path('.'),
           dir_render: Path = Path('.'),
           **kwargs) -> None:

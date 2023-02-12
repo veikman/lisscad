@@ -18,7 +18,6 @@ from lisscad.data.util import contain, dimensionality, matched, modify
 # INTERNAL #
 ############
 
-
 __all__: list[str] = []
 
 
@@ -97,14 +96,14 @@ def special(variable, *values: float | int) -> d.SpecialVariable:
 
 
 @_starred
-def union(*children: d.LiteralExpression) -> d.Union2D | d.Union3D:
+def union(*children: d.LiteralExpression | tuple[()]) -> d.Union2D | d.Union3D:
     some = _some(children)
     return cast(d.Union2D | d.Union3D, contain(d.Union2D, d.Union3D, some))
 
 
 @_starred
 def difference(
-        minuend: d.LiteralExpression, *children: d.LiteralExpression | None
+    minuend: d.LiteralExpression, *children: d.LiteralExpression | tuple[()]
 ) -> d.Difference2D | d.Difference3D:
     subtrahend = _some(children)
     return cast(
@@ -114,7 +113,7 @@ def difference(
 
 @_starred
 def intersection(
-    *children: d.LiteralExpression | None
+    *children: d.LiteralExpression | tuple[()]
 ) -> d.Intersection2D | d.Intersection3D:
     some = _some(children)
     return cast(d.Intersection2D | d.Intersection3D,
@@ -371,12 +370,11 @@ def children() -> d.ModuleChildren:
 
 
 def _some(
-    items: tuple[d.LiteralExpression | None, ...]
+    items: tuple[d.LiteralExpression | tuple[()], ...]
 ) -> tuple[d.LiteralExpression, ...]:
-    return tuple(
-        filter(
-            lambda x: x is not None,  # type: ignore[arg-type]
-            items))
+    return tuple(filter(
+        lambda x: x != (),  # type: ignore[arg-type]
+        items))
 
 
 def _define_module(

@@ -14,8 +14,8 @@ EXECUTABLE_OPENSCAD = Path('openscad')
 
 def compose_openscad_command(rendering_program: Path,
                              input: Path,
-                             output: Path = None,
-                             image: Image = None) -> LineGen:
+                             output: Path | None = None,
+                             image: Image | None = None) -> LineGen:
     """Compose a complete, shell-ready command for running OpenSCAD."""
     yield str(rendering_program)
     if output:

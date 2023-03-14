@@ -40,11 +40,17 @@ def to_python(source: Path = Argument(...,
 
 
 @app.command(context_settings={'allow_extra_args': True})
-def watch(source: Path = Argument(Path('.'),
-                                  exists=True,
-                                  readable=True,
-                                  file_okay=False,
-                                  help='Directory to watch.')):
+def watch(
+        source: Path = Argument(Path('.'),
+                                exists=True,
+                                readable=True,
+                                file_okay=False,
+                                help='Directory to watch.'),
+        regex: str = Argument(
+            r'\.lissp$',
+            help=('Regular expression identifying files which, when changed, '
+                  'trigger transpilation of Lissp code.'),
+        )):
     """Reactively transpile Lissp code to Python code, indefinitely."""
     # The watcher is recreated in each pass, because neither its default
     # behaviour nor flags.ONESHOT produce one new event per file write.
@@ -63,7 +69,7 @@ def watch(source: Path = Argument(Path('.'),
         inotify = INotify()
         inotify.add_watch(source, flags.MODIFY | flags.ONESHOT)
         for event in inotify.read():
-            if Path(event.name).suffix == '.lissp':
+            if re.search(regex, event.name):
                 to_python(source, cut_argv=False)
                 break
 

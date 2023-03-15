@@ -46,7 +46,7 @@ def watch(
                                 readable=True,
                                 file_okay=False,
                                 help='Directory to watch.'),
-        regex: str = Argument(
+        regex: str = Option(
             r'\.lissp$',
             help=('Regular expression identifying files which, when changed, '
                   'trigger transpilation of Lissp code.'),

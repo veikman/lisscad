@@ -108,7 +108,9 @@ def difference(
     subtrahend = _some(children)
     return cast(
         d.Difference2D | d.Difference3D,
-        contain(d.Difference2D, d.Difference3D, (minuend, *subtrahend)))
+        contain(d.Difference2D, d.Difference3D, (minuend, *subtrahend),
+                verb_first='subtract from',
+                verb_rest='subtract'))
 
 
 @_starred

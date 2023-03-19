@@ -5,13 +5,20 @@ from typing import Type, cast
 import lisscad.data.inter as d
 
 
-def dimensionality(verb: str, *expressions) -> int:
+def dimensionality(verb_base: str,
+                   *expressions,
+                   verb_first='',
+                   verb_rest='') -> int:
     """Determine the common dimensionality of children."""
     assert expressions
     two: list[int] = []
     three: list[int] = []
 
     for i, e in enumerate(expressions):
+        verb = verb_first or verb_base
+        if i:
+            verb = verb_rest or verb_base
+
         if isinstance(e, d.Base2D):
             two.append(i)
         elif isinstance(e, d.Base3D):
@@ -30,7 +37,7 @@ def dimensionality(verb: str, *expressions) -> int:
 
     if two and three:
         # OpenSCAD’s behaviour is poorly defined. Best not to transpile.
-        s = f'Cannot {verb} mixed 2D and 3D expressions.'
+        s = f'Cannot {verb_base} mixed 2D and 3D expressions.'
         if len(two) == 1 and len(three) != 1:
             s += f' One, in place {two[0] + 1} of {len(expressions)}, is 2D.'
         elif len(two) != 1 and len(three) == 1:
@@ -81,11 +88,10 @@ def modify(type_2d: Type[d.BaseModifier2D], type_3d: Type[d.BaseModifier3D],
     return type_3d(cast(d.LiteralExpression3D, child))
 
 
-def contain(
-    type_2d: Type[d.BaseBoolean2D], type_3d: Type[d.BaseBoolean3D],
-    children: tuple[d.LiteralExpression, ...]
-) -> d.BaseBoolean2D | d.BaseBoolean3D:
+def contain(type_2d: Type[d.BaseBoolean2D], type_3d: Type[d.BaseBoolean3D],
+            children: tuple[d.LiteralExpression, ...],
+            **kwargs) -> d.BaseBoolean2D | d.BaseBoolean3D:
     """Wrap up 1+ expressions of known dimensionality."""
-    if dimensionality('contain', *children) == 2:
+    if dimensionality('contain', *children, **kwargs) == 2:
         return type_2d(cast(tuple[d.LiteralExpression2D, ...], children))
     return type_3d(cast(tuple[d.LiteralExpression3D, ...], children))

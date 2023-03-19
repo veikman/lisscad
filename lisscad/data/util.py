@@ -19,8 +19,14 @@ def dimensionality(verb: str, *expressions) -> int:
         elif isinstance(e, d.BaseND):
             pass
         else:
+            try:
+                value = str(e)
+            except Exception:
+                value = 'No string representation available'
+            if len(value) > 30:
+                value = value[:30] + '... (truncated)'
             raise TypeError(
-                f'Cannot {verb} non-OpenSCAD expression {type(e)!r}.')
+                f'Cannot {verb} non-OpenSCAD expression {type(e)!r}: {value}.')
 
     if two and three:
         # OpenSCAD’s behaviour is poorly defined. Best not to transpile.

@@ -1,6 +1,6 @@
 """Utilities for working directly with lisscad’s dataclasses."""
 
-from typing import Type, cast
+from typing import Any, Type, cast
 
 import lisscad.data.inter as d
 
@@ -26,14 +26,8 @@ def dimensionality(verb_base: str,
         elif isinstance(e, d.BaseND):
             pass
         else:
-            try:
-                value = str(e)
-            except Exception:
-                value = 'No string representation available'
-            if len(value) > 30:
-                value = value[:30] + '... (truncated)'
-            raise TypeError(
-                f'Cannot {verb} non-OpenSCAD expression {type(e)!r}: {value}.')
+            s = _quote_value(e)
+            raise TypeError(f'Cannot {verb} non-OpenSCAD expression {s}.')
 
     if two and three:
         # OpenSCAD’s behaviour is poorly defined. Best not to transpile.
@@ -95,3 +89,17 @@ def contain(type_2d: Type[d.BaseBoolean2D], type_3d: Type[d.BaseBoolean3D],
     if dimensionality('contain', *children, **kwargs) == 2:
         return type_2d(cast(tuple[d.LiteralExpression2D, ...], children))
     return type_3d(cast(tuple[d.LiteralExpression3D, ...], children))
+
+
+def _quote_value(value: Any) -> str:
+    """Describe a bad value for the benefit of the user."""
+    t = f'of type {type(value)!r}'
+    try:
+        value = str(value)
+    except Exception:
+        return t
+
+    if len(value) > 30:
+        return f'“{value[:20]}...” (truncated) {t}'
+
+    return f'“{value}” {t}'

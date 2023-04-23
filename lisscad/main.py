@@ -17,7 +17,7 @@ from lisscad import __version__ as version
 from lisscad.app import DIR_RECENT
 from lisscad.misc import EXECUTABLE_OPENSCAD, compose_openscad_command
 
-app = Typer()
+app = Typer(context_settings={'help_option_names': ['-h', '--help']})
 
 
 @app.command(context_settings={'allow_extra_args': True})

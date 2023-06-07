@@ -1,6 +1,7 @@
 """Usability features. Not all related to CAD."""
 
 from functools import reduce
+from itertools import starmap
 from numbers import Number
 from operator import add as _add
 from operator import mul as _mul
@@ -28,6 +29,10 @@ def sub(*args):
         if len(args) == 1:
             return -args[0]
         return reduce(_sub, args)
+    if _1dmatrices(args):
+        if len(args) == 1:
+            return tuple(-n for n in args[0])
+        return tuple(starmap(sub, zip(*args)))
     # Arguments are not all numeric. Fall back to OpenSCAD model.
     return difference(*args)
 
@@ -110,3 +115,9 @@ def div(*args):
 
 def _numeric(args) -> bool:
     return all(isinstance(a, Number) for a in args)
+
+
+def _1dmatrices(args) -> bool:
+    """Return True if arguments are same-length one-dimensional matrices."""
+    return all(isinstance(a, (tuple, list)) for a in args) and all(
+        map(_numeric, args)) and len(set(map(len, args))) == 1

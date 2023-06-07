@@ -88,9 +88,13 @@ def debug_set(arg, *args):
 
 
 def add(*args):
-    """Add. Numbers only."""
+    """Add. Numbers and one-dimensional matrices only."""
     if not args:
         return 0  # As in Clojure.
+    if _1dmatrices(args):
+        if len(args) == 1:
+            return args[0]
+        return tuple(starmap(add, zip(*args)))
     if not _numeric(args):
         raise Exception('“+” is mathematical. Use “|” for unions.')
     if len(args) == 1:

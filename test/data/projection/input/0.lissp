@@ -1,9 +1,9 @@
 (lisscad.prelude.._macro_.standard)
 
-(write (@ (->> (cylinder '(6.4 3.2) 50)
+(write (@ (-<>> (cylinder '(6.4 3.2) 50)
             (rotate '(0.6 0 0))
             (projection))
-          (->> (cylinder '(6.4 3.2) 50)
+          (-<>> (cylinder '(6.4 3.2) 50)
             (rotate '(0.6 0 0))
             (translate '(10 0 0))
             (cut))))

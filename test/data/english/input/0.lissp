@@ -8,7 +8,7 @@
           (translate '(5 0 0) (spheroid '(2 2 4))))
        (| (cube 2)
           (translate '(5 0 0) (cuboid '(1 2 1))))
-       (->> (cube 2)
+       (-<>> (cube 2)
          (left 1)
          (up 2)
          (right 2)

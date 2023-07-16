@@ -6,12 +6,13 @@ automatic formatter like `parinfer`, Lissp is easier than Python.
 ## Features
 
 * The terseness of Lisp.
-* The usability of Lisp. For example, with the `->>` threading macro, you can
-  code for OpenSCAD operations in the order that they will be executed, instead
-  of the order they have in OpenSCAD scripts.
+* The usability of Lisp. For example, with the `-<>>` “thread-through” macro,
+  you can code for OpenSCAD operations in the order that they will be executed,
+  instead of the order they have in OpenSCAD scripts. You can still inject
+  non-positional arguments along the way, more easily than in Clojure.
 * The `lisscad` package is executable on the command line to manage CAD
-  projects, including watching a project with `inotify` to re-render work in
-  progress.
+  projects. This includes support for watching a project with `inotify` to
+  re-render work in progress.
 * It takes one line in CAD scripts to import `lisscad`, and one line to
   transpile to OpenSCAD. Both of these and a Git repo are included in a
   template for new projects.

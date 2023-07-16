@@ -5,10 +5,10 @@
 
 (write (@ (linear-extrude (square '(1 1)) : center False)
           (linear-extrude base : height 40 twist π)
-          (lisscad.prelude.._macro_.%->> base
-            (chamfer (%) -0.5)
-            (chamfer (%) 0.5)
-            (linear-extrude (% "center" True  "height" 15  "scale" 2))
-            (translate (%) '(0 0 50)))
+          (-<>> base
+            (chamfer -0.5)
+            (chamfer 0.5)
+            (linear-extrude :<> : center True  height 15  scale 2)
+            (translate '(0 0 50)))
           (rotate-extrude (translate '(36 0) base))
           (rotate-extrude (translate '(40 0) base) : angle (* 1.75 π))))

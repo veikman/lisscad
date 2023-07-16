@@ -1,7 +1,7 @@
 (lisscad.prelude.._macro_.standard)
 
 (define model
-  (->> (cube '(1 2 4))
+  (-<>> (cube '(1 2 4))
     (translate '(0 0 8))))
 
 (write (dict : name "pluja" content model))

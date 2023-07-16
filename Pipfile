@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 pydantic = "*"
 typer = "*"
-hissp = "*"
+hissp = ">=0.4.0,<0.5.0"
 rich = "*"
 inotify-simple = "*"
 more-itertools = "<=9"

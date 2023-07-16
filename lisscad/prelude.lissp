@@ -74,13 +74,3 @@
      (define round lisscad.vocab.util..round)
      (define wafer lisscad.vocab.util..wafer)
      (define |map lisscad.vocab.util..union_map)))
-
-(defmacro %->> (expr : :* forms)
-  "Act like the ->> macro but take a dict of keyword options to each step."
-  ;; This is stricter than ->> in that it requires each step to be a tuple,
-  ;; with a dict as its second element. Those restrictions may be relaxed.
-  (functools..reduce (lambda (last-step next-step)
-                       (let-from (step kwargs : :* args) next-step
-                        `(,step ,@args ,last-step : :** ,kwargs)))
-                     forms
-                     expr))

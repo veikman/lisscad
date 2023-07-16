@@ -13,11 +13,17 @@ from hissp.reader import transpile_file
 from inotify_simple import INotify, flags
 from typer import Argument, Exit, Option, Typer
 
-from lisscad import __version__ as version
+from lisscad import __version__ as _version
 from lisscad.app import DIR_RECENT
 from lisscad.misc import EXECUTABLE_OPENSCAD, compose_openscad_command
 
 app = Typer(context_settings={'help_option_names': ['-h', '--help']})
+
+
+@app.command()
+def version():
+    """Print the version ID of lisscad."""
+    print(f'lisscad {_version}')
 
 
 @app.command(context_settings={'allow_extra_args': True})
@@ -98,7 +104,7 @@ def new(dir_new: Path = Argument(..., help='Directory to create.')):
     run(['git', 'add', '--force', '.gitignore'], check=True)
     run([
         'git', 'commit', '-m',
-        _TEMPLATE_COMMIT.format(version=version, name=name)
+        _TEMPLATE_COMMIT.format(version=_version, name=name)
     ],
         check=True)
 
@@ -140,7 +146,7 @@ def view(
 # INTERNAL #
 ############
 
-_TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.lisp)
+_TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.english)
 
 (define main
   (circle 10))

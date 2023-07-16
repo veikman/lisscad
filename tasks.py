@@ -11,7 +11,12 @@ from invoke import task
 
 @task()
 def snapshot_hissp(c, pipenv=False):
-    """Install the latest development snapshot of Hissp."""
+    """Install the latest development snapshot of Hissp.
+
+    This was created before the release of Hissp v0.4.0, when lisscad
+    was being designed for an unreleased new upstream API.
+
+    """
     cmd = 'pip install -U git+https://github.com/gilch/hissp'
     if pipenv:
         cmd = 'pipenv run ' + cmd

@@ -63,7 +63,7 @@ To automatically transpile to OpenSCAD each time you edit `main.lissp`, so that
 the GUI always shows the current version:
 
 ```shell
-lisscad watch
+lisscad track
 ```
 
 ### Scripting interface

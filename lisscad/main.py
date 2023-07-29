@@ -46,7 +46,7 @@ def to_python(source: Path = Argument(...,
 
 
 @app.command(context_settings={'allow_extra_args': True})
-def watch(
+def track(
         source: Path = Argument(Path('.'),
                                 exists=True,
                                 readable=True,
@@ -66,7 +66,7 @@ def watch(
     # to this function. To watch the current working directory and re-render
     # the result on each change, you would need to call something like this:
     #
-    #     lisscad watch . -- --render
+    #     lisscad track . -- --render
     #
     # ... because Typer will otherwise read “--render” as the name of the
     # directory to watch.

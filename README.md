@@ -8,14 +8,13 @@ automatic formatter like `parinfer`, Lissp is easier than Python.
 * The terseness of Lisp.
 * The usability of Lisp. For example, with the `-<>>` “thread-through” macro,
   you can code for OpenSCAD operations in the order that they will be executed,
-  instead of the order they have in OpenSCAD scripts. You can still inject
-  non-positional arguments along the way, more easily than in Clojure.
+  instead of the order they have in OpenSCAD scripts.
 * The `lisscad` package is executable on the command line to manage CAD
   projects. This includes support for watching a project with `inotify` to
   re-render work in progress.
-* It takes one line in CAD scripts to import `lisscad`, and one line to
-  transpile to OpenSCAD. Both of these and a Git repo are included in a
-  template for new projects.
+* Boilerplate is minimal and explicit. It takes one line in CAD scripts to
+  import `lisscad`, and one line to transpile to OpenSCAD. Both of these and a
+  Git repo are included in a template for new projects.
 * Most of `lisscad` is pure, type-annotated Python 3.10+. It can be used
   without the Lissp layer. Conversely, you can use any Python code from Lissp.
 
@@ -86,9 +85,9 @@ For maximum fidelity to OpenSCAD, use the `lisp` prelude:
 ```
 
 `lisscad` gives you the choice of consistency with standard geometric and
-English terms instead. For example, in its `english` prelude, `lisscad` has a
-`square` function that draws squares, and a `rectangle` function that draws
-rectangles.
+English terms instead. For example, in its default `english` prelude, `lisscad`
+has a `square` function that draws squares, and a `rectangle` function that
+draws rectangles.
 
 ```lisp
 (lisscad.prelude.._macro_.english)

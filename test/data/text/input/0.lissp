@@ -1,5 +1,13 @@
 (lisscad.prelude.._macro_.standard)
 
-(write (@ (color "RosyBrown" (text "milxe"))
-          (offset 0.5 (text "carmi" : size 26.2 halign "center" valign "top"
-                                     spacing 1.1 direction "rtl"))))
+(write (% "name"  "milxe"
+          "content" (color "RosyBrown" (text "milxe"))
+          "suffixes" (@ ".dxf" ".svg"))
+       (% "name"  "carmi"
+          "content" (offset 0.5 (text "carmi" : size 26.2 halign "center" valign "top"
+                                  spacing 1.1 direction "rtl"))
+          "suffixes" (@ ".svg"))
+       : dir_render (pathlib..Path "mockrender")
+       ;; Rather than order rendering as metadata about the test case,
+       ;; it is ordered here. This would not be a typical usage.
+       argv (@ "--render"))

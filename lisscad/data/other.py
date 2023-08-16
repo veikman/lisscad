@@ -45,6 +45,7 @@ class Asset:
 
     name: str = 'untitled'
     modules: tuple[Asset, ...] = ()
+    suffixes: tuple[str, ...] = ('.stl', )
     images: tuple[Image, ...] = ()
     chiral: bool = False
     mirrored: bool = False

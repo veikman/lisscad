@@ -164,9 +164,10 @@ def _prepare_commands(
     if not render:
         return
 
-    # Assume 3D geometry and OpenSCAD’s default flavour of STL.
-    file_stl = (dir_render / file_scad.name).with_suffix('.stl')
-    yield (_STEP_GEOMETRY, list(compose(output=file_stl)), file_stl)
+    # Apply each suffix for rendering the asset, not images of it.
+    for suffix in asset.suffixes:
+        suffixed = (dir_render / file_scad.name).with_suffix(suffix)
+        yield (_STEP_GEOMETRY, list(compose(output=suffixed)), suffixed)
 
     for image in asset.images:
         file_img = dir_render / image.path

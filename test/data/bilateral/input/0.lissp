@@ -1,0 +1,9 @@
+(lisscad.prelude.._macro_.util)
+
+(define base (-<>> (square '(10 5))
+               (rotate 0.6)
+               (translate (@ 6 2))))
+
+(write (% "name" "x"  "content" (bilateral-symmetry-x base))
+       (% "name" "y"  "content" (bilateral-symmetry-y base))
+       (% "name" "xy"  "content" (bilateral-symmetry-xy base)))

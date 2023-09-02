@@ -6,8 +6,8 @@ from typing import Any, Callable, Iterable, cast
 import more_itertools as mi
 from lisscad.data.inter import (AngledOffset, LinearExtrusion,
                                 LiteralExpression, LiteralExpressionNon3D,
-                                RoundedOffset)
-from lisscad.vocab.base import hull, offset, union
+                                RoundedOffset, Union2D, Union3D)
+from lisscad.vocab.base import hull, mirror, offset, union
 
 μm = 0.001
 
@@ -69,3 +69,30 @@ def union_map(function: Callable[[Any], LiteralExpression],
 
     """
     return union(*map(function, iterable))
+
+
+def bilateral_symmetry_x(shape: LiteralExpression) -> Union2D | Union3D:
+    """Keep shape alongside a mirror image of it in the x axis."""
+    # This is simple enough that it can be implemented in
+    # lisscad/prelude.lissp, for instance like this:
+    #
+    # (define bilateral-symmetry-x
+    #   (lambda ($#shape)
+    #     (lisscad.vocab.base..union
+    #       $#shape
+    #       (lisscad.vocab.base..mirror '(1 0 0) $#shape))))
+    #
+    # Because of the `(progn ...) template in the metamacro there, as of hissp
+    # v0.4.0 the symbols are too long, and later definitions within the
+    # template can’t call the function.
+    return union(shape, mirror((1, 0, 0), shape))
+
+
+def bilateral_symmetry_y(shape: LiteralExpression) -> Union2D | Union3D:
+    """Keep shape alongside a mirror image of it in the y axis."""
+    return union(shape, mirror((0, 1, 0), shape))
+
+
+def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
+    """Keep shape adding quadrilateral symmetry. Four copies in total."""
+    return bilateral_symmetry_y(bilateral_symmetry_x(shape))

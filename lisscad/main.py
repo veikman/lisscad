@@ -146,7 +146,7 @@ def view(
 # INTERNAL #
 ############
 
-_TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.english)
+_TEMPLATE_SCRIPT = """(lisscad.prelude.._macro_.english-util)
 
 (define main
   (circle 10))

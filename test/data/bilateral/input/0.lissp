@@ -1,6 +1,6 @@
-(lisscad.prelude.._macro_.util)
+(lisscad.prelude.._macro_.english-util)
 
-(define base (-<>> (square '(10 5))
+(define base (-<>> (rectangle '(10 5))
                (rotate 0.6)
                (translate (@ 6 2))))
 

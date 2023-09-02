@@ -66,9 +66,8 @@
      (exec "from lisscad.vocab.english import *" (globals))))
 
 (defmacro util ()
-  "Provide higher-level utilities. This is a superset of the lisp prelude."
+  "Provide higher-level utilities only."
   `(progn
-     (lisp)
      (define sliding-hull lisscad.vocab.util..sliding_hull)
      (define radiate lisscad.vocab.util..radiate)
      (define round lisscad.vocab.util..round)
@@ -77,3 +76,9 @@
      (define bilateral-symmetry-x lisscad.vocab.util..bilateral_symmetry_x)
      (define bilateral-symmetry-y lisscad.vocab.util..bilateral_symmetry_y)
      (define bilateral-symmetry-xy lisscad.vocab.util..bilateral_symmetry_xy)))
+
+(defmacro english-util ()
+  "Provide higher-level utilities with English-language vocabulary."
+  `(progn
+     (english)
+     (util)))

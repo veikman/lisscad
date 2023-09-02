@@ -1,3 +1,6 @@
+;; The main subject of this test case is the wafer utility, but it also
+;; tests the use of the util prelude without english-util.
+(lisscad.prelude.._macro_.lisp)
 (lisscad.prelude.._macro_.util)
 
 (write (wafer (square (@ 3 5))))

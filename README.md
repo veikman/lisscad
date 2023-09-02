@@ -84,16 +84,20 @@ For maximum fidelity to OpenSCAD, use the `lisp` prelude:
 (translate '(1 0) (square '(2 3)))
 ```
 
-`lisscad` gives you the choice of consistency with standard geometric and
-English terms instead. For example, in its default `english` prelude, `lisscad`
-has a `square` function that draws squares, and a `rectangle` function that
-draws rectangles.
+`lisscad` gives you the option of consistency with standard geometric and
+English terms instead. For example, in its `english` prelude, `lisscad` has a
+`square` function that draws squares, and a `rectangle` function that draws
+rectangles.
 
 ```lisp
 (lisscad.prelude.._macro_.english)
 
 (right 1 (rectangle '(2 3)))
 ```
+
+When you run `lisscad new`, you get a version of the `english` prelude called
+`english-util`. Named on a single line, this prelude combines the vocabulary of
+`english` with a set of higher-level utilities built into `lisscad`.
 
 For the use of operators like `+`, see [here](doc/op.md).
 

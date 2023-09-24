@@ -33,7 +33,7 @@ at the scripting stage. Specifically:
 The following are not goals of `lisscad`:
 
 * Absolute fidelity to OpenSCAD’s vocabulary. A more faithful interface could
-  be added as an alternative prelude, but this is not planed.
+  be added as an alternative prelude, but this is not planned.
 * Laxity for the sake of working flexibly with 2 or 3 dimensions. OpenSCAD will
   not complain if, for example, you `translate` a 3D shape with coordinates for
   only 2 dimensions, or vice versa. `lisscad` will complain if you do that, so

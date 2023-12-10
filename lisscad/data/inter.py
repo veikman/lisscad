@@ -1,6 +1,6 @@
 """Intermediate Pythonic precursors to OpenSCAD.
 
-These are object-orieneted, intended to provide type safety with some automatic
+These are object-oriented, intended to provide type safety with some automatic
 parsing by Pydantic, an abstraction layer for multiple front-end shorthands,
 and strong introspection in applications.
 

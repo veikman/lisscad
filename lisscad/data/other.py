@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable, cast
+from typing import Any, Callable, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression, Tuple3D
-from pydantic import PositiveFloat, validator
+from pydantic import PositiveFloat
 from pydantic.dataclasses import dataclass
+from pydantic.functional_validators import BeforeValidator
+from typing_extensions import Annotated
 
 
 @dataclass(frozen=True)
@@ -41,45 +43,50 @@ class Image:
 class Asset:
     """A CAD asset composed of zero or more OpenSCAD models."""
 
-    content: Callable[[], tuple[LiteralExpression, ...]]
+    content: Annotated[
+        Callable[[], tuple[LiteralExpression, ...]],
+        BeforeValidator(_content_thunk),
+    ]
 
     name: str = 'untitled'
-    modules: tuple[Asset, ...] = ()
+    modules: Annotated[
+        tuple[Asset, ...], BeforeValidator(_modules_to_assets)
+    ] = ()
     suffixes: tuple[str, ...] = ('.stl',)
     images: tuple[Image, ...] = ()
     chiral: bool = False
     mirrored: bool = False
 
-    @validator('content', pre=True)
-    def _content_to_thunk(cls, value):
-        """Convert content to a maker of a tuple.
 
-        This flexibility is a convenience for use in CAD scripts.
+def _content_thunk(v: Any) -> Callable[[], tuple[LiteralExpression, ...]]:
+    """Convert content to a thunk that makes a tuple.
 
-        """
-        if callable(value):
-            # Assume nullary. Assume valid output.
-            return value
+    This flexibility is a convenience for use in CAD scripts.
 
-        if isinstance(value, BaseExpression):
-            value = (value,)
-        elif isinstance(value, list):
-            value = tuple(value)
+    """
+    if callable(v):
+        # Assume nullary. Assume valid output.
+        return v
 
-        if isinstance(value, tuple):
-            return lambda: cast(tuple[LiteralExpression, ...], value)
+    if isinstance(v, BaseExpression):
+        v = (v,)
+    elif isinstance(v, list):
+        v = tuple(v)
 
-        raise TypeError(
-            f'{type(value)} cannot form the content of a lisscad asset.'
-        )
+    if isinstance(v, tuple):
+        return lambda: cast(tuple[LiteralExpression, ...], v)
 
-    @validator('modules', pre=True)
-    def _modules_to_assets(cls, value):
-        """Accept and package a single dict or instance.
+    raise TypeError(f'{type(v)} cannot form the content of a lisscad asset.')
 
-        This flexibility is a convenience for use in CAD scripts.
 
-        """
-        if not isinstance(value, (tuple, list)):
-            value = (value,)
-        return value
+def _modules_to_assets(
+    v: Asset | tuple[Asset, ...] | list[Asset]
+) -> tuple[Asset, ...] | list[Asset]:
+    """Accept and package a single dict or instance.
+
+    This flexibility is a convenience for use in CAD scripts.
+
+    """
+    if not isinstance(v, (tuple, list)):
+        v = (v,)
+    return v

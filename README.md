@@ -6,11 +6,11 @@ automatic formatter like `parinfer`, Lissp is easier than Python.
 ## Features
 
 * The terseness of Lisp.
-* The usability of Lisp. For example, with the `-<>>` “thread-through” macro,
-  you can code for OpenSCAD operations in the order that they will be executed,
-  instead of the order they have in OpenSCAD scripts.
+* The usability of Lisp. For example, with the `-<>>` “thread-through” macro of
+  Lissp, you can code for OpenSCAD operations in the order that they will be
+  executed, instead of the order they have in OpenSCAD scripts.
 * The `lisscad` package is executable on the command line to manage CAD
-  projects. This includes support for watching a project with `inotify` to
+  projects. This includes support for tracking a project with `inotify` to
   re-render work in progress.
 * Boilerplate is minimal and explicit. It takes one line in CAD scripts to
   import `lisscad`, and one line to transpile to OpenSCAD. Both of these and a
@@ -22,6 +22,32 @@ The data model is based on dataclasses, not object-oriented Python. Pydantic
 handles type conversions for you in the back end.
 
 See also the [goals](doc/goal.md) of the project.
+
+## Installation
+
+On Linux:
+
+    pip install lisscad
+
+At minimum, you also need OpenSCAD, which you must install separately. There
+are several ways to do that. For example:
+
+    sudo snap install openscad
+
+Conveniences built into `lisscad` assume that you also have `nohup` and `git`
+installed.
+
+### Editor integration
+
+Lissp is not a common dialect, so you may need to inform your text editor that
+it is Lisp. For example, if you are using Neovim, you can add the following to
+`~/.config/nvim/init.vim`:
+
+    au BufRead,BufNewFile *.lissp             setfiletype lisp
+
+For Vim, only the file path is different (`~/.vimrc`).
+[`parinfer-rust`](https://github.com/eraserhd/parinfer-rust) is an
+excellent Lisp autoformatter for Vim, Neovim, and other editors.
 
 ## Usage
 
@@ -97,14 +123,6 @@ When you run `lisscad new`, you get a version of the `english` prelude called
 `english` with a set of higher-level utilities built into `lisscad`.
 
 For the use of operators like `+`, see [here](doc/op.md).
-
-### Editor integration
-
-Lissp is not a common dialect, so you may need to inform your text editor that
-it is Lisp. Here is an example of how to do that in Vim (`~/.vimrc`) or Neovim
-(`init.vim`):
-
-    au BufRead,BufNewFile *.lissp             setfiletype lisp
 
 ## History
 

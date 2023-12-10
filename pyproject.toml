@@ -46,6 +46,10 @@ lisscad = "lisscad.main:app"
 [tool.setuptools.dynamic]
 version = {attr = "lisscad.__version__"}
 
+[tool.black]
+line-length = 79
+skip-string-normalization = true
+
 [tool.flake8]
 extend-ignore = 'D102,D103,D105,D107,E203'
 

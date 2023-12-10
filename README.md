@@ -25,9 +25,6 @@ See also the [goals](doc/goal.md) of the project.
 
 ## Usage
 
-`lisscad` is in a pre-alpha state; it should not be used. The following is a
-draft.
-
 ### Command-line interface
 
 To start a new project:

@@ -6,7 +6,7 @@ http://www.pyinvoke.org/
 
 from pathlib import Path
 
-from invoke import task
+from invoke import task, terminals
 
 
 @task()
@@ -38,16 +38,22 @@ def compile(c):
 @task()
 def typecheck(c):
     """Check data types."""
-    c.run('pipenv run mypy .', pty=True)
+    c.run('pipenv run mypy .', pty=not terminals.WINDOWS)
 
 
 @task(pre=[compile], default=True)
 def test(c):
     """Run unit tests."""
-    c.run('pipenv run pytest', pty=True)
+    c.run('pipenv run pytest', pty=not terminals.WINDOWS)
 
 
-@task(pre=[compile])
+@task()
+def clean(c):
+    """Remove artifacts."""
+    c.run('rm -rf dist', warn=True)
+
+
+@task(pre=[clean, compile])
 def build(c):
     """Build for distribution.
 
@@ -55,8 +61,7 @@ def build(c):
     package.
 
     """
-    c.run('rm dist/*', warn=True)
-    c.run('python -m build', pty=True)
+    c.run('python -m build', pty=not terminals.WINDOWS)
 
 
 @task(pre=[build])

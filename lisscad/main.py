@@ -5,6 +5,7 @@ import sys
 from itertools import islice
 from os import chdir
 from pathlib import Path
+from shutil import which
 from subprocess import DEVNULL, Popen, run
 from sys import stderr
 from typing import Generator
@@ -137,13 +138,23 @@ def view(
     verbose: bool = Option(False, help='Show command.'),
 ):
     """Open the most recently created file in OpenSCAD."""
+
+    def error(msg):
+        print(f'Cannot view most recent file: {msg}', file=stderr)
+        raise Exit(1)
+
     try:
         file = next(_read_cache(pattern))
     except StopIteration:
-        print(
-            'Cannot view most recent file: No match for pattern.', file=stderr
-        )
-        raise Exit(1)
+        error('No match for pattern.')
+
+    if prefix and which(prefix) is None:
+        # Calling Popen would raise FileNotFoundError.
+        error(f'Prefix command “{prefix}” not available.')
+    if which(program.name) is None:
+        # If prefix is non-empty, calling Popen in this case would raise no
+        # error. The command would silently fail.
+        error(f'OpenSCAD not available (as “{program.name}”).')
 
     cmd = [prefix] if prefix else []
     cmd.extend(compose_openscad_command(program, file))

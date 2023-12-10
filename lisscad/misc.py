@@ -30,15 +30,11 @@ def compose_openscad_command(
             c = image.camera
             yield '--camera'
             if isinstance(c, Gimbal):
-                yield ','.join(
-                    map(
-                        str,
-                        list(c.translation) + list(c.rotation) + [c.distance],
-                    )
-                )
+                position = [*c.translation, *c.rotation, c.distance]
+                yield ','.join(map(str, position))
             else:
                 assert isinstance(c, Vector)
-                yield ','.join(map(str, list(c.eye) + list(c.center)))
+                yield ','.join(map(str, [*c.eye, *c.center]))
         if image.size:
             yield '--imgsize'
             yield ','.join(map(str, image.size))

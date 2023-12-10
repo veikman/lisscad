@@ -40,6 +40,7 @@ Tuple3D = tuple[float, float, float]
 Tuple4D = tuple[float, float, float, float]
 
 
+@dantaclass(frozen=True)
 class SCADTerm:
     """A mix-in for classes that match OpenSCAD’s wording."""
 

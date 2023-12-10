@@ -26,11 +26,13 @@ def snapshot_hissp(c, pipenv=False):
 @task()
 def compile(c):
     """Compile bundled Lissp code to Python."""
-    c.run('pipenv run python -c "'
-          'from hissp import transpile; '
-          'import lisscad; '
-          r'transpile(lisscad.__package__, \"prelude\")'
-          '"')
+    c.run(
+        'pipenv run python -c "'
+        'from hissp import transpile; '
+        'import lisscad; '
+        r'transpile(lisscad.__package__, \"prelude\")'
+        '"'
+    )
 
 
 @task()

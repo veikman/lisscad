@@ -4,9 +4,15 @@ from builtins import round as round_number
 from typing import Any, Callable, Iterable, cast
 
 import more_itertools as mi
-from lisscad.data.inter import (AngledOffset, LinearExtrusion,
-                                LiteralExpression, LiteralExpressionNon3D,
-                                RoundedOffset, Union2D, Union3D)
+from lisscad.data.inter import (
+    AngledOffset,
+    LinearExtrusion,
+    LiteralExpression,
+    LiteralExpressionNon3D,
+    RoundedOffset,
+    Union2D,
+    Union3D,
+)
 from lisscad.vocab.base import hull, mirror, offset, union
 
 μm = 0.001
@@ -40,10 +46,12 @@ def radiate(hub: LiteralExpression, *spokes: LiteralExpression):
     return sliding_hull(*mi.intersperse(hub, spokes))
 
 
-def round(radius: float | int,
-          *shapes: LiteralExpressionNon3D,
-          ndigits: int | None = None,
-          **kwargs) -> RoundedOffset | AngledOffset | float:
+def round(
+    radius: float | int,
+    *shapes: LiteralExpressionNon3D,
+    ndigits: int | None = None,
+    **kwargs,
+) -> RoundedOffset | AngledOffset | float:
     """Apply a pair of offsets to round off the corners of a 2D shape.
 
     The passed shapes must be large enough that the initial negative offset
@@ -56,13 +64,16 @@ def round(radius: float | int,
     if not shapes or ndigits is not None:
         assert not shapes
         return round_number(radius, ndigits=ndigits)
-    inner = offset(-radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes),
-                   **kwargs)
+    inner = offset(
+        -radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes), **kwargs
+    )
     return offset(radius, inner, **kwargs)
 
 
-def union_map(function: Callable[[Any], LiteralExpression],
-              iterable: Iterable[LiteralExpression]):
+def union_map(
+    function: Callable[[Any], LiteralExpression],
+    iterable: Iterable[LiteralExpression],
+):
     """The union of the outputs of a mapping.
 
     Similar to an OpenSCAD for statement.

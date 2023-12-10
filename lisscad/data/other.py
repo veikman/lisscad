@@ -45,7 +45,7 @@ class Asset:
 
     name: str = 'untitled'
     modules: tuple[Asset, ...] = ()
-    suffixes: tuple[str, ...] = ('.stl', )
+    suffixes: tuple[str, ...] = ('.stl',)
     images: tuple[Image, ...] = ()
     chiral: bool = False
     mirrored: bool = False
@@ -62,7 +62,7 @@ class Asset:
             return value
 
         if isinstance(value, BaseExpression):
-            value = (value, )
+            value = (value,)
         elif isinstance(value, list):
             value = tuple(value)
 
@@ -70,7 +70,8 @@ class Asset:
             return lambda: cast(tuple[LiteralExpression, ...], value)
 
         raise TypeError(
-            f'{type(value)} cannot form the content of a lisscad asset.')
+            f'{type(value)} cannot form the content of a lisscad asset.'
+        )
 
     @validator('modules', pre=True)
     def _modules_to_assets(cls, value):
@@ -80,5 +81,5 @@ class Asset:
 
         """
         if not isinstance(value, (tuple, list)):
-            value = (value, )
+            value = (value,)
         return value

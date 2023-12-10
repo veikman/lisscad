@@ -64,20 +64,22 @@ def test_lissp_to_scad(_, case, tmp_path, pytestconfig):
             runs.append(_replace_tmp(cmd))
 
     with (
-            # Make no new subdirectories in the project directory.
-            patch('lisscad.app._make_directories'),
-            # Place files in /tmp.
-            patch('lisscad.app._compose_scad_output_path',
-                  new=lambda _, asset: _compose_scad_output_path(
-                      tmp_path, asset)),
-            # Don’t create processes or wait for their reports.
-            patch('lisscad.app._fork', new=mock_fork),
-            patch('lisscad.app._render_all', new=mock_render_all),
-            # Unlike the lissp CLI, pytest leaves sys.argv intact after parsing
-            # its own arguments. An empty vector is passed to write here via
-            # patch, so that write’s internal CLI parser does not exit with an
-            # error when pytest is called with an argument.
-            patch('lisscad.app.write', new=partial(write, argv=[]))):
+        # Make no new subdirectories in the project directory.
+        patch('lisscad.app._make_directories'),
+        # Place files in /tmp.
+        patch(
+            'lisscad.app._compose_scad_output_path',
+            new=lambda _, asset: _compose_scad_output_path(tmp_path, asset),
+        ),
+        # Don’t create processes or wait for their reports.
+        patch('lisscad.app._fork', new=mock_fork),
+        patch('lisscad.app._render_all', new=mock_render_all),
+        # Unlike the lissp CLI, pytest leaves sys.argv intact after parsing
+        # its own arguments. An empty vector is passed to write here via
+        # patch, so that write’s internal CLI parser does not exit with an
+        # error when pytest is called with an argument.
+        patch('lisscad.app.write', new=partial(write, argv=[])),
+    ):
         for file_in in files_input:
             code = file_in.read_text()
             try:
@@ -130,8 +132,9 @@ class _MockProcess(Mock):
         pass
 
 
-def _check_processes(adopt: bool, file: Path, calls: list[tuple[str,
-                                                                ...]]) -> bool:
+def _check_processes(
+    adopt: bool, file: Path, calls: list[tuple[str, ...]]
+) -> bool:
     if file.exists():
         oracle = literal_eval(file.read_text())
         try:

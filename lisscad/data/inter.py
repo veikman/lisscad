@@ -325,8 +325,9 @@ class Projection(BaseShape2D, SCADTerm):
     cut: bool = False
 
 
-LiteralShape2D = (Circle | Square | Rectangle | Polygon | Text | Import2D
-                  | Projection)
+LiteralShape2D = (
+    Circle | Square | Rectangle | Polygon | Text | Import2D | Projection
+)
 
 #############
 # 3D SHAPES #
@@ -356,12 +357,10 @@ class Cylinder(BaseShape3D, SCADTerm):
 
 @dantaclass(frozen=True)
 class Frustum(BaseShape3D, SCADTerm):
-    scad = SCADAdapter('cylinder',
-                       field_names={
-                           'radius_bottom': 'r1',
-                           'radius_top': 'r2',
-                           'height': 'h'
-                       })
+    scad = SCADAdapter(
+        'cylinder',
+        field_names={'radius_bottom': 'r1', 'radius_top': 'r2', 'height': 'h'},
+    )
     radius_bottom: float
     radius_top: float
     height: float
@@ -409,8 +408,17 @@ class Surface(BaseShape3D, SCADTerm):
     convexity: PositiveInt = 1
 
 
-LiteralShape3D = (Sphere | Cube | Cylinder | Frustum | Polyhedron | Import3D
-                  | LinearExtrusion | RotationalExtrusion | Surface)
+LiteralShape3D = (
+    Sphere
+    | Cube
+    | Cylinder
+    | Frustum
+    | Polyhedron
+    | Import3D
+    | LinearExtrusion
+    | RotationalExtrusion
+    | Surface
+)
 
 ######################
 # 2D TRANSFORMATIONS #
@@ -492,10 +500,19 @@ class MinkowskiSum2D(BaseTransformation2D, SCADTerm):
     convexity: PositiveInt = 1
 
 
-LiteralTransformation2D = (Translation2D | Rotation2D | Scaling2D | Size2D
-                           | Mirror2D | AffineTransformation2D | Color2D
-                           | RoundedOffset | AngledOffset | Hull2D
-                           | MinkowskiSum2D)
+LiteralTransformation2D = (
+    Translation2D
+    | Rotation2D
+    | Scaling2D
+    | Size2D
+    | Mirror2D
+    | AffineTransformation2D
+    | Color2D
+    | RoundedOffset
+    | AngledOffset
+    | Hull2D
+    | MinkowskiSum2D
+)
 
 ######################
 # 3D TRANSFORMATIONS #
@@ -571,9 +588,18 @@ class Rendering3D(BaseTransformation3D, SCADTerm):
     convexity: PositiveInt = 1
 
 
-LiteralTransformation3D = (Translation3D | Rotation3D | Scaling3D | Size3D
-                           | Mirror3D | AffineTransformation3D | Color3D
-                           | Hull3D | MinkowskiSum3D | Rendering3D)
+LiteralTransformation3D = (
+    Translation3D
+    | Rotation3D
+    | Scaling3D
+    | Size3D
+    | Mirror3D
+    | AffineTransformation3D
+    | Color3D
+    | Hull3D
+    | MinkowskiSum3D
+    | Rendering3D
+)
 
 ##############
 # 2D MODULES #
@@ -628,33 +654,81 @@ class ModuleChildren(BaseND):
 # ROSTER #
 ##########
 
-LiteralExpression2D = Union[Commented2D, LiteralModifier2D, LiteralBoolean2D,
-                            LiteralShape2D, LiteralTransformation2D,
-                            LiteralModule2D]
-LiteralExpression3D = Union[Commented3D, LiteralModifier3D, LiteralBoolean3D,
-                            LiteralShape3D, LiteralTransformation3D,
-                            LiteralModule3D]
-LiteralExpressionND = Union[Comment, SpecialVariable, Echo, ModuleCallND,
-                            ModuleChildren]
+LiteralExpression2D = Union[
+    Commented2D,
+    LiteralModifier2D,
+    LiteralBoolean2D,
+    LiteralShape2D,
+    LiteralTransformation2D,
+    LiteralModule2D,
+]
+LiteralExpression3D = Union[
+    Commented3D,
+    LiteralModifier3D,
+    LiteralBoolean3D,
+    LiteralShape3D,
+    LiteralTransformation3D,
+    LiteralModule3D,
+]
+LiteralExpressionND = Union[
+    Comment, SpecialVariable, Echo, ModuleCallND, ModuleChildren
+]
 
 LiteralExpressionNon2D = Union[LiteralExpression3D, LiteralExpressionND]
 LiteralExpressionNon3D = Union[LiteralExpression2D, LiteralExpressionND]
-LiteralExpression = Union[LiteralExpression2D, LiteralExpression3D,
-                          LiteralExpressionND]
+LiteralExpression = Union[
+    LiteralExpression2D, LiteralExpression3D, LiteralExpressionND
+]
 
 ################
 # FINALIZATION #
 ################
 
-update_forward_refs(Commented2D, Background2D, Debug2D, Root2D, Disable2D,
-                    Union2D, Difference2D, Intersection2D, Translation2D,
-                    Rotation2D, Scaling2D, Size2D, Mirror2D,
-                    AffineTransformation2D, Color2D, RoundedOffset,
-                    AngledOffset, Hull2D, MinkowskiSum2D, ModuleDefinition2D,
-                    ModuleCall2D, Projection)
-update_forward_refs(Commented3D, Background3D, Debug3D, Root3D, Disable3D,
-                    Union3D, Difference3D, Intersection3D, Translation3D,
-                    Rotation3D, Scaling3D, Size3D, Mirror3D,
-                    AffineTransformation3D, Color3D, Hull3D, MinkowskiSum3D,
-                    Rendering3D, ModuleDefinition3D, ModuleCall3D,
-                    LinearExtrusion, RotationalExtrusion)
+update_forward_refs(
+    Commented2D,
+    Background2D,
+    Debug2D,
+    Root2D,
+    Disable2D,
+    Union2D,
+    Difference2D,
+    Intersection2D,
+    Translation2D,
+    Rotation2D,
+    Scaling2D,
+    Size2D,
+    Mirror2D,
+    AffineTransformation2D,
+    Color2D,
+    RoundedOffset,
+    AngledOffset,
+    Hull2D,
+    MinkowskiSum2D,
+    ModuleDefinition2D,
+    ModuleCall2D,
+    Projection,
+)
+update_forward_refs(
+    Commented3D,
+    Background3D,
+    Debug3D,
+    Root3D,
+    Disable3D,
+    Union3D,
+    Difference3D,
+    Intersection3D,
+    Translation3D,
+    Rotation3D,
+    Scaling3D,
+    Size3D,
+    Mirror3D,
+    AffineTransformation3D,
+    Color3D,
+    Hull3D,
+    MinkowskiSum3D,
+    Rendering3D,
+    ModuleDefinition3D,
+    ModuleCall3D,
+    LinearExtrusion,
+    RotationalExtrusion,
+)

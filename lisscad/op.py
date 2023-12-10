@@ -123,5 +123,8 @@ def _numeric(args) -> bool:
 
 def _1dmatrices(args) -> bool:
     """Return True if arguments are same-length one-dimensional matrices."""
-    return all(isinstance(a, (tuple, list)) for a in args) and all(
-        map(_numeric, args)) and len(set(map(len, args))) == 1
+    return (
+        all(isinstance(a, (tuple, list)) for a in args)
+        and all(map(_numeric, args))
+        and len(set(map(len, args))) == 1
+    )

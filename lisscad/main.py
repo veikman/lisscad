@@ -27,12 +27,12 @@ def version():
 
 
 @app.command(context_settings={'allow_extra_args': True})
-def to_python(source: Path = Argument(...,
-                                      exists=True,
-                                      readable=True,
-                                      help='Directory or file to read.'),
-              cut_argv: bool = Option(
-                  True, help='Remove CLI arguments up to “--”.')):
+def to_python(
+    source: Path = Argument(
+        ..., exists=True, readable=True, help='Directory or file to read.'
+    ),
+    cut_argv: bool = Option(True, help='Remove CLI arguments up to “--”.'),
+):
     """Transpile Lissp code to Python code once, for debugging.
 
     This will clobber Python artifacts even if they are newer than their
@@ -47,16 +47,21 @@ def to_python(source: Path = Argument(...,
 
 @app.command(context_settings={'allow_extra_args': True})
 def track(
-        source: Path = Argument(Path('.'),
-                                exists=True,
-                                readable=True,
-                                file_okay=False,
-                                help='Directory to watch.'),
-        regex: str = Option(
-            r'\.lissp$',
-            help=('Regular expression identifying files which, when changed, '
-                  'trigger transpilation of Lissp code.'),
-        )):
+    source: Path = Argument(
+        Path('.'),
+        exists=True,
+        readable=True,
+        file_okay=False,
+        help='Directory to watch.',
+    ),
+    regex: str = Option(
+        r'\.lissp$',
+        help=(
+            'Regular expression identifying files which, when changed, '
+            'trigger transpilation of Lissp code.'
+        ),
+    ),
+):
     """Reactively transpile Lissp code to Python code, indefinitely."""
     # The watcher is recreated in each pass, because neither its default
     # behaviour nor flags.ONESHOT produce one new event per file write.
@@ -102,16 +107,22 @@ def new(dir_new: Path = Argument(..., help='Directory to create.')):
     run(['git', 'commit', '--allow-empty', '-m', 'Start project'], check=True)
     run(['git', 'add', '.'], check=True)
     run(['git', 'add', '--force', '.gitignore'], check=True)
-    run([
-        'git', 'commit', '-m',
-        _TEMPLATE_COMMIT.format(version=_version, name=name)
-    ],
-        check=True)
+    run(
+        [
+            'git',
+            'commit',
+            '-m',
+            _TEMPLATE_COMMIT.format(version=_version, name=name),
+        ],
+        check=True,
+    )
 
 
 @app.command(name='list')
-def list_(n: int = Option(10, '--number', '-n', help='Number of files.'),
-          pattern: str = Option('', help='Regular expression filter.')):
+def list_(
+    n: int = Option(10, '--number', '-n', help='Number of files.'),
+    pattern: str = Option('', help='Regular expression filter.'),
+):
     """Print names of recently created files to terminal."""
     for path in islice(_read_cache(pattern), n):
         print(path)
@@ -119,18 +130,19 @@ def list_(n: int = Option(10, '--number', '-n', help='Number of files.'),
 
 @app.command()
 def view(
-        pattern: str = Option('.scad$', help='Regular expression filter.'),
-        prefix: str = Option('nohup', help='Prefix to OpenSCAD command.'),
-        program: Path = Option(EXECUTABLE_OPENSCAD, help='Path to OpenSCAD.'),
-        dry_run: bool = Option(False, help='Do not start subprocess.'),
-        verbose: bool = Option(False, help='Show command.'),
+    pattern: str = Option('.scad$', help='Regular expression filter.'),
+    prefix: str = Option('nohup', help='Prefix to OpenSCAD command.'),
+    program: Path = Option(EXECUTABLE_OPENSCAD, help='Path to OpenSCAD.'),
+    dry_run: bool = Option(False, help='Do not start subprocess.'),
+    verbose: bool = Option(False, help='Show command.'),
 ):
     """Open the most recently created file in OpenSCAD."""
     try:
         file = next(_read_cache(pattern))
     except StopIteration:
-        print('Cannot view most recent file: No match for pattern.',
-              file=stderr)
+        print(
+            'Cannot view most recent file: No match for pattern.', file=stderr
+        )
         raise Exit(1)
 
     cmd = [prefix] if prefix else []
@@ -178,7 +190,7 @@ def _recompose_argv(source: Path, vector: list[str]) -> list[str]:
 
     """
     try:
-        return [source.name, *vector[vector.index('--') + 1:]]
+        return [source.name, *vector[vector.index('--') + 1 :]]
     except ValueError:
         # No “--” in argv.
         return [source.name]

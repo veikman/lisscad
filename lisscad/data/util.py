@@ -5,10 +5,9 @@ from typing import Any, Type, cast
 import lisscad.data.inter as d
 
 
-def dimensionality(verb_base: str,
-                   *expressions,
-                   verb_first='',
-                   verb_rest='') -> int:
+def dimensionality(
+    verb_base: str, *expressions, verb_first='', verb_rest=''
+) -> int:
     """Determine the common dimensionality of children."""
     assert expressions
     two: list[int] = []
@@ -45,8 +44,11 @@ def dimensionality(verb_base: str,
     return 3
 
 
-def matched(verb: str, argument: tuple[float, ...],
-            expressions: tuple[d.LiteralExpression, ...]):
+def matched(
+    verb: str,
+    argument: tuple[float, ...],
+    expressions: tuple[d.LiteralExpression, ...],
+):
     """Check that expressions match dimensionality of argument.
 
     Assume that the argument describes the dimensionality of an operation upon
@@ -64,27 +66,37 @@ def matched(verb: str, argument: tuple[float, ...],
     elif n0 == 3:
         n1 = 2
     else:
-        raise ValueError(f'Cannot {verb} OpenSCAD expression{suffix} '
-                         f'with {n0}D argument {argument}.')
+        raise ValueError(
+            f'Cannot {verb} OpenSCAD expression{suffix} '
+            f'with {n0}D argument {argument}.'
+        )
 
     if n0 == dimensionality(verb, *expressions):
         return n0
 
-    raise ValueError(f'Cannot {verb} {n1}D OpenSCAD expression{suffix} '
-                     f'with {n0}D argument {argument}.')
+    raise ValueError(
+        f'Cannot {verb} {n1}D OpenSCAD expression{suffix} '
+        f'with {n0}D argument {argument}.'
+    )
 
 
-def modify(type_2d: Type[d.BaseModifier2D], type_3d: Type[d.BaseModifier3D],
-           child: d.LiteralExpression) -> d.BaseModifier2D | d.BaseModifier3D:
+def modify(
+    type_2d: Type[d.BaseModifier2D],
+    type_3d: Type[d.BaseModifier3D],
+    child: d.LiteralExpression,
+) -> d.BaseModifier2D | d.BaseModifier3D:
     """Wrap up a single expression of known dimensionality."""
     if dimensionality('modify', child) == 2:
         return type_2d(cast(d.LiteralExpression2D, child))
     return type_3d(cast(d.LiteralExpression3D, child))
 
 
-def contain(type_2d: Type[d.BaseBoolean2D], type_3d: Type[d.BaseBoolean3D],
-            children: tuple[d.LiteralExpression, ...],
-            **kwargs) -> d.BaseBoolean2D | d.BaseBoolean3D:
+def contain(
+    type_2d: Type[d.BaseBoolean2D],
+    type_3d: Type[d.BaseBoolean3D],
+    children: tuple[d.LiteralExpression, ...],
+    **kwargs,
+) -> d.BaseBoolean2D | d.BaseBoolean3D:
     """Wrap up 1+ expressions of known dimensionality."""
     if dimensionality('contain', *children, **kwargs) == 2:
         return type_2d(cast(tuple[d.LiteralExpression2D, ...], children))

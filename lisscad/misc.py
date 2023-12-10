@@ -6,16 +6,20 @@ from pathlib import Path
 from lisscad.data.other import Gimbal, Image, Vector
 from lisscad.py_to_scad import LineGen
 
-DIR_RECENT = Path(getenv('XDG_DATA_HOME',
-                         Path.home() / '.local/share')) / 'lisscad/recent'
+DIR_RECENT = (
+    Path(getenv('XDG_DATA_HOME', Path.home() / '.local/share'))
+    / 'lisscad/recent'
+)
 
 EXECUTABLE_OPENSCAD = Path('openscad')
 
 
-def compose_openscad_command(rendering_program: Path,
-                             input: Path,
-                             output: Path | None = None,
-                             image: Image | None = None) -> LineGen:
+def compose_openscad_command(
+    rendering_program: Path,
+    input: Path,
+    output: Path | None = None,
+    image: Image | None = None,
+) -> LineGen:
     """Compose a complete, shell-ready command for running OpenSCAD."""
     yield str(rendering_program)
     if output:
@@ -27,8 +31,11 @@ def compose_openscad_command(rendering_program: Path,
             yield '--camera'
             if isinstance(c, Gimbal):
                 yield ','.join(
-                    map(str,
-                        list(c.translation) + list(c.rotation) + [c.distance]))
+                    map(
+                        str,
+                        list(c.translation) + list(c.rotation) + [c.distance],
+                    )
+                )
             else:
                 assert isinstance(c, Vector)
                 yield ','.join(map(str, list(c.eye) + list(c.center)))

@@ -23,8 +23,11 @@ from rich.progress import Progress, TaskID
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
-from lisscad.misc import (DIR_RECENT, EXECUTABLE_OPENSCAD,
-                          compose_openscad_command)
+from lisscad.misc import (
+    DIR_RECENT,
+    EXECUTABLE_OPENSCAD,
+    compose_openscad_command,
+)
 from lisscad.py_to_scad import LineGen, transpile
 from lisscad.vocab.base import mirror, module, union
 
@@ -56,21 +59,26 @@ Failer = Callable[[Failure], None]
 
 def refine(asset: Asset, **kwargs) -> Asset:
     """Refine an asset with modules, flattening it."""
-    content = tuple(e for a in _prepend_modules(asset, **kwargs)
-                    for e in a.content())
+    content = tuple(
+        e for a in _prepend_modules(asset, **kwargs) for e in a.content()
+    )
     return replace(asset, content=lambda: content)
 
 
-def write(*protoasset: Asset | dict | BaseExpression
-          | Iterable[BaseExpression]
-          | Callable[[], tuple[BaseExpression, ...]],
-          argv: list[str] | None = None,
-          rendering_program: Path = EXECUTABLE_OPENSCAD,
-          report: Reporter | None = None,
-          fail: Failer | None = None,
-          dir_scad: Path = Path('.'),
-          dir_render: Path = Path('.'),
-          **kwargs) -> None:
+def write(
+    *protoasset: Asset
+    | dict
+    | BaseExpression
+    | Iterable[BaseExpression]
+    | Callable[[], tuple[BaseExpression, ...]],
+    argv: list[str] | None = None,
+    rendering_program: Path = EXECUTABLE_OPENSCAD,
+    report: Reporter | None = None,
+    fail: Failer | None = None,
+    dir_scad: Path = Path('.'),
+    dir_render: Path = Path('.'),
+    **kwargs,
+) -> None:
     """Convert intermediate representations to OpenSCAD code.
 
     This function’s profile is relaxed to minimize boilerplate in CAD
@@ -95,15 +103,21 @@ def write(*protoasset: Asset | dict | BaseExpression
 
     assets_paths = map(
         partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
-        zip(count(), protoasset))
+        zip(count(), protoasset),
+    )
     for asset, file_scad in chain(*assets_paths):
         scadjobs.append((asset, file_scad.resolve()))
         steps_cmds = _prepare_commands(
             partial(compose_openscad_command, rendering_program, file_scad),
-            asset, file_scad, dir_render, args.render)
+            asset,
+            file_scad,
+            dir_render,
+            args.render,
+        )
         for step, cmd, file_render in steps_cmds:
             renderjobs.append(
-                (asset.name, step, cmd, str(file_render.resolve())))
+                (asset.name, step, cmd, str(file_render.resolve()))
+            )
 
     _fork(scadjobs, renderjobs, report or _report, fail or _fail)
 
@@ -143,9 +157,13 @@ def _note_recent(path: Path) -> None:
     file.write_text(str(path))
 
 
-def _prepare_assets(paths: set[Path], dir_scad, n_invocation: int,
-                    numbered: tuple[int, Asset],
-                    **kwargs) -> Generator[tuple[Asset, Path], None, None]:
+def _prepare_assets(
+    paths: set[Path],
+    dir_scad,
+    n_invocation: int,
+    numbered: tuple[int, Asset],
+    **kwargs,
+) -> Generator[tuple[Asset, Path], None, None]:
     n_protoasset, protoasset = numbered
     source_asset = _name_asset(protoasset, n_invocation, n_protoasset)
     for asset in _refine_nonmodule(source_asset, **kwargs):
@@ -159,8 +177,8 @@ def _prepare_assets(paths: set[Path], dir_scad, n_invocation: int,
 
 
 def _prepare_commands(
-        compose, asset: Asset, file_scad: Path, dir_render: Path,
-        render: bool) -> Generator[tuple[str, list[str], Path], None, None]:
+    compose, asset: Asset, file_scad: Path, dir_render: Path, render: bool
+) -> Generator[tuple[str, list[str], Path], None, None]:
     if not render:
         return
 
@@ -171,14 +189,22 @@ def _prepare_commands(
 
     for image in asset.images:
         file_img = dir_render / image.path
-        yield (_STEP_IMAGES, list(compose(output=file_img,
-                                          image=image)), file_img)
+        yield (
+            _STEP_IMAGES,
+            list(compose(output=file_img, image=image)),
+            file_img,
+        )
 
 
-def _name_asset(raw: Asset | dict | BaseExpression
-                | Iterable[BaseExpression]
-                | Callable[[], tuple[BaseExpression, ...]], n_invocation: int,
-                n_asset: int) -> Asset:
+def _name_asset(
+    raw: Asset
+    | dict
+    | BaseExpression
+    | Iterable[BaseExpression]
+    | Callable[[], tuple[BaseExpression, ...]],
+    n_invocation: int,
+    n_asset: int,
+) -> Asset:
     """Find a likely-distinct name for a content-only asset."""
     if isinstance(raw, Asset):
         # Assume caller is satisfied with current name.
@@ -189,16 +215,19 @@ def _name_asset(raw: Asset | dict | BaseExpression
 
     # Make up a non-default name.
     name = f'untitled_{n_invocation}_{n_asset}'
-    return Asset(content=cast(Callable[[], tuple[LiteralExpression, ...]],
-                              raw),
-                 name=name)
+    return Asset(
+        content=cast(Callable[[], tuple[LiteralExpression, ...]], raw),
+        name=name,
+    )
 
 
-def _rename_asset(asset: Asset,
-                  if_mirrored: Renamer = lambda s: f'{s}_mirrored',
-                  if_chiral: Renamer = lambda s: s,
-                  if_achiral: Renamer = lambda s: s,
-                  **_) -> Asset:
+def _rename_asset(
+    asset: Asset,
+    if_mirrored: Renamer = lambda s: f'{s}_mirrored',
+    if_chiral: Renamer = lambda s: s,
+    if_achiral: Renamer = lambda s: s,
+    **_,
+) -> Asset:
     """Rename asset based on chirality and mirroring."""
     function = if_achiral
     if asset.mirrored:
@@ -208,10 +237,9 @@ def _rename_asset(asset: Asset,
     return replace(asset, name=function(asset.name))
 
 
-def _finalize_asset(modularize: bool,
-                    asset: Asset,
-                    flip_chiral: bool = True,
-                    **kwargs) -> Asset:
+def _finalize_asset(
+    modularize: bool, asset: Asset, flip_chiral: bool = True, **kwargs
+) -> Asset:
     """Flip an asset if it’s chiral and package it for transpilation.
 
     Flipping is intended to support CAD assets that need to come in two forms
@@ -220,16 +248,17 @@ def _finalize_asset(modularize: bool,
     """
     content = asset.content()
     if modularize and len(content) > 1:
-        content = (union(*content), )
+        content = (union(*content),)
     mirrored = asset.mirrored
     if asset.chiral and not mirrored and flip_chiral:
         mirrored = True
-        content = (mirror((1, 0, 0), content[0]), )
+        content = (mirror((1, 0, 0), content[0]),)
     if modularize:
-        content = (module(asset.name, *content), )
+        content = (module(asset.name, *content),)
     return _rename_asset(
         replace(asset, content=lambda: content, modules=(), mirrored=mirrored),
-        **kwargs)
+        **kwargs,
+    )
 
 
 def _prepend_modules(parent: Asset, **kwargs) -> Generator[Asset, None, None]:
@@ -242,17 +271,23 @@ def _prepend_modules(parent: Asset, **kwargs) -> Generator[Asset, None, None]:
 def _flatten(asset: Asset, flip_chiral: bool = True, **kwargs):
     """Ensure that an asset has its modules as part of its content."""
     content = tuple(
-        e for a in _prepend_modules(asset, flip_chiral=flip_chiral, **kwargs)
-        for e in a.content())
+        e
+        for a in _prepend_modules(asset, flip_chiral=flip_chiral, **kwargs)
+        for e in a.content()
+    )
     return _rename_asset(
-        replace(asset,
-                content=lambda: content,
-                mirrored=asset.chiral and flip_chiral), **kwargs)
+        replace(
+            asset,
+            content=lambda: content,
+            mirrored=asset.chiral and flip_chiral,
+        ),
+        **kwargs,
+    )
 
 
-def _refine_nonmodule(asset: Asset,
-                      flip_chiral: bool = True,
-                      **kwargs) -> Generator[Asset, None, None]:
+def _refine_nonmodule(
+    asset: Asset, flip_chiral: bool = True, **kwargs
+) -> Generator[Asset, None, None]:
     """Generate one or two top-level assets.
 
     These may have modules as part of their content, but may not be modules.
@@ -288,10 +323,17 @@ def _render(q: Queue, asset: str, step: str, cmd: list[str], path: str):
     try:
         run(cmd, check=True, text=True, stdout=PIPE, stderr=STDOUT)
     except CalledProcessError as e:
-        q.put((asset, step, False, {
-            REPORTKEY_INSTRUCTION: ' '.join(cmd),
-            REPORTKEY_STDOUT_STDERR: e.stdout
-        }))
+        q.put(
+            (
+                asset,
+                step,
+                False,
+                {
+                    REPORTKEY_INSTRUCTION: ' '.join(cmd),
+                    REPORTKEY_STDOUT_STDERR: e.stdout,
+                },
+            )
+        )
     else:
         q.put((asset, step, True, {REPORTKEY_PATH: path}))
 
@@ -319,17 +361,23 @@ def _process_all(q, scadjobs: list[ScadJob], renderjobs: list[RenderJob]):
         try:
             _write_scad(*job)
         except Exception:
-            q.put((asset.name, _STEP_SCAD, False, {
-                REPORTKEY_TRACEBACK: format_exc()
-            }))
+            q.put(
+                (
+                    asset.name,
+                    _STEP_SCAD,
+                    False,
+                    {REPORTKEY_TRACEBACK: format_exc()},
+                )
+            )
         else:
             q.put((asset.name, _STEP_SCAD, True, {REPORTKEY_PATH: path}))
 
     _render_all(q, renderjobs)
 
 
-def _report(q: Queue, scadjobs: list[ScadJob],
-            renderjobs: list[RenderJob]) -> None:
+def _report(
+    q: Queue, scadjobs: list[ScadJob], renderjobs: list[RenderJob]
+) -> None:
     """Display progress bars, one per asset, in terminal."""
     total_steps = len(scadjobs) + len(renderjobs)
     step_counts_by_name: dict[str, int] = {a.name: 1 for a, _ in scadjobs}
@@ -374,8 +422,12 @@ def _fail(e: Failure):
         print(e.description[REPORTKEY_TRACEBACK])
 
 
-def _fork(scadjobs: list[ScadJob], renderjobs: list[RenderJob],
-          report: Reporter, fail: Failer):
+def _fork(
+    scadjobs: list[ScadJob],
+    renderjobs: list[RenderJob],
+    report: Reporter,
+    fail: Failer,
+):
     manager = Manager()
     q = manager.Queue()
 
@@ -400,9 +452,11 @@ def _define_cli():
 
     """
     parser = ArgumentParser()
-    parser.add_argument('-r',
-                        '--render',
-                        default=False,
-                        action='store_true',
-                        help='Call OpenSCAD to render to e.g. STL.')
+    parser.add_argument(
+        '-r',
+        '--render',
+        default=False,
+        action='store_true',
+        help='Call OpenSCAD to render to e.g. STL.',
+    )
     return parser

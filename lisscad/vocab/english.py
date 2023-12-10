@@ -56,8 +56,9 @@ def cylindroid(radius0: float, radius1: float, height: float, **kwargs):
     profile = (radius0, radius1)
     return cast(
         d.Size3D,
-        base.resize((*profile, height),
-                    base.cylinder(max(profile), height, **kwargs)),
+        base.resize(
+            (*profile, height), base.cylinder(max(profile), height, **kwargs)
+        ),
     )
 
 
@@ -75,39 +76,44 @@ def frustum(radius0: float, radius1: float, *args, **kwargs):
 # Inspired by Evan Jones’s directional helpers in SolidPython.
 
 
-def left(distance: float,
-         *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+def left(
+    distance: float, *children: d.LiteralExpression
+) -> d.Translation2D | d.Translation3D:
     """Translate along negative x."""
     n = dimensionality('translate', *children)
     if n == 2:
-        return d.Translation2D((-distance, 0),
-                               cast(tuple[d.LiteralExpression2D, ...],
-                                    children))
-    return d.Translation3D((-distance, 0, 0),
-                           cast(tuple[d.LiteralExpression3D, ...], children))
+        return d.Translation2D(
+            (-distance, 0), cast(tuple[d.LiteralExpression2D, ...], children)
+        )
+    return d.Translation3D(
+        (-distance, 0, 0), cast(tuple[d.LiteralExpression3D, ...], children)
+    )
 
 
-def right(distance: float,
-          *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+def right(
+    distance: float, *children: d.LiteralExpression
+) -> d.Translation2D | d.Translation3D:
     """Translate along positive x."""
     return left(-distance, *children)
 
 
-def back(distance: float,
-         *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+def back(
+    distance: float, *children: d.LiteralExpression
+) -> d.Translation2D | d.Translation3D:
     """Translate along negative y."""
     n = dimensionality('translate', *children)
     if n == 2:
-        return d.Translation2D((0, -distance),
-                               cast(tuple[d.LiteralExpression2D, ...],
-                                    children))
-    return d.Translation3D((0, -distance, 0),
-                           cast(tuple[d.LiteralExpression3D, ...], children))
+        return d.Translation2D(
+            (0, -distance), cast(tuple[d.LiteralExpression2D, ...], children)
+        )
+    return d.Translation3D(
+        (0, -distance, 0), cast(tuple[d.LiteralExpression3D, ...], children)
+    )
 
 
 def forward(
-        distance: float,
-        *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    distance: float, *children: d.LiteralExpression
+) -> d.Translation2D | d.Translation3D:
     """Translate along positive y."""
     return back(-distance, *children)
 

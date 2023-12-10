@@ -58,11 +58,13 @@ def _(datum: str) -> LineGen:
     """
     candidate = f'"{datum}"'
     n = len(
-        split(candidate))  # May raise e.g. “ValueError: No closing quotation”.
+        split(candidate)
+    )  # May raise e.g. “ValueError: No closing quotation”.
     if n != 1:
         # Escape codes needed.
         raise ValueError(
-            f'Python string {datum!r} would form multiple OpenSCAD strings.')
+            f'Python string {datum!r} would form multiple OpenSCAD strings.'
+        )
     yield candidate
 
 
@@ -207,11 +209,13 @@ _root = partial(_modifier, '!')
 _disable = partial(_modifier, '*')
 
 
-def _contain(keyword: str,
-             *body: d.LiteralExpression,
-             prefix: str = '',
-             head: str = '',
-             postfix: str = ';') -> LineGen:
+def _contain(
+    keyword: str,
+    *body: d.LiteralExpression,
+    prefix: str = '',
+    head: str = '',
+    postfix: str = ';',
+) -> LineGen:
     """Compose OpenSCAD code for a branch expression."""
     lead = f'{prefix}{keyword}({head}) '
     if body:
@@ -224,18 +228,16 @@ def _contain(keyword: str,
         yield lead + '{}' + postfix
 
 
-def _terminate(keyword: str,
-               prefix: str = '',
-               head: str = '',
-               postfix: str = ';') -> str:
+def _terminate(
+    keyword: str, prefix: str = '', head: str = '', postfix: str = ';'
+) -> str:
     """Compose OpenSCAD code for a leaf expression."""
     return f'{prefix}{keyword}({head}){postfix}'
 
 
-def _format(keyword: str,
-            *body: d.LiteralExpression,
-            container: bool = True,
-            **kwargs) -> LineGen:
+def _format(
+    keyword: str, *body: d.LiteralExpression, container: bool = True, **kwargs
+) -> LineGen:
     """Compose typical OpenSCAD code."""
     if container or body:
         yield from _contain(keyword, *body, **kwargs)
@@ -244,9 +246,9 @@ def _format(keyword: str,
 
 
 def _fields_from_dataclass(
-        datum: d.SCADTerm,
-        denylist: frozenset[str] = frozenset(['child', 'children']),
-        rad: frozenset[str] = frozenset(['angle', 'twist']),
+    datum: d.SCADTerm,
+    denylist: frozenset[str] = frozenset(['child', 'children']),
+    rad: frozenset[str] = frozenset(['angle', 'twist']),
 ) -> LineGen:
     """Generate minimal OpenSCAD from dataclass fields.
 
@@ -280,12 +282,14 @@ def _from_scadterm(datum: d.SCADTerm, **kwargs) -> LineGen:
         container = True
         children = getattr(datum, container_attr)
         if not isinstance(children, tuple):
-            children = (children, )
+            children = (children,)
 
-    yield from _format(datum.scad.keyword,
-                       *children,
-                       container=container,
-                       head=', '.join(_fields_from_dataclass(datum)))
+    yield from _format(
+        datum.scad.keyword,
+        *children,
+        container=container,
+        head=', '.join(_fields_from_dataclass(datum)),
+    )
 
 
 _module = partial(_contain, prefix='module ')

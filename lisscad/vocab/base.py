@@ -34,8 +34,7 @@ def _starred(member, name: str = ''):
 
 @_starred
 def comment(
-    content: str | tuple[str, ...],
-    subject: d.LiteralExpression | None = None
+    content: str | tuple[str, ...], subject: d.LiteralExpression | None = None
 ) -> d.Commented2D | d.Commented3D | d.Comment:
     """Export a comment in OpenSCAD code.
 
@@ -44,7 +43,7 @@ def comment(
 
     """
     if isinstance(content, str):
-        content = (content, )
+        content = (content,)
     c = d.Comment(content)
     if subject is None:
         return c
@@ -56,8 +55,10 @@ def comment(
 @_starred
 def background(child: d.LiteralExpression) -> d.Background2D | d.Background3D:
     """Implement OpenSCAD’s % modifier, known as transparent or background."""
-    return cast(d.Background2D | d.Background3D,
-                modify(d.Background2D, d.Background3D, child))
+    return cast(
+        d.Background2D | d.Background3D,
+        modify(d.Background2D, d.Background3D, child),
+    )
 
 
 @_starred
@@ -75,8 +76,9 @@ def root(child: d.LiteralExpression) -> d.Root2D | d.Root3D:
 @_starred
 def disable(child: d.LiteralExpression) -> d.Disable2D | d.Disable3D:
     """Implement OpenSCAD’s * modifier, known as disable."""
-    return cast(d.Disable2D | d.Disable3D,
-                modify(d.Disable2D, d.Disable3D, child))
+    return cast(
+        d.Disable2D | d.Disable3D, modify(d.Disable2D, d.Disable3D, child)
+    )
 
 
 @_starred
@@ -108,18 +110,25 @@ def difference(
     subtrahend = _some(children)
     return cast(
         d.Difference2D | d.Difference3D,
-        contain(d.Difference2D, d.Difference3D, (minuend, *subtrahend),
-                verb_first='subtract from',
-                verb_rest='subtract'))
+        contain(
+            d.Difference2D,
+            d.Difference3D,
+            (minuend, *subtrahend),
+            verb_first='subtract from',
+            verb_rest='subtract',
+        ),
+    )
 
 
 @_starred
 def intersection(
-    *children: d.LiteralExpression | tuple[()]
+    *children: d.LiteralExpression | tuple[()],
 ) -> d.Intersection2D | d.Intersection3D:
     some = _some(children)
-    return cast(d.Intersection2D | d.Intersection3D,
-                contain(d.Intersection2D, d.Intersection3D, some))
+    return cast(
+        d.Intersection2D | d.Intersection3D,
+        contain(d.Intersection2D, d.Intersection3D, some),
+    )
 
 
 @_starred
@@ -128,8 +137,9 @@ def circle(radius: float) -> d.Circle:
 
 
 @_starred
-def square(size: float | d.Tuple2D,
-           center: bool = True) -> d.Square | d.Rectangle:
+def square(
+    size: float | d.Tuple2D, center: bool = True
+) -> d.Square | d.Rectangle:
     if isinstance(size, (float, int)):
         return d.Square(size, center=center)
     return d.Rectangle(size, center=center)
@@ -166,8 +176,9 @@ def import_(file: Path, **kwargs) -> d.Import2D | d.Import3D:
 
 
 @_starred
-def projection(child: d.LiteralExpressionNon2D,
-               cut: bool = False) -> d.Projection:
+def projection(
+    child: d.LiteralExpressionNon2D, cut: bool = False
+) -> d.Projection:
     """Implement an OpenSCAD projection.
 
     For ease of use in threading macros, cutting is also available as a
@@ -191,9 +202,9 @@ def cube(size: d.Tuple3D, center: bool = True) -> d.Cube:
 
 
 @_starred
-def cylinder(radius: float | tuple[float, float],
-             height: float,
-             center: bool = True) -> d.Cylinder | d.Frustum:
+def cylinder(
+    radius: float | tuple[float, float], height: float, center: bool = True
+) -> d.Cylinder | d.Frustum:
     # Take the radius argument first, like scad-clj.
     if isinstance(radius, (int, float)):
         return d.Cylinder(radius, height, center=center)
@@ -201,16 +212,16 @@ def cylinder(radius: float | tuple[float, float],
 
 
 @_starred
-def polyhedron(points: tuple[d.Tuple3D, ...],
-               faces=tuple[tuple[int, ...], ...],
-               **kwargs):
+def polyhedron(
+    points: tuple[d.Tuple3D, ...], faces=tuple[tuple[int, ...], ...], **kwargs
+):
     return d.Polyhedron(points, faces, **kwargs)
 
 
 @_starred
-def extrude(*children: d.LiteralExpressionNon3D,
-            rotate: bool | None = None,
-            **kwargs) -> d.LinearExtrusion | d.RotationalExtrusion:
+def extrude(
+    *children: d.LiteralExpressionNon3D, rotate: bool | None = None, **kwargs
+) -> d.LinearExtrusion | d.RotationalExtrusion:
     """Extrude translationally by default."""
     if rotate is True or (rotate is None and 'angle' in kwargs):
         return d.RotationalExtrusion(children=children, **kwargs)
@@ -224,53 +235,71 @@ def surface(file: Path, center: bool = True, **kwargs) -> d.Surface:
 
 @_starred
 def translate(
-        coord: d.Tuple2D | d.Tuple3D,
-        *children: d.LiteralExpression) -> d.Translation2D | d.Translation3D:
+    coord: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression
+) -> d.Translation2D | d.Translation3D:
     if matched('translate', coord, children) == 2:
         return d.Translation2D(
             cast(d.Tuple2D, coord),
-            cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Translation3D(cast(d.Tuple3D, coord),
-                           cast(tuple[d.LiteralExpression3D, ...], children))
+            cast(tuple[d.LiteralExpression2D, ...], children),
+        )
+    return d.Translation3D(
+        cast(d.Tuple3D, coord),
+        cast(tuple[d.LiteralExpression3D, ...], children),
+    )
 
 
 @_starred
-def rotate(angles: float | int | d.Tuple3D,
-           *children: d.LiteralExpression) -> d.Rotation2D | d.Rotation3D:
+def rotate(
+    angles: float | int | d.Tuple3D, *children: d.LiteralExpression
+) -> d.Rotation2D | d.Rotation3D:
     if isinstance(angles, (float, int)):
-        return d.Rotation2D(angles,
-                            cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Rotation3D(angles,
-                        cast(tuple[d.LiteralExpression3D, ...], children))
+        return d.Rotation2D(
+            angles, cast(tuple[d.LiteralExpression2D, ...], children)
+        )
+    return d.Rotation3D(
+        angles, cast(tuple[d.LiteralExpression3D, ...], children)
+    )
 
 
 @_starred
-def scale(factors: d.Tuple2D | d.Tuple3D,
-          *children: d.LiteralExpression) -> d.Scaling2D | d.Scaling3D:
+def scale(
+    factors: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression
+) -> d.Scaling2D | d.Scaling3D:
     if matched('scale', factors, children) == 2:
-        return d.Scaling2D(cast(d.Tuple2D, factors),
-                           cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Scaling3D(cast(d.Tuple3D, factors),
-                       cast(tuple[d.LiteralExpression3D, ...], children))
+        return d.Scaling2D(
+            cast(d.Tuple2D, factors),
+            cast(tuple[d.LiteralExpression2D, ...], children),
+        )
+    return d.Scaling3D(
+        cast(d.Tuple3D, factors),
+        cast(tuple[d.LiteralExpression3D, ...], children),
+    )
 
 
 @_starred
-def resize(size: d.Tuple2D | d.Tuple3D,
-           *children: d.LiteralExpression) -> d.Size2D | d.Size3D:
+def resize(
+    size: d.Tuple2D | d.Tuple3D, *children: d.LiteralExpression
+) -> d.Size2D | d.Size3D:
     if matched('resize', size, children) == 2:
-        return d.Size2D(cast(d.Tuple2D, size),
-                        cast(tuple[d.LiteralExpression2D, ...], children))
-    return d.Size3D(cast(d.Tuple3D, size),
-                    cast(tuple[d.LiteralExpression3D, ...], children))
+        return d.Size2D(
+            cast(d.Tuple2D, size),
+            cast(tuple[d.LiteralExpression2D, ...], children),
+        )
+    return d.Size3D(
+        cast(d.Tuple3D, size),
+        cast(tuple[d.LiteralExpression3D, ...], children),
+    )
 
 
 @_starred
-def mirror(axes: tuple[int, int, int],
-           *children: d.LiteralExpression) -> d.Mirror2D | d.Mirror3D:
+def mirror(
+    axes: tuple[int, int, int], *children: d.LiteralExpression
+) -> d.Mirror2D | d.Mirror3D:
     # Do not require dimensionality of axes to match that of children.
     if dimensionality('mirror', *children) == 2:
-        return d.Mirror2D(axes,
-                          cast(tuple[d.LiteralExpression2D, ...], children))
+        return d.Mirror2D(
+            axes, cast(tuple[d.LiteralExpression2D, ...], children)
+        )
     return d.Mirror3D(axes, cast(tuple[d.LiteralExpression3D, ...], children))
 
 
@@ -282,25 +311,31 @@ def multmatrix(
     # 2022 there are no examples or specifications in the manual.
     if dimensionality('transform', *children) == 2:
         return d.AffineTransformation2D(
-            matrix, cast(tuple[d.LiteralExpression2D, ...], children))
+            matrix, cast(tuple[d.LiteralExpression2D, ...], children)
+        )
     return d.AffineTransformation3D(
-        matrix, cast(tuple[d.LiteralExpression3D, ...], children))
+        matrix, cast(tuple[d.LiteralExpression3D, ...], children)
+    )
 
 
 @_starred
-def color(value: d.Tuple4D | str,
-          *children: d.LiteralExpression) -> d.Color2D | d.Color3D:
+def color(
+    value: d.Tuple4D | str, *children: d.LiteralExpression
+) -> d.Color2D | d.Color3D:
     if dimensionality('color', *children) == 2:
-        return d.Color2D(value,
-                         cast(tuple[d.LiteralExpression2D, ...], children))
+        return d.Color2D(
+            value, cast(tuple[d.LiteralExpression2D, ...], children)
+        )
     return d.Color3D(value, cast(tuple[d.LiteralExpression3D, ...], children))
 
 
 @_starred
-def offset(distance: float,
-           *children: d.LiteralExpressionNon3D,
-           round: bool = True,
-           chamfer: bool = False) -> d.RoundedOffset | d.AngledOffset:
+def offset(
+    distance: float,
+    *children: d.LiteralExpressionNon3D,
+    round: bool = True,
+    chamfer: bool = False,
+) -> d.RoundedOffset | d.AngledOffset:
     if round:
         assert not chamfer  # Chamfering is meaningless in this context.
         return d.RoundedOffset(distance, children)
@@ -315,13 +350,16 @@ def hull(*children: d.LiteralExpression) -> d.Hull2D | d.Hull3D:
 
 
 @_starred
-def minkowski(*children: d.LiteralExpression,
-              **kwargs) -> (d.MinkowskiSum2D | d.MinkowskiSum3D):
+def minkowski(
+    *children: d.LiteralExpression, **kwargs
+) -> d.MinkowskiSum2D | d.MinkowskiSum3D:
     if dimensionality('minkowski-add', *children) == 2:
         return d.MinkowskiSum2D(
-            cast(tuple[d.LiteralExpression2D, ...], children), **kwargs)
-    return d.MinkowskiSum3D(cast(tuple[d.LiteralExpression3D, ...], children),
-                            **kwargs)
+            cast(tuple[d.LiteralExpression2D, ...], children), **kwargs
+        )
+    return d.MinkowskiSum3D(
+        cast(tuple[d.LiteralExpression3D, ...], children), **kwargs
+    )
 
 
 @_starred
@@ -374,9 +412,7 @@ def children() -> d.ModuleChildren:
 def _some(
     items: tuple[d.LiteralExpression | tuple[()], ...]
 ) -> tuple[d.LiteralExpression, ...]:
-    return tuple(filter(
-        lambda x: x != (),  # type: ignore[arg-type]
-        items))
+    return tuple(filter(lambda x: x != (), items))  # type: ignore[arg-type]
 
 
 def _define_module(
@@ -393,9 +429,11 @@ def _define_module(
     """
     if dimensionality('define module of', *children) == 2:
         return d.ModuleDefinition2D(
-            name, cast(tuple[d.LiteralExpression2D, ...], children))
+            name, cast(tuple[d.LiteralExpression2D, ...], children)
+        )
     return d.ModuleDefinition3D(
-        name, cast(tuple[d.LiteralExpression3D, ...], children))
+        name, cast(tuple[d.LiteralExpression3D, ...], children)
+    )
 
 
 def _call_module(
@@ -404,7 +442,9 @@ def _call_module(
     if children:
         if dimensionality('call module using', *children) == 2:
             return d.ModuleCall2D(
-                name, cast(tuple[d.LiteralExpression2D, ...], children))
+                name, cast(tuple[d.LiteralExpression2D, ...], children)
+            )
         return d.ModuleCall3D(
-            name, cast(tuple[d.LiteralExpression3D, ...], children))
+            name, cast(tuple[d.LiteralExpression3D, ...], children)
+        )
     return d.ModuleCallND(name)

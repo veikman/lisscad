@@ -70,6 +70,17 @@ def install(c):
     c.run('pip install --force-reinstall dist/*.whl')
 
 
+@task(pre=[build])
+def deploy(c):
+    """Build and upload to PyPI from the local machine.
+
+    This requires personal keys. It may be replaced with a GitHub action in
+    future.
+
+    """
+    c.run('twine upload dist/*')
+
+
 @task
 def new_case(c, name):
     """Add a new integration test case."""

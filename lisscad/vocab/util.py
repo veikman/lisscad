@@ -24,7 +24,7 @@ def wafer(*shape: LiteralExpressionNon3D, height=μm, **kwargs):
     This is like base.extrude, but with a height much smaller than the default
     value built into OpenSCAD. This is intended for use with sliding_hull,
     particularly in Lissp threading macros, where passing in a height parameter
-    can be awkward.
+    could be awkward until the thread-through macro was introduced.
 
     """
     return LinearExtrusion(shape, height=height, **kwargs)

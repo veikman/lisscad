@@ -61,6 +61,7 @@ def build(c):
     package.
 
     """
+    c.run('pyenv sync', pty=not terminals.WINDOWS)
     c.run('python -m build', pty=not terminals.WINDOWS)
 
 
@@ -82,7 +83,7 @@ def deploy(c):
 
 
 @task
-def new_case(c, name):
+def new_case(_, name):
     """Add a new integration test case."""
     r = Path(f'test/data/{name}')
     r.mkdir()

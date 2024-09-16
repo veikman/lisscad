@@ -104,6 +104,11 @@ def bilateral_symmetry_y(shape: LiteralExpression) -> Union2D | Union3D:
     return union(shape, mirror((0, 1, 0), shape))
 
 
+def bilateral_symmetry_z(shape: LiteralExpression) -> Union2D | Union3D:
+    """Keep shape alongside a mirror image of it in the z axis."""
+    return union(shape, mirror((0, 0, 1), shape))
+
+
 def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
     """Keep shape adding quadrilateral symmetry. Four copies in total."""
     return bilateral_symmetry_y(bilateral_symmetry_x(shape))

@@ -75,6 +75,7 @@
      (define |map lisscad.vocab.util..union_map)
      (define bilateral-symmetry-x lisscad.vocab.util..bilateral_symmetry_x)
      (define bilateral-symmetry-y lisscad.vocab.util..bilateral_symmetry_y)
+     (define bilateral-symmetry-z lisscad.vocab.util..bilateral_symmetry_z)
      (define bilateral-symmetry-xy lisscad.vocab.util..bilateral_symmetry_xy)))
 
 (defmacro english-util ()

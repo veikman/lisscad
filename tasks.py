@@ -61,7 +61,7 @@ def build(c):
     package.
 
     """
-    c.run('pyenv sync', pty=not terminals.WINDOWS)
+    c.run('pipenv sync', pty=not terminals.WINDOWS)
     c.run('python -m build', pty=not terminals.WINDOWS)
 
 

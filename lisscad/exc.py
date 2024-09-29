@@ -11,3 +11,15 @@ class Failure(LisscadError):
     def __init__(self, message, **kwargs):
         super().__init__(message)
         self.description = kwargs
+
+
+class DimensionalityError(LisscadError):
+    """An invalid dimensionality."""
+
+
+class DimensionalityZeroError(DimensionalityError):
+    """An invalid zero-dimensional geometry."""
+
+
+class DimensionalityMismatchError(DimensionalityError):
+    """An invalid combination of 2D and 3D."""

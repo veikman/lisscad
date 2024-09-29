@@ -13,6 +13,7 @@ from lisscad.data.inter import (
     Union2D,
     Union3D,
 )
+from lisscad.exc import LisscadError
 from lisscad.vocab.base import hull, mirror, offset, union
 
 μm = 0.001
@@ -79,7 +80,14 @@ def union_map(
     Similar to an OpenSCAD for statement.
 
     """
-    return union(*map(function, iterable))
+    if not callable(function):
+        raise LisscadError(
+            'Invalid union map (|map): First argument not callable.'
+        )
+    try:
+        return union(*map(function, iterable))
+    except LisscadError as exc:
+        raise LisscadError(f'Invalid union map (|map): {exc}') from exc
 
 
 def bilateral_symmetry_x(shape: LiteralExpression) -> Union2D | Union3D:

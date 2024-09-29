@@ -3,13 +3,18 @@
 from typing import Any, Type, cast
 
 import lisscad.data.inter as d
+from lisscad.exc import DimensionalityMismatchError, DimensionalityZeroError
 
 
 def dimensionality(
     verb_base: str, *expressions, verb_first='', verb_rest=''
 ) -> int:
     """Determine the common dimensionality of children."""
-    assert expressions
+    if not expressions:
+        raise DimensionalityZeroError(
+            f'Cannot {verb_rest or verb_base} without operands.'
+        )
+
     two: list[int] = []
     three: list[int] = []
 
@@ -35,7 +40,7 @@ def dimensionality(
             s += f' One, in place {two[0] + 1} of {len(expressions)}, is 2D.'
         elif len(two) != 1 and len(three) == 1:
             s += f' One, in place {three[0] + 1} of {len(expressions)}, is 3D.'
-        raise TypeError(s)
+        raise DimensionalityMismatchError(s)
 
     if two:
         return 2

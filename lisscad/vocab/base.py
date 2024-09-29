@@ -13,6 +13,7 @@ from typing import cast
 
 import lisscad.data.inter as d
 from lisscad.data.util import contain, dimensionality, matched, modify
+from lisscad.exc import DimensionalityError, LisscadError
 
 ############
 # INTERNAL #
@@ -100,7 +101,10 @@ def special(variable, *values: float | int) -> d.SpecialVariable:
 @_starred
 def union(*children: d.LiteralExpression | tuple[()]) -> d.Union2D | d.Union3D:
     some = _some(children)
-    return cast(d.Union2D | d.Union3D, contain(d.Union2D, d.Union3D, some))
+    try:
+        return cast(d.Union2D | d.Union3D, contain(d.Union2D, d.Union3D, some))
+    except DimensionalityError as exc:
+        raise LisscadError(f'Invalid union: {exc}') from exc
 
 
 @_starred

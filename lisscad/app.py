@@ -23,6 +23,7 @@ from rich.progress import Progress, TaskID
 
 from lisscad.data.inter import BaseExpression, LiteralExpression
 from lisscad.data.other import Asset
+from lisscad.exc import Failure
 from lisscad.misc import (
     DIR_RECENT,
     EXECUTABLE_OPENSCAD,
@@ -39,14 +40,6 @@ REPORTKEY_INSTRUCTION = 'instruction'
 REPORTKEY_PATH = 'output_path'
 REPORTKEY_STDOUT_STDERR = 'output_term'
 REPORTKEY_TRACEBACK = 'traceback'
-
-
-class Failure(Exception):
-    """A failure in transpilation or rendering."""
-
-    def __init__(self, message, **kwargs):
-        super().__init__(message)
-        self.description = kwargs
 
 
 ScadJob = tuple[Asset, Path]

@@ -15,7 +15,7 @@ more-itertools = "<=9"
 pytest = "*"
 mypy = "*"
 build = "*"
-black = "*"
+ruff = "*"
 
 [requires]
 python_version = "3.10"

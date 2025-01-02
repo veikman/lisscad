@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, cast
 
 from lisscad.data.inter import BaseExpression, LiteralExpression, Tuple3D
+from lisscad.exc import LisscadError
 from pydantic import PositiveFloat
 from pydantic.dataclasses import dataclass
 from pydantic.functional_validators import BeforeValidator
@@ -76,7 +77,9 @@ def _content_thunk(v: Any) -> Callable[[], tuple[LiteralExpression, ...]]:
     if isinstance(v, tuple):
         return lambda: cast(tuple[LiteralExpression, ...], v)
 
-    raise TypeError(f'{type(v)} cannot form the content of a lisscad asset.')
+    raise LisscadError(
+        f'{type(v)} cannot form the content of a lisscad asset.'
+    )
 
 
 def _modules_to_assets(

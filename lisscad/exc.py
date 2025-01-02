@@ -13,6 +13,10 @@ class Failure(LisscadError):
         self.description = kwargs
 
 
+class OperatorError(LisscadError):
+    """An invalid use of an operator like “+”."""
+
+
 class DimensionalityError(LisscadError):
     """An invalid dimensionality."""
 

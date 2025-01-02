@@ -3,7 +3,7 @@
 import re
 from contextlib import nullcontext as does_not_raise
 
-from lisscad.exc import LisscadError
+from lisscad.exc import DimensionalityMismatchError, LisscadError
 from lisscad.vocab.base import circle, sphere, translate, union
 from pytest import mark, raises
 
@@ -83,7 +83,7 @@ from pytest import mark, raises
             translate,
             ((), circle(1)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match='Cannot translate OpenSCAD expression with 0D argument ().',
             ),
         ),
@@ -92,7 +92,7 @@ from pytest import mark, raises
             translate,
             ((1,), circle(1)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match=re.escape(
                     'Cannot translate OpenSCAD expression with 1D argument (1,).'
                 ),
@@ -103,7 +103,7 @@ from pytest import mark, raises
             translate,
             ((1, 2), sphere(1)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match=re.escape(
                     'Cannot translate 3D OpenSCAD expression '
                     'with 2D argument (1, 2).'
@@ -115,7 +115,7 @@ from pytest import mark, raises
             translate,
             ((1, 2, 3), circle(1)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match=re.escape(
                     'Cannot translate 2D OpenSCAD expression '
                     'with 3D argument (1, 2, 3).'
@@ -127,7 +127,7 @@ from pytest import mark, raises
             translate,
             ((1, 2, 3, 4), circle(1)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match=re.escape(
                     'Cannot translate OpenSCAD expression '
                     'with 4D argument (1, 2, 3, 4).'
@@ -139,7 +139,7 @@ from pytest import mark, raises
             translate,
             ((1, 2, 3), circle(1), circle(2)),
             raises(
-                ValueError,
+                DimensionalityMismatchError,
                 match=re.escape(
                     'Cannot translate 2D OpenSCAD expressions '
                     'with 3D argument (1, 2, 3).'

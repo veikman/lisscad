@@ -9,6 +9,7 @@ from operator import sub as _sub
 from operator import truediv as _div
 
 from lisscad.data.inter import BaseExpression
+from lisscad.exc import OperatorError
 from lisscad.vocab.base import background, debug, difference, disable
 
 #############
@@ -24,7 +25,7 @@ def sub(*args):
     """Negate, subtract, or apply OpenSCAD’s difference operation."""
     if not args:
         # In Clojure, this is an ArityException.
-        raise Exception('“-” requires at least one operand.')
+        raise OperatorError('“-” requires at least one operand.')
     if _numeric(args):
         if len(args) == 1:
             return -args[0]
@@ -46,7 +47,7 @@ def mul(*args):
             return args[0]  # As in Clojure.
         return reduce(_mul, args)
     if len(args) != 1:
-        raise Exception('Non-numeric “*” requires exactly one operand.')
+        raise OperatorError('Non-numeric “*” requires exactly one operand.')
     return disable(*args)
 
 
@@ -61,7 +62,7 @@ def background_dict(*args):
     # Emulate hissp.macros.._macro_.% by imperative means.
     # Overwrite any repeated keys.
     if len(args) % 2 != 0:
-        raise Exception(
+        raise OperatorError(
             '“%” takes one OpenSCAD expression or an even number of arguments.'
         )
     coll = {}
@@ -96,7 +97,7 @@ def add(*args):
             return args[0]
         return tuple(starmap(add, zip(*args)))
     if not _numeric(args):
-        raise Exception('“+” is mathematical. Use “|” for unions.')
+        raise OperatorError('“+” is mathematical. Use “|” for unions.')
     if len(args) == 1:
         return args[0]  # As in Clojure.
     return reduce(_add, args)
@@ -106,7 +107,7 @@ def div(*args):
     """Divide. Numbers only."""
     if not args:
         # In Clojure, this is an ArityException.
-        raise Exception('“/” requires at least one operand.')
+        raise OperatorError('“/” requires at least one operand.')
     if len(args) == 1:
         return 1 / args[0]  # As in Clojure.
     return reduce(_div, args)

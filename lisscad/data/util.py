@@ -71,7 +71,7 @@ def matched(
     elif n0 == 3:
         n1 = 2
     else:
-        raise ValueError(
+        raise DimensionalityMismatchError(
             f'Cannot {verb} OpenSCAD expression{suffix} '
             f'with {n0}D argument {argument}.'
         )
@@ -79,7 +79,7 @@ def matched(
     if n0 == dimensionality(verb, *expressions):
         return n0
 
-    raise ValueError(
+    raise DimensionalityMismatchError(
         f'Cannot {verb} {n1}D OpenSCAD expression{suffix} '
         f'with {n0}D argument {argument}.'
     )
@@ -113,7 +113,7 @@ def _quote_value(value: Any) -> str:
     t = f'of type {type(value)!r}'
     try:
         value = str(value)
-    except Exception:
+    except (TypeError, ValueError):
         return t
 
     if len(value) > 30:

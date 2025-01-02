@@ -414,7 +414,7 @@ def children() -> d.ModuleChildren:
 
 
 def _some(
-    items: tuple[d.LiteralExpression | tuple[()], ...]
+    items: tuple[d.LiteralExpression | tuple[()], ...],
 ) -> tuple[d.LiteralExpression, ...]:
     return tuple(filter(lambda x: x != (), items))  # type: ignore[arg-type]
 

@@ -80,7 +80,7 @@ def _content_thunk(v: Any) -> Callable[[], tuple[LiteralExpression, ...]]:
 
 
 def _modules_to_assets(
-    v: Asset | tuple[Asset, ...] | list[Asset]
+    v: Asset | tuple[Asset, ...] | list[Asset],
 ) -> tuple[Asset, ...] | list[Asset]:
     """Accept and package a single dict or instance.
 

@@ -7,6 +7,7 @@ and strong introspection in applications.
 In this data model, angles are uniformly described in radians, as in scad-clj.
 
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field

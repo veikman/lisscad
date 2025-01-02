@@ -3,6 +3,7 @@
 import re
 from contextlib import nullcontext as does_not_raise
 
+from lisscad.exc import LisscadError
 from lisscad.vocab.base import circle, sphere, translate, union
 from pytest import mark, raises
 
@@ -44,7 +45,8 @@ from pytest import mark, raises
             union,
             (circle(1), sphere(2)),
             raises(
-                TypeError, match='Cannot contain mixed 2D and 3D expressions.$'
+                LisscadError,
+                match='Cannot contain mixed 2D and 3D expressions.$',
             ),
         ),
         (
@@ -52,7 +54,8 @@ from pytest import mark, raises
             union,
             (circle(1), sphere(1), circle(2), sphere(2)),
             raises(
-                TypeError, match='Cannot contain mixed 2D and 3D expressions.$'
+                LisscadError,
+                match='Cannot contain mixed 2D and 3D expressions.$',
             ),
         ),
         (
@@ -60,7 +63,7 @@ from pytest import mark, raises
             union,
             (circle(1), sphere(2), sphere(3)),
             raises(
-                TypeError,
+                LisscadError,
                 match='Cannot contain mixed 2D and 3D expressions. '
                 'One, in place 1 of 3, is 2D.',
             ),
@@ -70,7 +73,7 @@ from pytest import mark, raises
             union,
             (circle(1), circle(2), sphere(3)),
             raises(
-                TypeError,
+                LisscadError,
                 match='Cannot contain mixed 2D and 3D expressions. '
                 'One, in place 3 of 3, is 3D.',
             ),

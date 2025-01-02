@@ -75,7 +75,7 @@ def union_map(
     function: Callable[[Any], LiteralExpression],
     iterable: Iterable[LiteralExpression],
 ):
-    """The union of the outputs of a mapping.
+    """Unite the outputs of a mapping.
 
     Similar to an OpenSCAD for statement.
 

@@ -41,19 +41,24 @@ dependencies = [  # The following information is duplicated from Pipfile.
 dynamic = ['version']
 
 [project.scripts]
-lisscad = "lisscad.main:app"
+lisscad = 'lisscad.main:app'
 
 [tool.setuptools.dynamic]
-version = {attr = "lisscad.__version__"}
+version = {attr = 'lisscad.__version__'}
 
 [tool.ruff]
+exclude = [
+  'test/data/image/rendercalls.py',
+  'test/data/text/rendercalls.py',
+]
 line-length = 79
+
+[tool.ruff.lint]
+extend-select = ['D']
+ignore = ['D101', 'D102', 'D103', 'D105', 'D107', 'D203', 'D213']
 
 [tool.ruff.format]
 quote-style = 'single'
-
-[tool.flake8]
-extend-ignore = 'D102,D103,D105,D107,E203'
 
 [tool.mypy]
 plugins = ['pydantic.mypy']

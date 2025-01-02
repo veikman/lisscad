@@ -95,7 +95,13 @@ def write(
     _make_directories(dir_scad, dir_render if args.render else None)
 
     assets_paths = map(
-        partial(_prepare_assets, set(), dir_scad, next(_INVOCATION_ORDINAL)),
+        partial(
+            _prepare_assets,
+            set(),
+            dir_scad,
+            next(_INVOCATION_ORDINAL),
+            **kwargs,
+        ),
         zip(count(), protoasset),
     )
     for asset, file_scad in chain(*assets_paths):

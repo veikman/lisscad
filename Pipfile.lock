@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3b12a8c217b1ff2b723694a562e3447a0cb3901fddef94237d03c9cf008d12ad"
+            "sha256": "bfa02327a404ce54f20b2639c66568fd10361d0caadb070106900d6dd04cb732"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -34,11 +34,11 @@
         },
         "hissp": {
             "hashes": [
-                "sha256:438d7b6159fe6e57b26bcd6a267fda1f00174edbd52847d344226f4345279fd5"
+                "sha256:17600514161c2f72031a77ba13fa6b8c1e541ef864b606744537edc9915f1067"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==0.4.0"
+            "markers": "python_version >= '3.10'",
+            "version": "==0.5.0"
         },
         "inotify-simple": {
             "hashes": [

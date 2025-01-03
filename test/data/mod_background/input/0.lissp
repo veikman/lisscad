@@ -8,5 +8,4 @@
 
 ;; Dual use of % for a dict and the background modifier:
 (write (% "name" "dual_use"
-          "content" (lambda () (@ (| (% (sphere 3))
-                                     (sphere 2))))))
+          "content" (lambda () (@ (union (% (sphere 3)) (sphere 2))))))

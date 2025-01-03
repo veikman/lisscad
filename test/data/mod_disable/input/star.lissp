@@ -4,6 +4,7 @@
        (dict : name "3d" content (* (sphere 42)))
        (dict : name "maths" content (sphere (* 2 21)))
        (dict : name "unaliased" content (disable (sphere (* 2 3))))
-       (dict : name "mixed" content (| (disable (sphere (* 3 3)))
-                                       (* (sphere (* 4 4)))
-                                       (sphere (* 5 5)))))
+       (dict : name "mixed" content (union
+                                      (disable (sphere (* 3 3)))
+                                      (* (sphere (* 4 4)))
+                                      (sphere (* 5 5)))))

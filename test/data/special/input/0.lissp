@@ -2,4 +2,4 @@
 
 (write (@ ($fn 3)
           (translate '(20 0 0) (cylinder 10 20))
-          (| ($fn 4 5) (cylinder 10 20))))
+          (union ($fn 4 5) (cylinder 10 20))))

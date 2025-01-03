@@ -28,35 +28,32 @@
      (define % lisscad.op..background_dict)  ; Replace the Hissp prelude’s %.
      (delattr ,'_macro_ ','#)  ; Drop the Hissp prelude’s #.
      (define \# lisscad.op..debug_set)  ; Replace the Hissp prelude’s #.
-     ;; In Lissp, ! is a builtin reader macro; it cannot be dropped.
-     ;; The use of ! as in OpenSCAD therefore requires an escape.
      (define \! lisscad.vocab.base..root)
      ;; * inspects its arguments to do either multiplication or disable.
      (define * lisscad.op..mul)
 
      ;; Further single-character operators for OpenSCAD and maths:
-     (define | lisscad.vocab.base..union)
      (define & lisscad.vocab.base..intersection)
      (define + lisscad.op..add)
      (define - lisscad.op..sub)
      (define / lisscad.op..div)
 
      ;; Other helpers.
-     (define first get#0)
-     (define second get#1)
-     (define third get#2)
-     (define $fa ,(partial lisscad.vocab.base..special "$fa"))
-     (define $fn ,(partial lisscad.vocab.base..special "$fn"))
-     (define $fs ,(partial lisscad.vocab.base..special "$fs"))))
+     (define first &#!#0)
+     (define second &#!#1)
+     (define third &#!#2)
+     (define $fa ,(functools..partial lisscad.vocab.base..special "$fa"))
+     (define $fn ,(functools..partial lisscad.vocab.base..special "$fn"))
+     (define $fs ,(functools..partial lisscad.vocab.base..special "$fs"))))
 
 (defmacro lisp ()
   "Provide unambiguous aliases in kebab case, traditionally idiomatic for Lisp.
   This is a superset of the standard prelude."
   `(progn
      (standard)
-     (define call-module (partial lisscad.vocab.base..module : call True))
-     (define linear-extrude (partial lisscad.vocab.base..extrude : rotate False))
-     (define rotate-extrude (partial lisscad.vocab.base..extrude : rotate True))))
+     (define call-module (functools..partial lisscad.vocab.base..module : call True))
+     (define linear-extrude (functools..partial lisscad.vocab.base..extrude : rotate False))
+     (define rotate-extrude (functools..partial lisscad.vocab.base..extrude : rotate True))))
 
 (defmacro english ()
   "Patch over parts of the OpenSCAD vocabulary with more literal English.
@@ -72,7 +69,7 @@
      (define radiate lisscad.vocab.util..radiate)
      (define round lisscad.vocab.util..round)
      (define wafer lisscad.vocab.util..wafer)
-     (define |map lisscad.vocab.util..union_map)
+     (define union-map lisscad.vocab.util..union_map)
      (define bilateral-symmetry-x lisscad.vocab.util..bilateral_symmetry_x)
      (define bilateral-symmetry-y lisscad.vocab.util..bilateral_symmetry_y)
      (define bilateral-symmetry-z lisscad.vocab.util..bilateral_symmetry_z)

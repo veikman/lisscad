@@ -81,13 +81,11 @@ def union_map(
 
     """
     if not callable(function):
-        raise LisscadError(
-            'Invalid union map (|map): First argument not callable.'
-        )
+        raise LisscadError('Invalid union map: First argument not callable.')
     try:
         return union(*map(function, iterable))
     except LisscadError as exc:
-        raise LisscadError(f'Invalid union map (|map): {exc}') from exc
+        raise LisscadError(f'Invalid union map: {exc}') from exc
 
 
 def bilateral_symmetry_x(shape: LiteralExpression) -> Union2D | Union3D:

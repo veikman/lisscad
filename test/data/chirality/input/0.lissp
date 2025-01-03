@@ -14,9 +14,10 @@
            content (sphere 1)))
 
 (define console
-  (- (| (translate '(0 0 2) (cube '(2 1 5)))
-        (translate '(2 0 0) (cube '(5 2 1)))
-        (translate '(0 2 0) (cube '(1 5 2))))
+  (- (union
+       (translate '(0 0 2) (cube '(2 1 5)))
+       (translate '(2 0 0) (cube '(5 2 1)))
+       (translate '(0 2 0) (cube '(1 5 2))))
      (translate '(3 0 0) (module "screw" : call True))
      (translate '(0 0 3) (module "sprocket" : call True))))
 

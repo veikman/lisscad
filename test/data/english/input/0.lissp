@@ -1,13 +1,17 @@
 (lisscad.prelude.._macro_.english)
 
-(write (| (circle 1)
-          (translate '(5 0) (ellipse '(1 2))))
-       (| (square 1)
-          (translate '(5 0) (rectangle '(1 2))))
-       (| (sphere 2)
-          (translate '(5 0 0) (spheroid '(2 2 4))))
-       (| (cube 2)
-          (translate '(5 0 0) (cuboid '(1 2 1))))
+(write (union
+         (circle 1)
+         (translate '(5 0) (ellipse '(1 2))))
+       (union
+         (square 1)
+         (translate '(5 0) (rectangle '(1 2))))
+       (union
+         (sphere 2)
+         (translate '(5 0 0) (spheroid '(2 2 4))))
+       (union
+         (cube 2)
+         (translate '(5 0 0) (cuboid '(1 2 1))))
        (-<>> (cube 2)
          (left 1)
          (up 2)

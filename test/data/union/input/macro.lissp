@@ -1,4 +1,4 @@
 (lisscad.prelude.._macro_.standard)
 
 (write (dict : name "macro"
-               content (| (cube '(4 2 1)) (sphere 1))))
+               content (union (cube '(4 2 1)) (sphere 1))))

@@ -1,7 +1,7 @@
 (lisscad.prelude.._macro_.lisp)
 
 (define base (square '(2 8)))
-(define chamfer (partial offset : round False  chamfer True))
+(define chamfer &#(offset : round False  chamfer True))
 
 (write (@ (linear-extrude (square '(1 1)) : center False)
           (linear-extrude base : height 40 twist π)

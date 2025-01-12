@@ -22,6 +22,7 @@
 
      ;; Constants:
      (define ,'π math..pi)
+     (define ,'τ math..tau)
 
      ;; OpenSCAD’s single-character modifiers, {% # ! *}:
      (delattr ,'_macro_ ','%)  ; Drop the Hissp prelude’s %.

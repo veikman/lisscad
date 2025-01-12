@@ -30,7 +30,9 @@ def compile(c):
         'pipenv run python -c "'
         'from hissp import transpile; '
         'import lisscad; '
-        r'transpile(lisscad.__package__, \"prelude\")'
+        r'transpile(lisscad.__package__, \"prelude\"); '
+        'import lisscad.thread; '
+        r'transpile(lisscad.thread, \"_base\")'
         '"'
     )
 

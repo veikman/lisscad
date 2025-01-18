@@ -67,7 +67,9 @@ def round(
     if not shapes or ndigits is not None:
         assert not shapes
         return round_number(radius, ndigits=ndigits)
-    inner = offset(-radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes), **kwargs)
+    inner = offset(
+        -radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes), **kwargs
+    )
     return offset(radius, inner, **kwargs)
 
 
@@ -81,11 +83,11 @@ def union_map(
 
     """
     if not callable(function):
-        raise LisscadError("Invalid union map: First argument not callable.")
+        raise LisscadError('Invalid union map: First argument not callable.')
     try:
         return union(*map(function, iterable))
     except LisscadError as exc:
-        raise LisscadError(f"Invalid union map: {exc}") from exc
+        raise LisscadError(f'Invalid union map: {exc}') from exc
 
 
 def rotational_symmetry(
@@ -144,11 +146,13 @@ def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
 def _check_rotation_symmetry(angle: float | int) -> None:
     """Smoke-check passed angle."""
     if not angle:
-        raise ValueError("Rotational symmetry requires a non-zero angle.")
+        raise ValueError('Rotational symmetry requires a non-zero angle.')
     if angle < 0:
-        raise ValueError("Rotational symmetry requires a positive angle.")
+        raise ValueError('Rotational symmetry requires a positive angle.')
     if angle > pi:
-        raise ValueError("Rotational symmetry requires an angle of at most π radians.")
+        raise ValueError(
+            'Rotational symmetry requires an angle of at most π radians.'
+        )
 
 
 def _prepare_rotational_symmetry(
@@ -166,17 +170,19 @@ def _prepare_rotational_symmetry(
 
     candidates = [a for a in angles if a]
     if not candidates:
-        raise ValueError("3D rotational symmetry requires an angle.")
+        raise ValueError('3D rotational symmetry requires an angle.')
 
     if len(candidates) > 1:
-        raise ValueError("Multi-planar rotational symmetry is not supported.")
+        raise ValueError('Multi-planar rotational symmetry is not supported.')
 
     if len(angles) != 3:
         raise ValueError(
-            "3D rotational symmetry requires a 3-tuple of angles. "
-            "Exactly one of them must be non-zero."
+            '3D rotational symmetry requires a 3-tuple of angles. '
+            'Exactly one of them must be non-zero.'
         )
 
     angle = candidates[0]
     _check_rotation_symmetry(angle)
-    return lambda i: cast(Tuple3D, tuple(i * a for a in angles)), int(tau / angle)
+    return lambda i: cast(Tuple3D, tuple(i * a for a in angles)), int(
+        tau / angle
+    )

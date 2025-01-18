@@ -1,6 +1,7 @@
 """Utilities built on top of OpenSCAD."""
 
 from builtins import round as round_number
+from math import pi, tau
 from typing import Any, Callable, Iterable, cast
 
 import more_itertools as mi
@@ -10,11 +11,12 @@ from lisscad.data.inter import (
     LiteralExpression,
     LiteralExpressionNon3D,
     RoundedOffset,
+    Tuple3D,
     Union2D,
     Union3D,
 )
 from lisscad.exc import LisscadError
-from lisscad.vocab.base import hull, mirror, offset, union
+from lisscad.vocab.base import hull, mirror, offset, rotate, union
 
 μm = 0.001
 
@@ -65,15 +67,13 @@ def round(
     if not shapes or ndigits is not None:
         assert not shapes
         return round_number(radius, ndigits=ndigits)
-    inner = offset(
-        -radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes), **kwargs
-    )
+    inner = offset(-radius, *cast(tuple[LiteralExpressionNon3D, ...], shapes), **kwargs)
     return offset(radius, inner, **kwargs)
 
 
 def union_map(
     function: Callable[[Any], LiteralExpression],
-    iterable: Iterable[LiteralExpression],
+    iterable: Iterable[float | int | LiteralExpression],
 ):
     """Unite the outputs of a mapping.
 
@@ -81,11 +81,27 @@ def union_map(
 
     """
     if not callable(function):
-        raise LisscadError('Invalid union map: First argument not callable.')
+        raise LisscadError("Invalid union map: First argument not callable.")
     try:
         return union(*map(function, iterable))
     except LisscadError as exc:
-        raise LisscadError(f'Invalid union map: {exc}') from exc
+        raise LisscadError(f"Invalid union map: {exc}") from exc
+
+
+def rotational_symmetry(
+    angles: float | int | Tuple3D, *children: LiteralExpression
+) -> Union2D | Union3D:
+    """Rotate copies."""
+    turn_angle, number_of_turns = _prepare_rotational_symmetry(angles)
+
+    def turn_copy(index: int) -> LiteralExpression:
+        if index:
+            return rotate(turn_angle(index), *children)
+        if len(children) > 1:
+            return union(*children)
+        return children[0]
+
+    return union_map(turn_copy, range(number_of_turns))
 
 
 def bilateral_symmetry_x(shape: LiteralExpression) -> Union2D | Union3D:
@@ -118,3 +134,49 @@ def bilateral_symmetry_z(shape: LiteralExpression) -> Union2D | Union3D:
 def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
     """Keep shape adding quadrilateral symmetry. Four copies in total."""
     return bilateral_symmetry_y(bilateral_symmetry_x(shape))
+
+
+############
+# INTERNAL #
+############
+
+
+def _check_rotation_symmetry(angle: float | int) -> None:
+    """Smoke-check passed angle."""
+    if not angle:
+        raise ValueError("Rotational symmetry requires a non-zero angle.")
+    if angle < 0:
+        raise ValueError("Rotational symmetry requires a positive angle.")
+    if angle > pi:
+        raise ValueError("Rotational symmetry requires an angle of at most π radians.")
+
+
+def _prepare_rotational_symmetry(
+    angles: float | int | Tuple3D,
+) -> tuple[Callable[[int], float | int | Tuple3D], int]:
+    """Check and tune parameters for rotational symmetry.
+
+    Return a function for calculating the angle of rotation at each step, and
+    the total number of steps.
+
+    """
+    if isinstance(angles, (float, int)):
+        _check_rotation_symmetry(angles)
+        return lambda i: i * angles, int(tau / angles)
+
+    candidates = [a for a in angles if a]
+    if not candidates:
+        raise ValueError("3D rotational symmetry requires an angle.")
+
+    if len(candidates) > 1:
+        raise ValueError("Multi-planar rotational symmetry is not supported.")
+
+    if len(angles) != 3:
+        raise ValueError(
+            "3D rotational symmetry requires a 3-tuple of angles. "
+            "Exactly one of them must be non-zero."
+        )
+
+    angle = candidates[0]
+    _check_rotation_symmetry(angle)
+    return lambda i: cast(Tuple3D, tuple(i * a for a in angles)), int(tau / angle)

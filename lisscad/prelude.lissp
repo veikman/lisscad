@@ -71,6 +71,7 @@
      (define ,'round lisscad.vocab.util..round)
      (define ,'wafer lisscad.vocab.util..wafer)
      (define ,'union-map lisscad.vocab.util..union_map)
+     (define ,'rotational-symmetry lisscad.vocab.util..rotational_symmetry)
      (define ,'bilateral-symmetry-x lisscad.vocab.util..bilateral_symmetry_x)
      (define ,'bilateral-symmetry-y lisscad.vocab.util..bilateral_symmetry_y)
      (define ,'bilateral-symmetry-z lisscad.vocab.util..bilateral_symmetry_z)

@@ -1,0 +1,8 @@
+(lisscad.prelude.._macro_.english-util)
+
+(write (% "name" "180"
+          "content" (rotational-symmetry π (translate (@ 6 2) (rectangle '(10 5)))))
+       (% "name" "120"
+          "content" (rotational-symmetry (* (/ 2 3) π) (rectangle '(10 2))))
+       (% "name" "y"
+          "content" (rotational-symmetry (@ 0 (/ τ 5) 0) (right 6 (cuboid '(10 1 2))))))

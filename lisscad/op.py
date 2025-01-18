@@ -97,7 +97,7 @@ def add(*args):
             return args[0]
         return tuple(starmap(add, zip(*args)))
     if not _numeric(args):
-        raise OperatorError('“+” is mathematical. Use “|” for unions.')
+        raise OperatorError('“+” is mathematical. Use “union” for unions.')
     if len(args) == 1:
         return args[0]  # As in Clojure.
     return reduce(_add, args)

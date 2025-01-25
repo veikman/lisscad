@@ -16,7 +16,7 @@ in OpenSCAD, and shorthand for OpenSCAD’s functions inspired by SolidPython.
 | `%` | Infix modulo; backgrounding modifier | Infix modulo; string formatting | Hash-map literal | N/A | Hash-map literal; OpenSCAD modifier |
 | `#` | Debug modifier | Comment | Strings that process Python escapes; set (collection) literal | Anonymous functions | Python string escapes; set literal; OpenSCAD modifier |
 | `&` | N/A | AND | N/A | Argument to anonymous function | OpenSCAD `intersection` |
-| `!` | Root modifier and negation | Negation as part of `!=` | Extra (reader macro) | N/A | OpenSCAD modifier, but it must be escaped (`\!`) |
+| `!` | Root modifier and negation | Negation as part of `!=` | Extra (reader macro) | N/A | OpenSCAD modifier |
 | `@` | N/A | Matrix multiplication | List literal | Atom `deref` | List literal |
 | `^` | Exponentiation | XOR | N/A | Metadata | N/A (undecided) |
 

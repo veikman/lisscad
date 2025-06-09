@@ -1,0 +1,13 @@
+(lisscad.prelude.._macro_.english-util)
+
+;; Basic fillet building outward and upward.
+(write (union
+         (fillet 5 (circle 10))
+         ;; Illustration of the pillar anchored by the fillet.
+         (% (up 5 (cylinder 10 10)))))
+
+;; Inward and upward.
+(write (union
+         (fillet -5 (circle 10))
+         (% (- (up 2.5 (cuboid (@ 25 25 5)))
+               (cylinder 10 20)))))

@@ -1,22 +1,35 @@
 """Utilities built on top of OpenSCAD."""
 
 from builtins import round as round_number
-from math import pi, tau
-from typing import Any, Callable, Iterable, cast
+from math import pi, tau, ceil, sqrt
+from typing import Callable, Iterable, cast, Generator, TypeVar
 
+from functools import partial
 import more_itertools as mi
+from itertools import pairwise
 from lisscad.data.inter import (
     AngledOffset,
-    LinearExtrusion,
     LiteralExpression,
     LiteralExpressionNon3D,
     RoundedOffset,
     Tuple3D,
+    LinearExtrusion,
     Union2D,
     Union3D,
 )
 from lisscad.exc import LisscadError
-from lisscad.vocab.base import hull, mirror, offset, rotate, union
+from lisscad.vocab.base import (
+    hull,
+    mirror,
+    offset,
+    rotate,
+    union,
+    extrude,
+    difference,
+)
+
+
+T = TypeVar('T')
 
 μm = 0.001
 
@@ -73,9 +86,37 @@ def round(
     return offset(radius, inner, **kwargs)
 
 
+def fillet(
+    max_offset: float,
+    *shapes: LiteralExpressionNon3D,
+    height: float | None = None,
+    step_count: int | None = None,
+    step_height: float | None = None,
+) -> Union3D:
+    """Extrude passed 2D shape into a fillet.
+
+    The fillet has a number of steps given by step_count.
+    In future, this may instead be governed by the “$fn” variable.
+
+    """
+    if height is None:
+        height = abs(max_offset)
+    if step_count is None:
+        step_count = ceil(max(abs(max_offset), abs(height))) + 1
+    if step_height is None:
+        step_height = abs(height) / step_count
+
+    return union_map(
+        partial(_fillet_step, max_offset, shapes),
+        pairwise(
+            _generate_fillet_steps(max_offset, height, step_count, step_height)
+        ),
+    )
+
+
 def union_map(
-    function: Callable[[Any], LiteralExpression],
-    iterable: Iterable[float | int | LiteralExpression],
+    function: Callable[[T], LiteralExpression],
+    iterable: Iterable[T],
 ):
     """Unite the outputs of a mapping.
 
@@ -141,6 +182,40 @@ def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
 ############
 # INTERNAL #
 ############
+
+
+def _fillet_step(
+    max_offset: float,
+    shapes: tuple[LiteralExpressionNon3D, ...],
+    coordinate_pairs: tuple[tuple[float, float], tuple[float, float]],
+) -> LinearExtrusion:
+    c0, c1 = coordinate_pairs
+    offset1, height1 = c1
+    if max_offset > 0:
+        # Overlapping plateaux form a sequence of steps. Ignore c0.
+        return extrude(offset(offset1, *shapes), height=height1)
+    # A bowl shape. Each step must be subtracted from the next one.
+    offset0, height0 = c0
+    return extrude(
+        difference(offset(offset0, *shapes), offset(offset1, *shapes)),
+        height=height1,
+    )
+
+
+def _generate_fillet_steps(
+    max_x, max_y, step_count, step_height
+) -> Generator[tuple[float, float], None, None]:
+    """Generate xy-coordinate pairs along a 90-degree arc.
+
+    The arc approximates one quarter of an ellipse with max_x and max_y as its
+    semi-axes, by adding coefficients to the Pythagorean theorem on a unit
+    circle.
+
+    """
+    for i in range(step_count + 1):
+        y = 1 + max_y - i * step_height
+        x = max_x * (1 - sqrt(1 - (i / step_count) ** 2))
+        yield (x, y)
 
 
 def _check_rotation_symmetry(angle: float | int) -> None:

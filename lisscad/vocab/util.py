@@ -4,9 +4,8 @@ from builtins import round as round_number
 from math import pi, tau, ceil, sqrt
 from typing import Callable, Iterable, cast, Generator, TypeVar
 
-from functools import partial
-import more_itertools as mi
 from itertools import pairwise
+import more_itertools as mi
 from lisscad.data.inter import (
     AngledOffset,
     LiteralExpression,
@@ -19,6 +18,7 @@ from lisscad.data.inter import (
 )
 from lisscad.exc import LisscadError
 from lisscad.vocab.base import (
+    translate,
     hull,
     mirror,
     offset,
@@ -106,11 +106,20 @@ def fillet(
     if step_height is None:
         step_height = abs(height) / step_count
 
-    return union_map(
-        partial(_fillet_step, max_offset, shapes),
-        pairwise(
-            _generate_fillet_steps(max_offset, height, step_count, step_height)
-        ),
+    assert max_offset  # Operation meaningless if zero.
+    assert height  # Operation meaningless if zero.
+    assert step_count >= 1
+
+    return union(
+        *_extrude_fillet_steps(
+            max_offset,
+            height,
+            step_height,
+            shapes,
+            _generate_fillet_xy_coordinates(
+                abs(max_offset), abs(height), step_count, step_height
+            ),
+        )
     )
 
 
@@ -184,25 +193,50 @@ def bilateral_symmetry_xy(shape: LiteralExpression) -> Union2D | Union3D:
 ############
 
 
-def _fillet_step(
+def _extrude_fillet_steps(
     max_offset: float,
+    total_height: float,
+    step_height: float,
     shapes: tuple[LiteralExpressionNon3D, ...],
-    coordinate_pairs: tuple[tuple[float, float], tuple[float, float]],
+    coordinate_pairs: Iterable[tuple[float, float]],
 ) -> LinearExtrusion:
-    c0, c1 = coordinate_pairs
-    offset1, height1 = c1
-    if max_offset > 0:
-        # Overlapping plateaux form a sequence of steps. Ignore c0.
-        return extrude(offset(offset1, *shapes), height=height1)
-    # A bowl shape. Each step must be subtracted from the next one.
-    offset0, height0 = c0
-    return extrude(
-        difference(offset(offset0, *shapes), offset(offset1, *shapes)),
-        height=height1,
-    )
+    for c0, c1 in pairwise(coordinate_pairs):
+        offset0, height0 = c0
+        offset1, _ = c1
+        if max_offset > 0:
+            if total_height > 0:
+                # Overlapping plateaux form a sequence of steps. Ignore c0.
+                yield extrude(offset(offset1, *shapes), height=height0)
+                continue
+            else:
+                yield translate(
+                    [0, 0, -height0],
+                    extrude(offset(offset1, *shapes), height=height0),
+                )
+                continue
+        # Negative max_offset. A bowl shape. Each step must be subtracted from
+        # the next one.
+        if total_height > 0:
+            yield extrude(
+                difference(
+                    offset(-offset0, *shapes), offset(-offset1, *shapes)
+                ),
+                height=height0,
+            )
+            continue
+        # Negative max_offset and total_height. The bowl is upside down.
+        yield translate(
+            [0, 0, -height0],
+            extrude(
+                difference(
+                    offset(-offset0, *shapes), offset(-offset1, *shapes)
+                ),
+                height=height0,
+            ),
+        )
 
 
-def _generate_fillet_steps(
+def _generate_fillet_xy_coordinates(
     max_x, max_y, step_count, step_height
 ) -> Generator[tuple[float, float], None, None]:
     """Generate xy-coordinate pairs along a 90-degree arc.
@@ -213,7 +247,7 @@ def _generate_fillet_steps(
 
     """
     for i in range(step_count + 1):
-        y = 1 + max_y - i * step_height
+        y = max(max_y, 0) - i * step_height
         x = max_x * (1 - sqrt(1 - (i / step_count) ** 2))
         yield (x, y)
 

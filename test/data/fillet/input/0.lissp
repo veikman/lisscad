@@ -6,8 +6,25 @@
          ;; Illustration of the pillar anchored by the fillet.
          (% (up 5 (cylinder 10 10)))))
 
+;; Outward and upward again but to a non-default height.
+(write (union
+         (fillet 5 (square 20) : height 10)
+         ;; Illustration of the block anchored by the fillet.
+         (% (up 10 (cube 20)))))
+
 ;; Inward and upward.
 (write (union
          (fillet -5 (circle 10))
          (% (- (up 2.5 (cuboid (@ 25 25 5)))
                (cylinder 10 20)))))
+
+;; Inward and downward.
+(write (union
+         (fillet -5 (circle 10) : height -5)
+         (% (- (down 2.5 (cuboid (@ 25 25 5)))
+               (cylinder 10 20)))))
+
+;; Outward and downward.
+(write (union
+         (fillet 5 (circle 10) : height -5)
+         (% (down 5 (cylinder 10 10)))))

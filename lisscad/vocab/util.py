@@ -104,12 +104,17 @@ def fillet(
     if height is None:
         height = abs(max_offset)
     if step_count is None:
-        step_count = ceil(max(abs(max_offset), abs(height))) + 1
+        if step_height is None:
+            # Use the maximum extent of the fillet in either dimension.
+            step_count = ceil(max(abs(max_offset), abs(height))) + 1
+        else:
+            step_count = ceil(abs(height) / step_height)
     if step_height is None:
         step_height = abs(height) / step_count
 
     assert max_offset  # Operation meaningless if zero.
     assert height  # Operation meaningless if zero.
+    assert step_height > 0
     assert step_count >= 1
 
     return union_map(

@@ -106,7 +106,7 @@ def fillet(
     if step_count is None:
         if step_height is None:
             # Use the maximum extent of the fillet in either dimension.
-            step_count = ceil(max(abs(max_offset), abs(height))) + 1
+            step_count = ceil(max(abs(max_offset), abs(height)))
         else:
             step_count = ceil(abs(height) / step_height)
     if step_height is None:
@@ -234,7 +234,11 @@ def _extrude_fillet_step(
 def _generate_fillet_xy_coordinates(
     max_x, max_y, step_count, step_height
 ) -> Generator[tuple[float, float], None, None]:
-    """Generate xy-coordinate pairs along a 90-degree arc.
+    """Generate step_count + 1 xy-coordinate pairs along a 90-degree arc.
+
+    The reason for the extra pair is that the caller is expected to build
+    the steps of the fillet by looping over the pairs, two at a time, for
+    step_count pairs of coordinate pairs.
 
     The arc approximates one quarter of an ellipse with max_x and max_y as its
     semi-axes, by adding coefficients to the Pythagorean theorem on a unit

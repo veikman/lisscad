@@ -48,8 +48,8 @@ version = {attr = 'lisscad.__version__'}
 
 [tool.ruff]
 exclude = [
-  'test/data/image/rendercalls.py',
-  'test/data/text/rendercalls.py',
+    'test/data/image/rendercalls.py',
+    'test/data/text/rendercalls.py',
 ]
 line-length = 79
 
@@ -67,15 +67,15 @@ show_error_codes = true
 [[tool.mypy.overrides]]
 # The following should be checked periodically in case they appear on typeshed.
 module = [
-  'hissp.reader',
-  'inotify_simple',
-  'invoke',
+    'hissp.reader',
+    'inotify_simple',
+    'invoke',
 ]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Ignore generated code.
 module = [
-  'lisscad.prelude',
+    'lisscad.prelude',
 ]
 ignore_errors = true

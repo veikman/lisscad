@@ -5,54 +5,44 @@ union() {
                 offset(r=0) {
                     circle(r=10);
                 };
-                offset(r=-0.06993351408365323) {
+                offset(r=-0.10102051443364402) {
                     circle(r=10);
                 };
             };
         };
-        linear_extrude(height=4.166666666666667) {
+        linear_extrude(height=4) {
             difference() {
-                offset(r=-0.06993351408365323) {
+                offset(r=-0.10102051443364402) {
                     circle(r=10);
                 };
-                offset(r=-0.2859547920896832) {
+                offset(r=-0.41742430504416006) {
                     circle(r=10);
                 };
             };
         };
-        linear_extrude(height=3.333333333333333) {
+        linear_extrude(height=3) {
             difference() {
-                offset(r=-0.2859547920896832) {
+                offset(r=-0.41742430504416006) {
                     circle(r=10);
                 };
-                offset(r=-0.669872981077807) {
+                offset(r=-0.9999999999999998) {
                     circle(r=10);
                 };
             };
         };
-        linear_extrude(height=2.5) {
+        linear_extrude(height=2) {
             difference() {
-                offset(r=-0.669872981077807) {
+                offset(r=-0.9999999999999998) {
                     circle(r=10);
                 };
-                offset(r=-1.2732200375003506) {
+                offset(r=-2.000000000000001) {
                     circle(r=10);
                 };
             };
         };
-        linear_extrude(height=1.6666666666666665) {
+        linear_extrude(height=1) {
             difference() {
-                offset(r=-1.2732200375003506) {
-                    circle(r=10);
-                };
-                offset(r=-2.236146008037167) {
-                    circle(r=10);
-                };
-            };
-        };
-        linear_extrude(height=0.833333333333333) {
-            difference() {
-                offset(r=-2.236146008037167) {
+                offset(r=-2.000000000000001) {
                     circle(r=10);
                 };
                 offset(r=-5) {

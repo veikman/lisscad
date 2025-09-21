@@ -1,45 +1,36 @@
 (lisscad.prelude.._macro_.english-util)
 
-;; Basic fillet building outward and upward.
-(write (union
-         (fillet 5 (circle 10))
-         ;; Illustration of the pillar anchored by the fillet.
-         (% (up 5 (cylinder 10 10)))))
-
-;; Outward and upward again but to a non-default height.
-(write (union
-         (fillet 5 (square 20) : height 10)
-         ;; Illustration of the block anchored by the fillet.
-         (% (up 10 (cube 20)))))
-
-;; Inward and upward.
-(write (union
-         (fillet -5 (circle 10))
-         (% (- (up 2.5 (cuboid (@ 25 25 5)))
-               (cylinder 10 20)))))
-
-;; Inward and downward.
-(write (union
-         (fillet -5 (circle 10) : height -5)
-         (% (- (down 2.5 (cuboid (@ 25 25 5)))
-               (cylinder 10 20)))))
-
-;; Outward and downward.
-(write (union
-         (fillet 5 (circle 10) : height -5)
-         (% (down 5 (cylinder 10 10)))))
-
-;; Less symmetry.
-(write (&
-         (union
-           ;; Small shape, smaller offset than height, and low resolution.
-           (up 11 (fillet 3 (circle 0.01) : height -21  step_height 4))
-           (-
-              ;; Small max_offset and high resolution.
-              (fillet 1 (circle 10.5) : height 4  step_height 0.1)
-              ;; Negative space for the final fillet.
-              (extrude (circle 10) : height 3))
-           ;; Default step height when abs(max_offset) != abs(height).
-           (up 3 (fillet -9 (circle 10) : height -3)))
-         ;; Cutaway.
-         (right 50 (cube 100))))
+(write
+  (% "name" "outward-and-upward"
+     "content" (union
+                 (fillet 5 (circle 10))
+                 ;; Illustration of the pillar anchored by the fillet.
+                 (% (up 5 (cylinder 10 10)))))
+  (% "name" "inward-and-upward"
+     "content" (union
+                 (fillet -5 (circle 10))
+                 (% (- (up 2.5 (cuboid (@ 25 25 5)))
+                       (cylinder 10 20)))))
+  (% "name" "inward-and-downward"
+     "content" (union
+                 (fillet -5 (circle 10) : height -5)
+                 (% (- (down 2.5 (cuboid (@ 25 25 5)))
+                       (cylinder 10 20)))))
+  (% "name" "outward-and-downward"
+     "content" (union
+                 (fillet 5 (circle 10) : height -5)
+                 (% (down 5 (cylinder 10 10)))))
+  (% "name" "cutaway"
+     "content" (&
+                 (union
+                   ;; Small shape, smaller offset than height, and low resolution.
+                   (up 11 (fillet 3 (circle 0.01) : height -21  step_height 4))
+                   (-
+                      ;; Small max_offset and high resolution.
+                      (fillet 1 (square 20.5) : height 4  step_height 0.1)
+                      ;; Negative space for the final fillet.
+                      (extrude (circle 10) : height 3))
+                   ;; Default step height when abs(max_offset) != abs(height).
+                   (up 3 (fillet -9 (circle 10) : height -3)))
+                 ;; Cutaway.
+                 (right 50 (cube 100)))))

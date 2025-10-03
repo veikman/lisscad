@@ -49,7 +49,7 @@ def cylindroid(radius0: float, radius1: float, height: float, **kwargs):
     """Define an elliptic cylinder aligned with the coordinate axes.
 
     radius0 here is the radius of the elliptic profile on the x axis, not at
-    the base. For a shape that gets wider or narrow, see frustum.
+    the base. For a shape that gets wider or narrower, see frustum.
 
     """
     # This may change to a centred extrusion.

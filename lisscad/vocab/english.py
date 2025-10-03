@@ -25,9 +25,15 @@ def square(side: float, **kwargs):
 rectangle = base.square
 
 
-def spheroid(size: d.Tuple3D, **kwargs) -> d.Size3D:
+def spheroid(radii: d.Tuple3D, **kwargs) -> d.Size3D:
     """Define a tri-axial ellipsoid aligned with the coordinate axes."""
-    return cast(d.Size3D, base.resize(size, base.sphere(max(size), **kwargs)))
+    return cast(
+        d.Size3D,
+        base.resize(
+            tuple(2 * r for r in radii),
+            base.sphere(max(radii), **kwargs),
+        ),
+    )
 
 
 def cube(side: float, **kwargs):

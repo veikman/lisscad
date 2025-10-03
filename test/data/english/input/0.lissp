@@ -7,7 +7,7 @@
          (square 1)
          (translate '(5 0) (rectangle '(1 2))))
        (union
-         (sphere 2)
+         (sphere 4)
          (translate '(5 0 0) (spheroid '(2 2 4))))
        (union
          (cube 2)

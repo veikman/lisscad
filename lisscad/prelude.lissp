@@ -72,6 +72,7 @@
      (define ,'fillet lisscad.vocab.util..fillet)
      (define ,'wafer lisscad.vocab.util..wafer)
      (define ,'union-map lisscad.vocab.util..union_map)
+     (define ,'+map lisscad.vocab.util..union_map)  ; Synonym.
      (define ,'rotational-symmetry lisscad.vocab.util..rotational_symmetry)
      (define ,'bilateral-symmetry-x lisscad.vocab.util..bilateral_symmetry_x)
      (define ,'bilateral-symmetry-y lisscad.vocab.util..bilateral_symmetry_y)

@@ -57,7 +57,8 @@ def cylindroid(radius0: float, radius1: float, height: float, **kwargs):
     return cast(
         d.Size3D,
         base.resize(
-            (*profile, height), base.cylinder(max(profile), height, **kwargs)
+            (*(2 * p for p in profile), height),
+            base.cylinder(max(profile), height, **kwargs),
         ),
     )
 

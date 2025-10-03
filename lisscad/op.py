@@ -10,7 +10,7 @@ from operator import truediv as _div
 
 from lisscad.data.inter import BaseExpression
 from lisscad.exc import OperatorError
-from lisscad.vocab.base import background, debug, difference, disable
+from lisscad.vocab.base import background, debug, difference, disable, union
 
 #############
 # AGNOSTICS #
@@ -19,6 +19,22 @@ from lisscad.vocab.base import background, debug, difference, disable
 # Functions to act upon numbers and OpenSCAD expressions:
 # By design, for the sake of functional-programming simplicity, these are
 # variary and do not use Python’s object-oriented magic methods.
+
+
+def add(*args):
+    """Add or apply OpenSCAD’s union operation."""
+    if not args:
+        return 0  # As in Clojure.
+    if _numeric(args):
+        if len(args) == 1:
+            return args[0]  # As in Clojure.
+        return reduce(_add, args)
+    if _1dmatrices(args):
+        if len(args) == 1:
+            return args[0]
+        return tuple(starmap(add, zip(*args)))
+    # Arguments are not all numeric. Fall back to OpenSCAD model.
+    return union(*args)
 
 
 def sub(*args):
@@ -34,7 +50,6 @@ def sub(*args):
         if len(args) == 1:
             return tuple(-n for n in args[0])
         return tuple(starmap(sub, zip(*args)))
-    # Arguments are not all numeric. Fall back to OpenSCAD model.
     return difference(*args)
 
 
@@ -86,21 +101,6 @@ def debug_set(arg, *args):
 
 # Where there is little risk of confusion, these functions are overloadable by
 # Python’s object-oriented magic methods.
-
-
-def add(*args):
-    """Add. Numbers and one-dimensional matrices only."""
-    if not args:
-        return 0  # As in Clojure.
-    if _1dmatrices(args):
-        if len(args) == 1:
-            return args[0]
-        return tuple(starmap(add, zip(*args)))
-    if not _numeric(args):
-        raise OperatorError('“+” is mathematical. Use “union” for unions.')
-    if len(args) == 1:
-        return args[0]  # As in Clojure.
-    return reduce(_add, args)
 
 
 def div(*args):

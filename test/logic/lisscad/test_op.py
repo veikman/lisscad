@@ -2,7 +2,7 @@
 
 from pytest import mark
 
-from lisscad.data.inter import Circle, Difference2D, Disable2D
+from lisscad.data.inter import Circle, Difference2D, Disable2D, Union2D, Square
 from lisscad.op import add, div, mul, sub
 
 
@@ -29,10 +29,11 @@ from lisscad.op import add, div, mul, sub
         (((2, 2), (2, 1)), (4, 3)),
         (((2, 2), (2, 1), (0, 2)), (4, 5)),
         (((0, 10, 0), (2, 1, 0), (-1, -1, -1)), (1, 10, -1)),
+        ((Circle(23), Square(40)), Union2D((Circle(23), Square(40)))),
     ],
 )
 def test_add(args, oracle):
-    """Check that add works as in Clojure."""
+    """Check that addition is agnostic."""
     assert add(*args) == oracle
 
 

@@ -9,7 +9,7 @@ in OpenSCAD, and shorthand for OpenSCAD’s functions inspired by SolidPython.
 
 | Operator | OpenSCAD | Python | Lissp | Clojure | `lisscad` |
 | -------- | -------- | ------ | ----- | ------- | --------- |
-| `+` | Infix addition | Infix addition | N/A | Variary addition | Variary addition |
+| `+` | Infix addition | Infix addition | N/A | Variary addition | Variary addition; OpenSCAD `union` |
 | `-` | Infix subtraction | Infix subtraction | N/A | Variary subtraction | Variary subtraction; OpenSCAD `difference` |
 | `*` | Infix multiplication; disabling modifier | Infix multiplication | N/A | Variary multiplication | Variary multiplication; OpenSCAD modifier |
 | `/` | Infix true division | Infix true division | N/A | Variary true division | Variary true division |

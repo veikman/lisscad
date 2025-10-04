@@ -20,5 +20,8 @@ in OpenSCAD, and shorthand for OpenSCAD’s functions inspired by SolidPython.
 | `@` | N/A | Matrix multiplication | List literal | Atom `deref` | List literal |
 | `^` | Exponentiation | XOR | N/A | Metadata | N/A (undecided) |
 
+For modulo in `lisscad`, use `op#mod`, which is short for `operator.mod` in
+Python’s standard library.
+
 Note: The pipe character, `|`, was used for `union` in `lisscad` until `hissp`
 0.5.0 reserved that character for fragment tokens.

@@ -5,6 +5,17 @@
 ;; Define macros for use in defining macros in this module.
 (hissp.macros.._macro_.prelude)
 
+(defun recase-kwargs (f)
+  "Replace kebab-cased keyword arguments with their equivalents in snake case.
+  This function is for internal use, providing Lisp-friendly access to a Python
+  back end (here, the callable f) where dashes are syntactically invalid."
+  ((functools..wraps f)
+   (lambda (: :* args :** kwargs)
+     (f : :* args
+          :** (dict (map X#(@ (.replace |X[0]| (H#munge "-") "_")
+                              |X[1]|)
+                         (.items kwargs)))))))
+
 (defmacro standard ()
   "Provide an OpenSCAD-like API with added consistency, safety and convenience."
   ;; This is in part a macro of macros, built to be evaluated in the context of
@@ -69,7 +80,7 @@
      (define ,'sliding-hull lisscad.vocab.util..sliding_hull)
      (define ,'radiate lisscad.vocab.util..radiate)
      (define ,'round lisscad.vocab.util..round)
-     (define ,'fillet lisscad.vocab.util..fillet)
+     (define ,'fillet (recase-kwargs lisscad.vocab.util..fillet))
      (define ,'wafer lisscad.vocab.util..wafer)
      (define ,'union-map lisscad.vocab.util..union_map)
      (define ,'+map lisscad.vocab.util..union_map)  ; Synonym.

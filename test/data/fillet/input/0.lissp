@@ -24,10 +24,10 @@
      "content" (&
                  (union
                    ;; Small shape, smaller offset than height, and low resolution.
-                   (up 11 (fillet 3 (circle 0.01) : height -21  step_height 4))
+                   (up 11 (fillet 3 (circle 0.01) : height -21  step-height 4))
                    (-
                       ;; Small max_offset and high resolution.
-                      (fillet 1 (square 20.5) : height 4  step_height 0.1)
+                      (fillet 1 (square 20.5) : height 4  step-height 0.1)
                       ;; Negative space for the final fillet.
                       (extrude (circle 10) : height 3))
                    ;; Default step height when abs(max_offset) != abs(height).
